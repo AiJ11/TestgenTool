@@ -1,0 +1,11 @@
+login(S$.assume(password1),[registerUser(S$.assume(email0) == var var var var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),"") = S$.symbol(var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),""),"") = S$.symbol(var var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),"") = S$.symbol(var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),""),""),"") = S$.symbol(var var var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),"") = S$.symbol(var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),""),"") = S$.symbol(var var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),"") = S$.symbol(var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),""),""),""),""),,,,)][var var S$.assert(password0) = S$.symbol(S$.assert(password0),"") = S$.symbol(var S$.assert(password0) = S$.symbol(S$.assert(password0),""),"")])
+S$.assert(email1)
+S$.assume(email2)
+addToCart(S$.assume(email4),var var var S$.assert(viewMenu(S$.assume(email3))) = S$.symbol(S$.assert(viewMenu(S$.assume(email3))),"") = S$.symbol(var S$.assert(viewMenu(S$.assume(email3))) = S$.symbol(S$.assert(viewMenu(S$.assume(email3))),""),"") = S$.symbol(var var S$.assert(viewMenu(S$.assume(email3))) = S$.symbol(S$.assert(viewMenu(S$.assume(email3))),"") = S$.symbol(var S$.assert(viewMenu(S$.assume(email3))) = S$.symbol(S$.assert(viewMenu(S$.assume(email3))),""),""),""),var S$.assert(browseRestaurants()) = S$.symbol(S$.assert(browseRestaurants()),""))
+email4
+S$.assert(ItemX4)
+S$.assume(email5)
+placeOrder()
+S$.assert(email5)
+S$.assume(email6)
+S$.assert(viewOrders())

@@ -1,0 +1,97 @@
+
+# Makefile.modular - Modular TestGen Build System
+
+CXX = g++
+
+# curl paths
+
+CURL_PREFIX := /usr/local/opt/curl
+
+CURL_LDFLAGS := -L$(CURL_PREFIX)/lib
+
+CURL_CPPFLAGS := -I$(CURL_PREFIX)/include
+
+# Add curl flags to CXXFLAGS
+
+CXXFLAGS = -std=c++17 -Wall -Wextra -I. -Iconfigs -g -O2 $(CURL_CPPFLAGS)
+
+# Linker flags
+
+LIBS := $(CURL_LDFLAGS) -lcurl
+
+# Target executables
+
+TARGET_BASIC = testgen_modular_basic
+
+TARGET_SYMBOLIC = testgen_modular_symbolic
+
+# Core modular sources
+
+MODULAR_SOURCES = \
+
+    WebAppConfig.cpp \
+
+    ModularTestGen.cpp \
+
+    test_modular_application.cpp
+
+# Code generation sources
+
+CODEGEN_SOURCES = \
+
+    jsCodeGenerator/jsCodeGen.cpp
+
+# API implementation sources
+
+API_IMPL_SOURCES = config/pesu_foods/api.cpp
+
+# Symbolic engine sources
+
+SYMBOLIC_ENGINE_SOURCES = \
+
+    SymbolicEngine/TestGenSymbolicEnv.cpp \
+
+    SymbolicEngine/TestGenSymbolicVisitor.cpp \
+
+    SymbolicEngine/TestGenDriver.cpp
+
+# All sources for symbolic build
+
+ALL_SYMBOLIC_SOURCES = $(MODULAR_SOURCES) $(CODEGEN_SOURCES) $(SYMBOLIC_ENGINE_SOURCES) $(API_IMPL_SOURCES)
+
+# Build targets
+
+.PHONY: all clean basic symbolic
+
+all: symbolic
+
+basic: $(TARGET_BASIC)
+
+symbolic: $(TARGET_SYMBOLIC)
+
+$(TARGET_BASIC): $(MODULAR_SOURCES) $(CODEGEN_SOURCES)
+
+	@echo "Building modular basic TestGen..."
+
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS)
+
+	@echo "Built: $@"
+
+$(TARGET_SYMBOLIC): $(ALL_SYMBOLIC_SOURCES)
+
+	@echo "Building modular TestGen with SymbolicEngine..."
+
+	$(CXX) $(CXXFLAGS) -ISymbolicEngine -DUSE_SYMBOLIC_ENGINE $^ -o $@ $(LIBS)
+
+	@echo "Built: $@"
+
+clean:
+
+	@echo "Cleaning build artifacts..."
+
+	rm -f $(TARGET_BASIC) $(TARGET_SYMBOLIC)
+
+	rm -f *.o jsCodeGenerator/*.o SymbolicEngine/*.o config/pesu_foods/*.o
+
+	@echo "Clean complete"
+

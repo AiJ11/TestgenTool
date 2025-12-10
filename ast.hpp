@@ -56,6 +56,9 @@ enum StatementType
     ASSIGN,
     FUNCTIONCALL_STMT,
     DECL,
+    ASSUME,
+    ASSERT,
+    INPUT
 };
 
 class TypeExpr
@@ -692,6 +695,56 @@ public:
     }
     std::unique_ptr<FuncCall> call;
 };
+
+// for assume and assert statements
+
+class AssumeStmt : public Stmt {
+public:
+    explicit AssumeStmt(std::unique_ptr<Expr> cond)
+        : Stmt(StatementType::ASSUME), condition(std::move(cond)) {}
+    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    void accept(ExpoSEVisitor *visitor) override { visitor->visitExpr(*condition); }
+    std::unique_ptr<Stmt> clone() const override {
+        return std::make_unique<AssumeStmt>(condition ? condition->clone() : nullptr);
+    }
+    std::unique_ptr<Expr> condition;
+};
+
+class AssertStmt : public Stmt {
+public:
+    explicit AssertStmt(std::unique_ptr<Expr> cond)
+        : Stmt(StatementType::ASSERT), condition(std::move(cond)) {}
+    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    void accept(ExpoSEVisitor *visitor) override { visitor->visitExpr(*condition); }
+    std::unique_ptr<Stmt> clone() const override {
+        return std::make_unique<AssertStmt>(condition ? condition->clone() : nullptr);
+    }
+    std::unique_ptr<Expr> condition;
+};
+class InputStmt : public Stmt {
+public:
+    explicit InputStmt(std::unique_ptr<Var> var)
+        : Stmt(StatementType::INPUT), var(std::move(var)) {}
+
+    void accept(ASTVisitor &visitor) override {
+        visitor.visit(*this);
+    }
+
+    void accept(ExpoSEVisitor *visitor) override {
+        // Input has no symbolic evaluation at this stage
+        // (it will be rewritten into Assign during rewriteATC)
+    }
+
+    std::unique_ptr<Stmt> clone() const override {
+        return std::make_unique<InputStmt>(
+            std::unique_ptr<Var>( static_cast<Var*>(var->clone().release()) )
+        );
+    }
+
+    std::unique_ptr<Var> var;
+};
+
+
 
 // Program is the root of our AST
 class Program

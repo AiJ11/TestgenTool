@@ -1,0 +1,67 @@
+(set-logic ALL)
+(set-option :produce-models true)
+
+;; helper / uninterpreted declarations for predicates used by encoding
+(declare-fun in (String (Array String Bool)) Bool)
+(declare-fun add_to_set (String String) Bool)
+(declare-fun not_empty (String) Bool)
+
+(declare-fun authenticated (String) Bool)
+(declare-fun token_present (String) Bool)
+(declare-fun cart_contains (String String) Bool)
+(declare-fun order_recorded (String String) Bool)
+(declare-fun result_is_restaurant_list () Bool)
+(declare-fun result_is_menu () Bool)
+(declare-fun result_is_cart () Bool)
+(declare-fun review_added () Bool)
+
+;; Variable declarations (String type)
+(declare-fun v1 () String)
+(declare-fun v2 () String)
+(declare-fun v3 () String)
+(declare-fun v4 () String)
+(declare-fun v5 () String)
+(declare-fun v6 () String)
+(declare-fun v7 () String)
+(declare-fun __fresh_token_8 () String)
+(declare-fun v9 () String)
+(declare-fun v10 () String)
+(declare-fun v11 () String)
+(declare-fun v12 () String)
+(declare-fun v13 () String)
+
+;; Map declarations (Array String String/Bool)
+; Map: T
+(declare-const Dom_T (Array String Bool))
+(declare-const Val_T (Array String String))
+
+; Map: U
+(declare-const Dom_U (Array String Bool))
+(declare-const Val_U (Array String String))
+
+;; Domain arrays left unconstrained initially
+
+(assert (! (= v1 "C") :named c1))
+(assert (! (= v2 "A") :named c2))
+(assert (! (= v3 "E") :named c3))
+(assert (! (= v4 "B") :named c4))
+(assert (! (= v5 "D") :named c5))
+(assert (! (not_registered v2) :named c6))
+(assert (! (registered v2) :named c7))
+(assert (! (= v6 "A") :named c8))
+(assert (! (= v7 "B") :named c9))
+(assert (! (registered v6) :named c10))
+(assert (! (= Dom_T (store Dom_T_old __fresh_token_8 true)) :named c11))
+(assert (! (= Val_T (store Val_T_old __fresh_token_8 v6)) :named c12))
+(assert (! (authenticated v6) :named c13))
+(assert (! (= v9 "B") :named c14))
+(assert (! (and (token_present v10)) :named c15))
+(assert (! (restaurant_created v9) :named c16))
+(assert (! (= v11 "B") :named c17))
+(assert (! (and (token_present v12)) :named c18))
+(assert (! (restaurant_updated v11) :named c19))
+(assert (! (and (token_present v13)) :named c20))
+(assert (! (result_is_order_list) :named c21))
+
+(check-sat)
+(get-model)

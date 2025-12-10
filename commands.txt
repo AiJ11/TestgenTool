@@ -1,0 +1,45 @@
+#List all apps:
+./testgen_modular_basic --list-apps
+
+#List All Tourism Scenarios:
+./testgen_modular_basic --list-scenarios tourism
+
+# Step 1: Build both versions
+make -f Makefile.modular clean
+make -f Makefile.modular basic
+make -f Makefile.modular symbolic
+
+##TOURISM WEBAPP:
+#run testgen on tourism without symbolic: test scenario 1:
+./testgen_modular_basic --app tourism --scenario tourism_scenario_1
+
+#run testgen on tourism without symbolic: test scenario 2:
+./testgen_modular_basic --app tourism --scenario tourism_scenario_2
+
+
+# 1. Build symbolic version
+make -f Makefile.modular symbolic
+
+# 2. Run with symbolic execution with test scenario 1:
+./testgen_modular_symbolic --app tourism --scenario tourism_scenario_1 --symbolic
+
+#3. Run with symbolic execution with test scenario 2:
+./testgen_modular_symbolic --app tourism --scenario tourism_scenario_2 --symbolic
+
+##1 pesu_foods WebApp:
+only testgen:
+./testgen_modular_basic --app pesu_foods --scenario pesu_foods_scenario_1
+./testgen_modular_basic --app pesu_foods --scenario pesu_foods_scenario_2
+
+
+with symbolic
+./testgen_modular_symbolic --app pesu_foods --scenario pesu_foods_scenario_1 --symbolic
+./testgen_modular_symbolic --app pesu_foods --scenario pesu_foods_scenario_2 --symbolic
+
+##2 Restaurant webapp:
+make -f Makefile.modular clean
+make -f Makefile.modular symbolic
+./testgen_modular_symbolic --app restaurant --scenario restaurant_scenario_1 --symbolic --execute
+./testgen_modular_symbolic --app restaurant --scenario restaurant_scenario_2 --symbolic --execute
+
+

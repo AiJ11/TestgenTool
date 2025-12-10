@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Sun Oct 12 15:06:02 2025
+# Make data base, printed on Wed Dec 10 10:18:27 2025
 
 # Variables
 
@@ -28,7 +28,7 @@ VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
 # automatic
 @F = $(notdir $@)
 # makefile
-CURDIR := /Users/apple/Desktop/Specification-Based-Testing-of-RESTful-APIs-master-3 OG 3
+CURDIR := /Users/apple/Desktop/test OG 3
 # makefile
 SHELL = /bin/sh
 # environment
@@ -52,11 +52,11 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.SHXTb3t0U0/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.3cqVxgAayj/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
-PWD = /Users/apple/Desktop/Specification-Based-Testing-of-RESTful-APIs-master-3 OG 3
+PWD = /Users/apple/Desktop/test OG 3
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 # environment
@@ -66,7 +66,7 @@ HOME = /Users/apple
 # default
 MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/apple/Library/Application Support/Code/CachedData/385651c938df8a906869babee516bffd0ddb9829
+VSCODE_CODE_CACHE_PATH = /Users/apple/Library/Application Support/Code/CachedData/bf9252a2fb45be6893dd8870c0bf37e2e1766d61
 # environment
 LOGNAME = apple
 # environment
@@ -120,7 +120,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.35894582.35894588
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.38188247.38188253
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # environment
@@ -152,7 +152,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 1157
+VSCODE_PID = 733
 # variable set hash-table stats:
 # Load=71/1024=7%, Rehash=0, Collisions=1/98=1%
 
@@ -162,9 +162,9 @@ VSCODE_PID = 1157
 
 # Directories
 
-# . (device 16777221, inode 34939376): 62 files, no impossibilities.
+# . (device 16777225, inode 38971459): 78 files, no impossibilities.
 
-# 62 files, no impossibilities in 1 directories.
+# 78 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -297,7 +297,7 @@ symbolic: testgen_symbolic
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Sun Oct 12 15:06:02 2025
+# Finished Make data base on Wed Dec 10 10:18:27 2025
 
  
 make: *** No rule to make target `all'.  Stop.

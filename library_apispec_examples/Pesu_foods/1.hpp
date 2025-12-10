@@ -104,7 +104,7 @@ public:
     }
 };*/
 
-#pragma once
+/*#pragma once
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -273,6 +273,69 @@ public:
             auto* c4 = new SymbolTable();
             c4->symtable.insert(Var("Order1"));
             root.children.push_back(c4);
+        }
+    }
+};*/
+#pragma once
+#include <iostream>
+#include <memory>
+#include <vector>
+#include "../../ast.hpp"
+#include "../../algo.hpp"
+
+using namespace std;
+
+/**
+ * Scenario 1: Login without signup
+ * This should be UNSAT (infeasible) because we can't login 
+ * with credentials that don't exist in U
+ */
+class Pesu_foods_example1 {
+public:
+    static void example(vector<unique_ptr<API>> &apis, SymbolTable &root) {
+        // ================================
+        // LoginOK (but user doesn't exist!)
+        // PRE: U[email] = password  ← User MUST exist (but U is empty!)
+        // CALL: login(email, password) ==> 200
+        // POST: T[token] = email
+        // ================================
+        {
+            // PRE: U[email] = password
+            vector<unique_ptr<Expr>> pre_args, index_args;
+            index_args.push_back(make_unique<Var>("U"));
+            index_args.push_back(make_unique<Var>("email"));
+            pre_args.push_back(make_unique<FuncCall>("[]", move(index_args)));
+            pre_args.push_back(make_unique<Var>("password"));
+            auto pre = make_unique<FuncCall>("=", move(pre_args));
+
+            // CALL: login(email, password)
+            vector<unique_ptr<Expr>> call_args;
+            call_args.push_back(make_unique<Var>("email"));
+            call_args.push_back(make_unique<Var>("password"));
+            auto call = make_unique<APIcall>(
+                make_unique<FuncCall>("login", move(call_args)),
+                Response(HTTPResponseCode::OK_200, nullptr)
+            );
+
+            // POST: T[token] = email
+            vector<unique_ptr<Expr>> post_args, post_index;
+            post_index.push_back(make_unique<Var>("T"));
+            post_index.push_back(make_unique<Var>("token"));
+            post_args.push_back(make_unique<FuncCall>("[]", move(post_index)));
+            post_args.push_back(make_unique<Var>("email"));
+            auto post = make_unique<FuncCall>("=", move(post_args));
+
+            apis.push_back(make_unique<API>(
+                move(pre), 
+                move(call),
+                Response(HTTPResponseCode::OK_200, move(post))
+            ));
+
+            // Input variables
+            auto* c1 = new SymbolTable();
+            c1->symtable.insert(Var("email"));
+            c1->symtable.insert(Var("password"));
+            root.children.push_back(c1);
         }
     }
 };

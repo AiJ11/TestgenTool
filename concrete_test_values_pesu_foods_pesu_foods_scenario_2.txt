@@ -1,0 +1,10 @@
+Concrete Test Case for pesu_foods - pesu_foods_scenario_2
+
+
+email0 = A
+email1 = A
+name0 = B
+password0 = C
+password1 = C
+token = C
+token2 = C

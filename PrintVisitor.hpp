@@ -412,6 +412,38 @@ public:
         node.call->accept(*this);
         cout << "\n";
     }
+
+    void visit(const AssumeStmt &node) override
+   {
+    printIndent();
+    std::cout << "Assume(";
+    if (node.condition)
+        node.condition->accept(*this);
+    std::cout << ")\n";
+   }
+
+   void visit(const AssertStmt &node) override
+   {
+    printIndent();
+    std::cout << "Assert(";
+    if (node.condition)
+        node.condition->accept(*this);
+    std::cout << ")\n";
+   } 
+
+   void visit(const InputStmt &node) override
+  {
+    printIndent();
+    std::cout << "Input(";
+    if (node.var)
+        std::cout << node.var->name;
+    else
+        std::cout << "<null>";
+    std::cout << ")\n";
+   }
+
+
+
     void visit(const Program &node) override
     {
         cout << "Program:\n";

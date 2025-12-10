@@ -1,53 +1,81 @@
-# Unified Makefile for TestGen with optional SymbolicEngine
+# Makefile.modular - Modular TestGen Build System
+# Supports multiple web applications with independent configurations
 CXX = g++
-BASE_CXXFLAGS = -std=c++17 -Wall -Wextra -I. -g -O2
 
-# Core sources (always needed)
-CORE_SOURCES = \
-    test_libapplication.cpp \
+# ✅ ADD: curl paths
+CURL_PREFIX := /usr/local/opt/curl
+CURL_LDFLAGS := -L$(CURL_PREFIX)/lib
+CURL_CPPFLAGS := -I$(CURL_PREFIX)/include
+
+# ✅ UPDATE: Add CURL_CPPFLAGS to CXXFLAGS
+CXXFLAGS = -std=c++17 -Wall -Wextra -I. -Iconfigs -g -O2 $(CURL_CPPFLAGS)
+
+# ✅ ADD: LIBS for linking
+LIBS := $(CURL_LDFLAGS) -lcurl
+
+# Target executables
+TARGET_BASIC = testgen_modular_basic
+TARGET_SYMBOLIC = testgen_modular_symbolic
+
+# Core modular sources (new architecture)
+MODULAR_SOURCES = \
+    WebAppConfig.cpp \
+    ModularTestGen.cpp \
+    test_modular_application.cpp
+
+# Code generation sources (existing)
+CODEGEN_SOURCES = \
     jsCodeGenerator/jsCodeGen.cpp
 
-# SymbolicEngine sources (optional)
-SYMBOLIC_SOURCES = \
+API_IMPL_SOURCES = \
+    config/pesu_foods/api.cpp \
+    config/restaurant/api.cpp
+
+# Symbolic engine sources
+SYMBOLIC_ENGINE_SOURCES = \
     SymbolicEngine/TestGenSymbolicEnv.cpp \
     SymbolicEngine/TestGenSymbolicVisitor.cpp \
     SymbolicEngine/TestGenDriver.cpp
 
-# Default target - build basic TestGen
-all: basic
+# All sources for symbolic build
+ALL_SYMBOLIC_SOURCES = $(MODULAR_SOURCES) $(CODEGEN_SOURCES) $(SYMBOLIC_ENGINE_SOURCES) $(API_IMPL_SOURCES)
 
-# Basic TestGen (no symbolic engine)
-basic: testgen_basic
+# Build targets
+.PHONY: all clean basic symbolic
 
-testgen_basic: $(CORE_SOURCES)
-	@echo "Building basic TestGen (no symbolic engine)..."
-	$(CXX) $(BASE_CXXFLAGS) $^ -o $@
+all: symbolic
+
+basic: $(TARGET_BASIC)
+
+symbolic: $(TARGET_SYMBOLIC)
+
+# ✅ UPDATE: Add $(LIBS) at the end
+$(TARGET_BASIC): $(MODULAR_SOURCES) $(CODEGEN_SOURCES)
+	@echo "Building modular basic TestGen..."
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS)
 	@echo "Built: $@"
 
-# TestGen with SymbolicEngine  
-symbolic: testgen_symbolic
-
-testgen_symbolic: $(CORE_SOURCES) $(SYMBOLIC_SOURCES)
-	@echo "Building TestGen with SymbolicEngine..."
-	$(CXX) $(BASE_CXXFLAGS) -ISymbolicEngine -DUSE_SYMBOLIC_ENGINE $^ -o $@
+# ✅ UPDATE: Add $(LIBS) at the end
+$(TARGET_SYMBOLIC): $(ALL_SYMBOLIC_SOURCES)
+	@echo "Building modular TestGen with SymbolicEngine..."
+	$(CXX) $(CXXFLAGS) -ISymbolicEngine -DUSE_SYMBOLIC_ENGINE $^ -o $@ $(LIBS)
 	@echo "Built: $@"
 
-# Run targets
-run: testgen_basic
-	./testgen_basic
-
-run-symbolic: testgen_symbolic
-	./testgen_symbolic
-
-# Clean
 clean:
-	rm -f testgen_basic testgen_symbolic *.o jsCodeGenerator/*.o SymbolicEngine/*.o
+	@echo "Cleaning build artifacts..."
+	rm -f $(TARGET_BASIC) $(TARGET_SYMBOLIC)
+	rm -f *.o jsCodeGenerator/*.o SymbolicEngine/*.o config/restaurant/*.o
+	@echo "Clean complete"
 
+.PHONY: help
 help:
+	@echo "Makefile.modular - Modular TestGen Build System"
+	@echo ""
+	@echo "Targets:"
+	@echo "  make basic          - Build basic (non-symbolic) version"
+	@echo "  make symbolic       - Build with symbolic execution engine + API support"
+	@echo "  make clean          - Remove all build artifacts"
+	@echo ""
 	@echo "Usage:"
-	@echo "  make basic      - Build basic TestGen (standalone)"
-	@echo "  make symbolic   - Build TestGen + SymbolicEngine"
-	@echo "  make run        - Build and run basic TestGen"
-	@echo "  make run-symbolic - Build and run with symbolic engine"
-
-.PHONY: all basic symbolic run run-symbolic clean help
+	@echo "  ./$(TARGET_BASIC) --app pesu_foods --scenario pesu_foods_scenario_1"
+	@echo "  ./$(TARGET_SYMBOLIC) --app pesu_foods --scenario pesu_foods_scenario_1 --symbolic"

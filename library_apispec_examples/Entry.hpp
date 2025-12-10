@@ -85,14 +85,14 @@ class Entry
         // lightexample2::example(apis, symtable);
         // lightexample3::example(apis, symtable);
          //heavyexample1::example(apis, symtable);
-        // heavyexample2::example(apis,symtable);
+         heavyexample2::example(apis,symtable);
         // heavyexample3::example(apis,symtable);
         //heavyexample4::example(apis,symtable);
         //Pesu_foods_example1::example(apis, symtable);
         //Pesu_foods_example2::example(apis, symtable);
         //tourism_example1::example(apis, symtable);
         //tourism_example2::example(apis, symtable);
-        tourism_example3::example(apis, symtable);
+        //tourism_example3::example(apis, symtable);
         //tourism_example4::example(apis, symtable);
 
 

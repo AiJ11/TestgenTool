@@ -7,165 +7,163 @@
 
 using namespace std;
 
+/**
+ * Scenario 2: Complete authentication flow
+ * Signup → Login → GetAccount
+ * 
+ * FIXED v4: Only first API uses _old, subsequent APIs use current state
+ */
 class Pesu_foods_example2 {
 public:
     static void example(vector<unique_ptr<API>> &apis, SymbolTable &root) {
+        
         // ==========================================
-        // Step 1: RegisterUserOK
-        // PRE:  username not_in dom(U)
-        // CALL: register_user(username, password) ==> 201
-        // POST: U[username] = password
+        // Step 1: SignupOK
+        // PRE:  email not_in dom(U_old)  ← Use U_old for FIRST API
+        // CALL: signup(name, email, password) ==> 201
+        // POST: U'[email] = password
         // ==========================================
         {
-            // PRE
-            vector<unique_ptr<Expr>> pre1_args;
-            pre1_args.push_back(make_unique<Var>("username"));
+            // PRE: email not_in dom(U_old)
+            vector<unique_ptr<Expr>> pre_args;
+            pre_args.push_back(make_unique<Var>("email"));
+            
             vector<unique_ptr<Expr>> dom_args;
-            dom_args.push_back(make_unique<Var>("U"));
-            pre1_args.push_back(make_unique<FuncCall>("dom", move(dom_args)));
-            auto pre1 = make_unique<FuncCall>("not_in", move(pre1_args));
-
-            // CALL
-            vector<unique_ptr<Expr>> args1;
-            args1.push_back(make_unique<Var>("username"));
-            args1.push_back(make_unique<Var>("password"));
-            auto call1 = make_unique<APIcall>(
-                make_unique<FuncCall>("register_user", move(args1)),
+            dom_args.push_back(make_unique<Var>("U_old"));
+            pre_args.push_back(make_unique<FuncCall>("dom", move(dom_args)));
+            
+            auto pre = make_unique<FuncCall>("not_in", move(pre_args));
+            
+            // CALL: signup(name, email, password)
+            vector<unique_ptr<Expr>> call_args;
+            call_args.push_back(make_unique<Var>("name"));
+            call_args.push_back(make_unique<Var>("email"));
+            call_args.push_back(make_unique<Var>("password"));
+            
+            auto call = make_unique<APIcall>(
+                make_unique<FuncCall>("signup", move(call_args)),
                 Response(HTTPResponseCode::CREATED_201, nullptr)
             );
-
-            // POST: [] (U, username) = password
-            vector<unique_ptr<Expr>> post1_args, index_args;
-            index_args.push_back(make_unique<Var>("U"));
-            index_args.push_back(make_unique<Var>("username"));
-            post1_args.push_back(make_unique<FuncCall>("[]", move(index_args)));
-            post1_args.push_back(make_unique<Var>("password"));
-            auto post1 = make_unique<FuncCall>("=", move(post1_args));
-
-            apis.push_back(make_unique<API>(move(pre1), move(call1),
-                        Response(HTTPResponseCode::CREATED_201, move(post1))));
-
-            // Per-API inputs
-            auto *c1 = new SymbolTable();
-            c1->symtable.insert(Var("username"));
+            
+            // POST: U'[email] = password
+            vector<unique_ptr<Expr>> prime_u_args;
+            prime_u_args.push_back(make_unique<Var>("U"));
+            auto u_prime = make_unique<FuncCall>("'", move(prime_u_args));
+            
+            vector<unique_ptr<Expr>> post_args, index_args;
+            index_args.push_back(move(u_prime));
+            index_args.push_back(make_unique<Var>("email"));
+            post_args.push_back(make_unique<FuncCall>("[]", move(index_args)));
+            post_args.push_back(make_unique<Var>("password"));
+            
+            auto post = make_unique<FuncCall>("=", move(post_args));
+            
+            apis.push_back(make_unique<API>(
+                move(pre), 
+                move(call),
+                Response(HTTPResponseCode::CREATED_201, move(post))
+            ));
+            
+            // Input variables for Step 1
+            auto* c1 = new SymbolTable();
+            c1->symtable.insert(Var("name"));
+            c1->symtable.insert(Var("email"));
             c1->symtable.insert(Var("password"));
             root.children.push_back(c1);
         }
-
+        
         // ==========================================
-        // Step 2: AuthenticateOK
-        // PRE:  U[username] = password
-        // CALL: authenticate(username, password) ==> 200
-        // POST: T[tokenVal] = username
+        // Step 2: LoginOK
+        // PRE:  U[email] = password  ← Use U (current state), NOT U_old!
+        // CALL: login(email, password) ==> 200
+        // POST: T'[token] = email
         // ==========================================
         {
-            // PRE
-            vector<unique_ptr<Expr>> pre2_args, index2_args;
-            index2_args.push_back(make_unique<Var>("U"));
-            index2_args.push_back(make_unique<Var>("username"));
-            pre2_args.push_back(make_unique<FuncCall>("[]", move(index2_args)));
-            pre2_args.push_back(make_unique<Var>("password"));
-            auto pre2 = make_unique<FuncCall>("=", move(pre2_args));
-
-            // CALL
-            vector<unique_ptr<Expr>> args2;
-            args2.push_back(make_unique<Var>("username"));
-            args2.push_back(make_unique<Var>("password"));
-            auto call2 = make_unique<APIcall>(
-                make_unique<FuncCall>("authenticate", move(args2)),
+            // PRE: U[email] = password  ← Changed back to U
+            vector<unique_ptr<Expr>> pre_args, index_args;
+            index_args.push_back(make_unique<Var>("U"));  // ← Use U, not U_old
+            index_args.push_back(make_unique<Var>("email"));
+            pre_args.push_back(make_unique<FuncCall>("[]", move(index_args)));
+            pre_args.push_back(make_unique<Var>("password"));
+            
+            auto pre = make_unique<FuncCall>("=", move(pre_args));
+            
+            // CALL: login(email, password)
+            vector<unique_ptr<Expr>> call_args;
+            call_args.push_back(make_unique<Var>("email"));
+            call_args.push_back(make_unique<Var>("password"));
+            
+            auto call = make_unique<APIcall>(
+                make_unique<FuncCall>("login", move(call_args)),
                 Response(HTTPResponseCode::OK_200, nullptr)
             );
-
-            // POST: [] (T, tokenVal) = username     (map = T, key = tokenVal)
-            vector<unique_ptr<Expr>> post2_args, post2_index;
-            post2_index.push_back(make_unique<Var>("T"));
-            post2_index.push_back(make_unique<Var>("tokenVal"));
-            post2_args.push_back(make_unique<FuncCall>("[]", move(post2_index)));
-            post2_args.push_back(make_unique<Var>("username"));
-            auto post2 = make_unique<FuncCall>("=", move(post2_args));
-
-            apis.push_back(make_unique<API>(move(pre2), move(call2),
-                        Response(HTTPResponseCode::OK_200, move(post2))));
-
-            // Per-API inputs
-            auto *c2 = new SymbolTable();
-            c2->symtable.insert(Var("username"));
+            
+            // POST: T'[token] = email
+            vector<unique_ptr<Expr>> prime_t_args;
+            prime_t_args.push_back(make_unique<Var>("T"));
+            auto t_prime = make_unique<FuncCall>("'", move(prime_t_args));
+            
+            vector<unique_ptr<Expr>> post_args, post_index;
+            post_index.push_back(move(t_prime));
+            post_index.push_back(make_unique<Var>("token"));
+            post_args.push_back(make_unique<FuncCall>("[]", move(post_index)));
+            post_args.push_back(make_unique<Var>("email"));
+            
+            auto post = make_unique<FuncCall>("=", move(post_args));
+            
+            apis.push_back(make_unique<API>(
+                move(pre), 
+                move(call),
+                Response(HTTPResponseCode::OK_200, move(post))
+            ));
+            
+            // Input variables for Step 2
+            auto* c2 = new SymbolTable();
+            c2->symtable.insert(Var("email"));
             c2->symtable.insert(Var("password"));
-            // tokenVal is produced by server; not an input
             root.children.push_back(c2);
         }
-
+        
         // ==========================================
-        // Step 3: AddToCartOK(ItemX)
-        // PRE:  ItemX in MenuList
-        // CALL: add_to_cart(ItemX) ==> 200
-        // POST: add_to_set(cart, ItemX)
+        // Step 3: GetAccountOK
+        // PRE:  token in dom(T)  ← Use T (current state), NOT T_old!
+        // CALL: getAccount(token) ==> 200
+        // POST: true
         // ==========================================
         {
-            // PRE
-            vector<unique_ptr<Expr>> pre3_args;
-            pre3_args.push_back(make_unique<Var>("ItemX"));
-            pre3_args.push_back(make_unique<Var>("MenuList"));
-            auto pre3 = make_unique<FuncCall>("in", move(pre3_args));
-
-            // CALL
-            vector<unique_ptr<Expr>> args3;
-            args3.push_back(make_unique<Var>("ItemX"));
-            auto call3 = make_unique<APIcall>(
-                make_unique<FuncCall>("add_to_cart", move(args3)),
+            // PRE: token in dom(T)  ← Changed back to T
+            vector<unique_ptr<Expr>> pre_args;
+            pre_args.push_back(make_unique<Var>("token"));
+            
+            vector<unique_ptr<Expr>> dom_args;
+            dom_args.push_back(make_unique<Var>("T"));  // ← Use T, not T_old
+            pre_args.push_back(make_unique<FuncCall>("dom", move(dom_args)));
+            
+            auto pre = make_unique<FuncCall>("in", move(pre_args));
+            
+            // CALL: getAccount(token)
+            vector<unique_ptr<Expr>> call_args;
+            call_args.push_back(make_unique<Var>("token"));
+            
+            auto call = make_unique<APIcall>(
+                make_unique<FuncCall>("getAccount", move(call_args)),
                 Response(HTTPResponseCode::OK_200, nullptr)
             );
-
-            // POST
-            vector<unique_ptr<Expr>> post3_args;
-            post3_args.push_back(make_unique<Var>("cart"));
-            post3_args.push_back(make_unique<Var>("ItemX"));
-            auto post3 = make_unique<FuncCall>("add_to_set", move(post3_args));
-
-            apis.push_back(make_unique<API>(move(pre3), move(call3),
-                        Response(HTTPResponseCode::OK_200, move(post3))));
-
-            // Per-API inputs
-            auto *c3 = new SymbolTable();
-            c3->symtable.insert(Var("ItemX"));
-            // MenuList/cart are state containers; not inputs
+            
+            // POST: true (no state change)
+            vector<unique_ptr<Expr>> true_args;
+            auto post = make_unique<FuncCall>("true", move(true_args));
+            
+            apis.push_back(make_unique<API>(
+                move(pre), 
+                move(call),
+                Response(HTTPResponseCode::OK_200, move(post))
+            ));
+            
+            // Input variables for Step 3
+            auto* c3 = new SymbolTable();
+            c3->symtable.insert(Var("token"));
             root.children.push_back(c3);
-        }
-
-        // ==========================================
-        // Step 4: RemoveFromCartOK(ItemX)
-        // PRE:  ItemX in cart
-        // CALL: remove_from_cart(ItemX) ==> 200
-        // POST: remove_from_set(cart, ItemX)
-        // ==========================================
-        {
-            // PRE
-            vector<unique_ptr<Expr>> pre4_args;
-            pre4_args.push_back(make_unique<Var>("ItemX"));
-            pre4_args.push_back(make_unique<Var>("cart"));
-            auto pre4 = make_unique<FuncCall>("in", move(pre4_args));
-
-            // CALL
-            vector<unique_ptr<Expr>> args4;
-            args4.push_back(make_unique<Var>("ItemX"));
-            auto call4 = make_unique<APIcall>(
-                make_unique<FuncCall>("remove_from_cart", move(args4)),
-                Response(HTTPResponseCode::OK_200, nullptr)
-            );
-
-            // POST
-            vector<unique_ptr<Expr>> post4_args;
-            post4_args.push_back(make_unique<Var>("cart"));
-            post4_args.push_back(make_unique<Var>("ItemX"));
-            auto post4 = make_unique<FuncCall>("remove_from_set", move(post4_args));
-
-            apis.push_back(make_unique<API>(move(pre4), move(call4),
-                        Response(HTTPResponseCode::OK_200, move(post4))));
-
-            // Per-API inputs
-            auto *c4 = new SymbolTable();
-            c4->symtable.insert(Var("ItemX"));
-            root.children.push_back(c4);
         }
     }
 };

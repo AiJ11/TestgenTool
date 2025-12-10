@@ -1,0 +1,12 @@
+Concrete Test Case for restaurant - restaurant_scenario_8
+
+
+itemNameY2 = TestItem_5
+itemNameZ3 = TestItem_6
+ownerEmail0 = owner@test.com
+ownerEmail1 = owner@test.com
+ownerEmail2 = owner@test.com
+ownerEmail3 = owner@test.com
+ownerEmail4 = owner@test.com
+password0 = Pass123!
+restaurantName1 = TestRestaurant_4

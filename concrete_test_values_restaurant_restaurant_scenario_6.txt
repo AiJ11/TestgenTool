@@ -1,0 +1,21 @@
+Concrete Test Case for restaurant - restaurant_scenario_6
+
+
+agentId5 = 507f191e810c19729de860ec
+itemName3 = TestItem_4
+orderId5 = C
+orderId6 = B
+orderStatus6 = accepted
+ownerEmail0 = owner@test.com
+ownerEmail1 = owner@test.com
+ownerEmail2 = owner@test.com
+ownerEmail3 = owner@test.com
+ownerEmail4 = owner@test.com
+ownerEmail5 = owner@test.com
+ownerEmail6 = owner@test.com
+ownerMobile0 = 8123456789
+ownerName0 = TestOwner
+ownerRole0 = restaurant_owner
+password0 = Pass123!
+password1 = Pass123!
+restaurantName2 = TestRestaurant_5

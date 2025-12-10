@@ -28,7 +28,10 @@ class Spec;
 
 class Stmt;
 class Assign;
+class AssertStmt;
+class AssumeStmt;
 class FuncCallStmt;
+class InputStmt;
 
 class Program;
 
@@ -73,5 +76,10 @@ public:
     virtual void visit(const Assign &node) = 0;
     virtual void visit(const FuncCallStmt &node) = 0;
     virtual void visit(const Program &node) = 0;
+    virtual void visit(const AssumeStmt &) = 0;
+    virtual void visit(const AssertStmt &) = 0;
+    virtual void visit(const InputStmt &) = 0;
+
+
 };
 #endif
