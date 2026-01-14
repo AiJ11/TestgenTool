@@ -9,7 +9,7 @@
 
 // Test string 2:
 // LoginOK(email), BrowseRestaurantsOK, ViewMenuOK(RestaurantX),
-// AddToCartOK(ItemX), ViewCartOK, PlaceOrderOK(Order1), AddReviewOK(Order1)
+// AddToCartOK(ItemX), ViewCartOK, PlaceOrderOK(Order1), AddReviewOK(Order1)(create review)
 
 class restaurant_example2 {
 public:
@@ -233,7 +233,7 @@ public:
         }
 
         // =========================
-        // 7. AddReviewOK(Order1)
+        // 7. AddReviewOK(Order1)(creating review)
         // PRE:  token_present(email)
         // CALL: addReview(Order1, reviewDetails(rating, comment)) => 200
         // POST: review_added()

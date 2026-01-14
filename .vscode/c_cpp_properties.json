@@ -3,7 +3,12 @@
     {
       "name": "macos-clang-x64",
       "includePath": [
-        "${workspaceFolder}/**"
+        "${workspaceFolder}/**",
+        "${workspaceFolder}",
+        "${workspaceFolder}/includes",
+        "${workspaceFolder}/see",
+        "${workspaceFolder}/tester",
+        "${workspaceFolder}/specs"
       ],
       "defines": [],
       "macFrameworkPath": [

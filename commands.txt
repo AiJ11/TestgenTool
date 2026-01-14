@@ -1,3 +1,22 @@
+g++ test_libapplication.cpp jsCodeGenerator/jsCodegen.cpp -o test_libapplication
+And run the executable.
+
+g++ -std=c++17 \
+    test_libapplication.cpp \
+    algo.cpp \
+    specs/RestaurantSpec.cpp \
+    ast.cc \
+    astvisitor.cc \
+    printvisitor.cc \
+    clonevisitor.cc \
+    symvar.cc \
+    env.cc \
+    typemap.cc \
+    -o test_libapplication
+
+./test_libapplication
+
+
 #List all apps:
 ./testgen_modular_basic --list-apps
 
@@ -41,5 +60,264 @@ make -f Makefile.modular clean
 make -f Makefile.modular symbolic
 ./testgen_modular_symbolic --app restaurant --scenario restaurant_scenario_1 --symbolic --execute
 ./testgen_modular_symbolic --app restaurant --scenario restaurant_scenario_2 --symbolic --execute
+
+/* ---------- loginOk ---------- */
+    {
+        vector<unique_ptr<Expr>> preArgs;
+
+        // email in dom(U)
+        vector<unique_ptr<Expr>> inArgs;
+        inArgs.push_back(make_unique<Var>("email"));
+        inArgs.push_back(make_unique<FuncCall>("dom",
+            vector<unique_ptr<Expr>>{ make_unique<Var>("U") }));
+
+        preArgs.push_back(make_unique<FuncCall>("in", move(inArgs)));
+
+        // U[email] = password
+        vector<unique_ptr<Expr>> eqArgs;
+        eqArgs.push_back(make_unique<FuncCall>("[]",
+            vector<unique_ptr<Expr>>{ make_unique<Var>("U"), make_unique<Var>("email") }));
+        eqArgs.push_back(make_unique<Var>("password"));
+
+        preArgs.push_back(make_unique<FuncCall>("=", move(eqArgs)));
+
+        auto pre = make_unique<FuncCall>("AND", move(preArgs));
+
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email"));
+        callArgs.push_back(make_unique<Var>("password"));
+
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("login", move(callArgs)),
+            Response(nullptr)
+        );
+
+        vector<unique_ptr<Expr>> postArgs;
+        postArgs.push_back(make_unique<FuncCall>("[]",
+            vector<unique_ptr<Expr>>{
+                make_unique<FuncCall>("'", vector<unique_ptr<Expr>>{ make_unique<Var>("T") }),
+                make_unique<Var>("email")
+            }));
+        postArgs.push_back(make_unique<Var>("token"));
+
+        auto post = make_unique<FuncCall>("=", move(postArgs));
+
+        blocks.push_back(
+            make_unique<API>(
+                move(pre),
+                move(call),
+                Response(move(post)),
+                "loginOk"
+            )
+        );
+    }
+
+    /* ---------- browseRestaurantsOk ---------- */
+    {
+        vector<unique_ptr<Expr>> preArgs;
+        preArgs.push_back(make_unique<Var>("email"));
+        preArgs.push_back(make_unique<FuncCall>("dom",
+            vector<unique_ptr<Expr>>{ make_unique<Var>("U") }));
+
+        auto pre = make_unique<FuncCall>("in", move(preArgs));
+
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("browseRestaurants", vector<unique_ptr<Expr>>{}),
+            Response(nullptr)
+        );
+
+        auto post = make_unique<FuncCall>("restaurantsVisible", vector<unique_ptr<Expr>>{});
+
+        blocks.push_back(
+            make_unique<API>(
+                move(pre),
+                move(call),
+                Response(move(post)),
+                "browseRestaurantsOk"
+            )
+        );
+    }
+
+/* ---------- loginErr ---------- */
+{
+    /* PRE: email in dom(U) AND U[email] != password */
+
+    // dom(U)
+    vector<unique_ptr<Expr>> domArgs;
+    domArgs.push_back(make_unique<Var>("U"));
+    auto domU = make_unique<FuncCall>("dom", move(domArgs));
+
+    // email in dom(U)
+    vector<unique_ptr<Expr>> inArgs;
+    inArgs.push_back(make_unique<Var>("email"));
+    inArgs.push_back(move(domU));
+    auto emailExists = make_unique<FuncCall>("in", move(inArgs));
+
+    // U[email]
+    vector<unique_ptr<Expr>> idxArgs;
+    idxArgs.push_back(make_unique<Var>("U"));
+    idxArgs.push_back(make_unique<Var>("email"));
+    auto lookup = make_unique<FuncCall>("[]", move(idxArgs));
+
+    // U[email] != password
+    vector<unique_ptr<Expr>> neqArgs;
+    neqArgs.push_back(move(lookup));
+    neqArgs.push_back(make_unique<Var>("password"));
+    auto mismatch = make_unique<FuncCall>("!=", move(neqArgs));
+
+    // email in dom(U) AND U[email] != password
+    vector<unique_ptr<Expr>> preArgs;
+    preArgs.push_back(move(emailExists));
+    preArgs.push_back(move(mismatch));
+    auto pre = make_unique<FuncCall>("AND", move(preArgs));
+
+    /* CALL: login(email, password) */
+    vector<unique_ptr<Expr>> callArgs;
+    callArgs.push_back(make_unique<Var>("email"));
+    callArgs.push_back(make_unique<Var>("password"));
+
+    auto call = make_unique<APIcall>(
+        make_unique<FuncCall>("login", move(callArgs)),
+        Response(nullptr)
+    );
+
+    /* POST: authFailed(email) */
+    vector<unique_ptr<Expr>> postArgs;
+    postArgs.push_back(make_unique<Var>("email"));
+    auto post = make_unique<FuncCall>("authFailed", move(postArgs));
+
+    blocks.push_back(
+        make_unique<API>(
+            move(pre),
+            move(call),
+            Response(move(post)),
+            "loginErr"
+        )
+    );
+}
+
+g++ -std=c++17 -Wall -I. -Isee -Itester -Ispecs \
+    test_libapplication.cpp \
+    algo.cpp \
+    ast.cc \
+    astvisitor.cc \
+    printvisitor.cc \
+    clonevisitor.cc \
+    rewrite_globals_visitor.cc \
+    symvar.cc \
+    env.cc \
+    typemap.cc \
+    specs/RestaurantSpec.cpp \
+    see/see.cc \
+    see/solver.cc \
+    see/z3solver.cc \
+    see/functionfactory.cc \
+    tester/tester.cc \
+    -lz3 -lcurl \
+    -o test_libapplication
+
+./test_libapplication
+
+makefile :
+# Compiler and flags
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -I. -Isee -Itester -Ispecs
+LDFLAGS = -lz3 -lcurl
+
+# Executable name
+TARGET = test_libapplication
+
+# Source files
+SOURCES = \
+	test_libapplication.cpp \
+	algo.cpp \
+	ast.cc \
+	astvisitor.cc \
+	printvisitor.cc \
+	clonevisitor.cc \
+	rewrite_globals_visitor.cc \
+	symvar.cc \
+	env.cc \
+	typemap.cc \
+	specs/RestaurantSpec.cpp \
+	see/see.cc \
+	see/solver.cc \
+	see/z3solver.cc \
+	see/functionfactory.cc \
+	tester/tester.cc
+
+# Future files (uncomment when you add them)
+# SOURCES += see/httpclient.cc
+# SOURCES += see/restaurantfunctionfactory.cc
+
+# Object files (replace .cpp/.cc with .o)
+OBJECTS = $(SOURCES:.cpp=.o)
+OBJECTS := $(OBJECTS:.cc=.o)
+
+# Default target
+all: $(TARGET)
+
+# Link object files to create executable
+$(TARGET): $(OBJECTS)
+	@echo "Linking $(TARGET)..."
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $(TARGET)
+	@echo "Build successful! Run with: ./$(TARGET)"
+
+# Compile .cpp files to .o
+%.o: %.cpp
+	@echo "Compiling $<..."
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile .cc files to .o
+%.o: %.cc
+	@echo "Compiling $<..."
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Clean build artifacts
+clean:
+	@echo "Cleaning build files..."
+	rm -f $(OBJECTS) $(TARGET)
+	@echo "Clean complete!"
+
+# Rebuild everything
+rebuild: clean all
+
+# Run the program
+run: $(TARGET)
+	./$(TARGET)
+
+# Help
+help:
+	@echo "Available targets:"
+	@echo "  make          - Build the project"
+	@echo "  make all      - Build the project"
+	@echo "  make clean    - Remove build files"
+	@echo "  make rebuild  - Clean and build"
+	@echo "  make run      - Build and run"
+	@echo "  make help     - Show this help"
+
+.PHONY: all clean rebuild run help
+
+# Build the project
+make
+
+# Clean and rebuild
+make rebuild
+
+# Build and run
+make run
+
+# Clean only
+make clean
+
+# Show help
+make help
+
+g++ -std=c++17 -Wall -Wextra -I. -Isee -Itester -Ispecs -Iincludes \
+    test_libapplication.cpp algo.cpp ast.cc astvisitor.cc printvisitor.cc \
+    clonevisitor.cc rewrite_globals_visitor.cc symvar.cc env.cc typemap.cc \
+    specs/RestaurantSpec.cpp see/see.cc see/solver.cc see/z3solver.cc \
+    see/functionfactory.cc see/httpclient.cc see/restaurantfunctionfactory.cc \
+    tester/tester.cc -lz3 -lcurl -o test_libapplication
 
 

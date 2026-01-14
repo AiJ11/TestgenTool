@@ -1,16 +1,19 @@
-# Makefile.modular - Modular TestGen Build System
+# Makefile.modular - Modular TestGen Build System with Test API Support
 # Supports multiple web applications with independent configurations
+
 CXX = g++
 
-# ✅ ADD: curl paths
+# Curl paths (for HTTP requests)
 CURL_PREFIX := /usr/local/opt/curl
 CURL_LDFLAGS := -L$(CURL_PREFIX)/lib
 CURL_CPPFLAGS := -I$(CURL_PREFIX)/include
 
-# ✅ UPDATE: Add CURL_CPPFLAGS to CXXFLAGS
-CXXFLAGS = -std=c++17 -Wall -Wextra -I. -Iconfigs -g -O2 $(CURL_CPPFLAGS)
+# ═══════════════════════════════════════════════════════════════════
+# UPDATED: Added -Iconfig/test_api for Test API headers
+# ═══════════════════════════════════════════════════════════════════
+CXXFLAGS = -std=c++17 -Wall -Wextra -I. -Iconfig -Iconfig/test_api -g -O2 $(CURL_CPPFLAGS)
 
-# ✅ ADD: LIBS for linking
+# Libs for linking
 LIBS := $(CURL_LDFLAGS) -lcurl
 
 # Target executables
@@ -27,6 +30,7 @@ MODULAR_SOURCES = \
 CODEGEN_SOURCES = \
     jsCodeGenerator/jsCodeGen.cpp
 
+# API implementation sources
 API_IMPL_SOURCES = \
     config/pesu_foods/api.cpp \
     config/restaurant/api.cpp
@@ -40,8 +44,22 @@ SYMBOLIC_ENGINE_SOURCES = \
 # All sources for symbolic build
 ALL_SYMBOLIC_SOURCES = $(MODULAR_SOURCES) $(CODEGEN_SOURCES) $(SYMBOLIC_ENGINE_SOURCES) $(API_IMPL_SOURCES)
 
+# ═══════════════════════════════════════════════════════════════════
+# Header dependencies (for reference - helps with rebuilds)
+# ═══════════════════════════════════════════════════════════════════
+TEST_API_HEADERS = \
+    config/test_api/TestAPIBase.hpp \
+    config/test_api/PesuFoodsTestAPI.hpp \
+    config/test_api/RestaurantTestAPI.hpp \
+    SymbolicEngine/SymbolicVisitorTestAPIHandler.hpp
+
+SYMBOLIC_ENGINE_HEADERS = \
+    SymbolicEngine/TestGenSymbolicEnv.hpp \
+    SymbolicEngine/TestGenSymbolicVisitor.hpp \
+    SymbolicEngine/TestGenDriver.hpp
+
 # Build targets
-.PHONY: all clean basic symbolic
+.PHONY: all clean basic symbolic test help
 
 all: symbolic
 
@@ -49,33 +67,52 @@ basic: $(TARGET_BASIC)
 
 symbolic: $(TARGET_SYMBOLIC)
 
-# ✅ UPDATE: Add $(LIBS) at the end
+# Basic build (without symbolic engine)
 $(TARGET_BASIC): $(MODULAR_SOURCES) $(CODEGEN_SOURCES)
 	@echo "Building modular basic TestGen..."
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS)
-	@echo "Built: $@"
+	@echo "✓ Built: $@"
 
-# ✅ UPDATE: Add $(LIBS) at the end
+# Symbolic build (with symbolic engine + Test API)
 $(TARGET_SYMBOLIC): $(ALL_SYMBOLIC_SOURCES)
-	@echo "Building modular TestGen with SymbolicEngine..."
+	@echo "Building modular TestGen with SymbolicEngine + Test API..."
 	$(CXX) $(CXXFLAGS) -ISymbolicEngine -DUSE_SYMBOLIC_ENGINE $^ -o $@ $(LIBS)
-	@echo "Built: $@"
+	@echo "✓ Built: $@"
+
+# Test target - verify Test API headers exist
+test:
+	@echo "Checking Test API files..."
+	@test -f config/test_api/TestAPIBase.hpp && echo "  ✓ TestAPIBase.hpp" || echo "  ✗ TestAPIBase.hpp MISSING"
+	@test -f config/test_api/PesuFoodsTestAPI.hpp && echo "  ✓ PesuFoodsTestAPI.hpp" || echo "  ✗ PesuFoodsTestAPI.hpp MISSING"
+	@test -f config/test_api/RestaurantTestAPI.hpp && echo "  ✓ RestaurantTestAPI.hpp" || echo "  ✗ RestaurantTestAPI.hpp MISSING"
+	@test -f SymbolicEngine/SymbolicVisitorTestAPIHandler.hpp && echo "  ✓ SymbolicVisitorTestAPIHandler.hpp" || echo "  ✗ SymbolicVisitorTestAPIHandler.hpp MISSING"
+	@echo ""
+	@echo "Checking mongosh availability..."
+	@which mongosh > /dev/null && echo "  ✓ mongosh found" || echo "  ✗ mongosh NOT FOUND (required for Test API)"
 
 clean:
 	@echo "Cleaning build artifacts..."
 	rm -f $(TARGET_BASIC) $(TARGET_SYMBOLIC)
-	rm -f *.o jsCodeGenerator/*.o SymbolicEngine/*.o config/restaurant/*.o
-	@echo "Clean complete"
+	rm -f *.o jsCodeGenerator/*.o SymbolicEngine/*.o config/restaurant/*.o config/pesu_foods/*.o
+	rm -f genctc_query.smt2 final_constraints.smt2 z3_result.txt
+	@echo "✓ Clean complete"
 
-.PHONY: help
 help:
 	@echo "Makefile.modular - Modular TestGen Build System"
 	@echo ""
 	@echo "Targets:"
-	@echo "  make basic          - Build basic (non-symbolic) version"
-	@echo "  make symbolic       - Build with symbolic execution engine + API support"
-	@echo "  make clean          - Remove all build artifacts"
+	@echo "  make            - Build symbolic version (default)"
+	@echo "  make basic      - Build basic (non-symbolic) version"
+	@echo "  make symbolic   - Build with symbolic execution + Test API"
+	@echo "  make test       - Check that all required files exist"
+	@echo "  make clean      - Remove all build artifacts"
 	@echo ""
 	@echo "Usage:"
-	@echo "  ./$(TARGET_BASIC) --app pesu_foods --scenario pesu_foods_scenario_1"
-	@echo "  ./$(TARGET_SYMBOLIC) --app pesu_foods --scenario pesu_foods_scenario_1 --symbolic"
+	@echo "  ./$(TARGET_SYMBOLIC) --list-apps"
+	@echo "  ./$(TARGET_SYMBOLIC) --app restaurant --list-scenarios"
+	@echo "  ./$(TARGET_SYMBOLIC) --app restaurant --scenario restaurant_scenario_1 --symbolic"
+	@echo ""
+	@echo "Prerequisites:"
+	@echo "  - MongoDB running locally"
+	@echo "  - mongosh installed (for Test API)"
+	@echo "  - Restaurant backend: cd restaurant-backend-api && PORT=5002 npm start"

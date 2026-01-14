@@ -1,6 +1,0 @@
-login(S$.assume(ownerEmail0),var var  = S$.symbol(,"") = S$.symbol(var  = S$.symbol(,""),""))
-createRestaurant(S$.assume(token_present(var S$.assert(ownerEmail0) = S$.symbol(S$.assert(ownerEmail0),""))))
-addMenuItem(S$.assume(token_present(var S$.assert(restaurantName1) = S$.symbol(S$.assert(restaurantName1),""))))
-addMenuItem(S$.assume(token_present(var S$.assert(itemNameY2) = S$.symbol(S$.assert(itemNameY2),""))))
-S$.assume(token_present(S$.assert(itemNameZ3)))
-S$.assert(viewOrders())

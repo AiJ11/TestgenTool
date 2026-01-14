@@ -11,6 +11,7 @@
 // LoginOK(email), BrowseRestaurantsOK, ViewMenuOK(RestaurantX), AddToCartOK(ItemX), 
 // RemoveCartItemOK(ItemX), AddToCartOK(ItemZ), PlaceOrderOK(Order3)
 
+
 class restaurant_example4 {
 public:
     static void example(std::vector<std::unique_ptr<API>> &apis, SymbolTable &root) {

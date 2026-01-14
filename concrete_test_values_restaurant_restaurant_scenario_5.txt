@@ -1,9 +1,0 @@
-Concrete Test Case for restaurant - restaurant_scenario_5
-
-
-Order4 = A
-email0 = customer@test.com
-email1 = customer@test.com
-email2 = customer@test.com
-email3 = customer@test.com
-password0 = Pass123!
