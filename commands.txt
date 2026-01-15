@@ -319,5 +319,20 @@ g++ -std=c++17 -Wall -Wextra -I. -Isee -Itester -Ispecs -Iincludes \
     specs/RestaurantSpec.cpp see/see.cc see/solver.cc see/z3solver.cc \
     see/functionfactory.cc see/httpclient.cc see/restaurantfunctionfactory.cc \
     tester/tester.cc -lz3 -lcurl -o test_libapplication
+----------------------------------------------------
+
+    g++ -std=c++17 -Wall -I. -Isee -Itester -Ispecs \
+    -I/usr/local/include \
+    test_libapplication.cpp \
+    algo.cpp ast.cc astvisitor.cc printvisitor.cc \
+    clonevisitor.cc rewrite_globals_visitor.cc \
+    symvar.cc env.cc typemap.cc \
+    specs/RestaurantSpec.cpp \
+    see/see.cc see/solver.cc see/z3solver.cc \
+    see/functionfactory.cc see/httpclient.cc \
+    see/restaurantfunctionfactory.cc \
+    tester/tester.cc \
+    -lz3 -lcurl \
+    -o test_libapplication
 
 

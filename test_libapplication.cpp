@@ -128,11 +128,11 @@ namespace RestaurantTests {
     // DEPTH 1: Single API Call Tests
     // ========================================
     
-    void test01_registerOnly(TestExecutor& executor) {
+    void test01_registerLogin(TestExecutor& executor) {
         executor.runTest(
-            "Test 01: Register Customer Only (Depth=1, SAT)",
+            "Test 01: Register Customer-->Login (Depth=2)",
             makeRestaurantSpec(),
-            {"registerCustomerOk"}
+            {"registerCustomerOk", "loginOk"}
         );
     }
     
@@ -156,11 +156,11 @@ namespace RestaurantTests {
     // DEPTH 2: Two API Call Tests
     // ========================================
     
-    void test04_registerAndLogin(TestExecutor& executor) {
+    void test04_Login(TestExecutor& executor) {
         executor.runTest(
-            "Test 04: Register → Login (Depth=2)",
+            "Test 04: Login (Depth=1)",
             makeRestaurantSpec(),
-            {"registerCustomerOk", "loginOk"} // should be SAT
+            { "loginOk"} // should be UNSAT
         );
     }
     
@@ -428,12 +428,12 @@ int main() {
         
         // RUN ALL 25 TESTS (comment out for selective testing)
         cout << "\n=== DEPTH 1 TESTS ===" << endl;
-        //RestaurantTests::test01_registerOnly(executor);
+        RestaurantTests::test01_registerLogin(executor);
         //RestaurantTests::test02_loginFailure(executor);
         //RestaurantTests::test03_browseOnly(executor);
         
         //cout << "\n=== DEPTH 2 TESTS ===" << endl;
-        RestaurantTests::test04_registerAndLogin(executor);
+        //RestaurantTests::test04_Login(executor);
         //RestaurantTests::test05_registerOwnerAndLogin(executor);
         //RestaurantTests::test06_registerAgentAndLogin(executor);
         

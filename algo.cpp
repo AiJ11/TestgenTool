@@ -113,6 +113,101 @@ unique_ptr<Expr> removethedashexpr(
 }
 
 /* ============================================================
+ * Replace result variable name in expression
+ * ============================================================ */
+
+unique_ptr<Expr> replaceResultVar(
+    unique_ptr<Expr> expr,
+    const string& oldName,
+    const string& newName
+) {
+    if (!expr) return nullptr;
+
+    // -------- Variable --------
+    if (auto var = dynamic_cast<Var*>(expr.get())) {
+        if (var->name == oldName) {
+            return make_unique<Var>(newName);
+        }
+        return make_unique<Var>(var->name);
+    }
+
+    // -------- Function Call --------
+    if (auto func = dynamic_cast<FuncCall*>(expr.get())) {
+        vector<unique_ptr<Expr>> args;
+        for (const auto& arg : func->args) {
+            // Need to clone first, then replace
+            CloneVisitor cloner;
+            auto cloned = cloner.cloneExpr(arg.get());
+            args.push_back(replaceResultVar(move(cloned), oldName, newName));
+        }
+        return make_unique<FuncCall>(func->name, move(args));
+    }
+
+    // -------- Number --------
+    if (auto num = dynamic_cast<Num*>(expr.get())) {
+        return make_unique<Num>(num->value);
+    }
+
+    // -------- String --------
+    if (auto str = dynamic_cast<String*>(expr.get())) {
+        return make_unique<String>(str->value);
+    }
+
+    // -------- Set --------
+    if (auto set = dynamic_cast<Set*>(expr.get())) {
+        vector<unique_ptr<Expr>> elems;
+        for (const auto& e : set->elements) {
+            CloneVisitor cloner;
+            auto cloned = cloner.cloneExpr(e.get());
+            elems.push_back(replaceResultVar(move(cloned), oldName, newName));
+        }
+        return make_unique<Set>(move(elems));
+    }
+
+    // -------- Tuple --------
+    if (auto tup = dynamic_cast<Tuple*>(expr.get())) {
+        vector<unique_ptr<Expr>> elems;
+        for (const auto& e : tup->exprs) {
+            CloneVisitor cloner;
+            auto cloned = cloner.cloneExpr(e.get());
+            elems.push_back(replaceResultVar(move(cloned), oldName, newName));
+        }
+        return make_unique<Tuple>(move(elems));
+    }
+
+    // -------- BoolConst --------
+    if (auto bc = dynamic_cast<BoolConst*>(expr.get())) {
+        return make_unique<BoolConst>(bc->value);
+    }
+
+    // -------- BinaryOpExpr --------
+    if (auto binop = dynamic_cast<BinaryOpExpr*>(expr.get())) {
+        CloneVisitor cloner;
+        auto leftClone = cloner.cloneExpr(binop->left.get());
+        auto rightClone = cloner.cloneExpr(binop->right.get());
+        return make_unique<BinaryOpExpr>(
+            binop->op,
+            replaceResultVar(move(leftClone), oldName, newName),
+            replaceResultVar(move(rightClone), oldName, newName)
+        );
+    }
+
+    // -------- UnaryOpExpr --------
+    if (auto unop = dynamic_cast<UnaryOpExpr*>(expr.get())) {
+        CloneVisitor cloner;
+        auto operandClone = cloner.cloneExpr(unop->operand.get());
+        return make_unique<UnaryOpExpr>(
+            unop->op,
+            replaceResultVar(move(operandClone), oldName, newName)
+        );
+    }
+
+    // Default: clone as-is
+    CloneVisitor cloner;
+    return cloner.cloneExpr(expr.get());
+}
+
+/* ============================================================
  * Input collection
  * ============================================================ */
 
@@ -300,9 +395,11 @@ Program buildATCFromBlockSequence(
         }
 
         // -------- CALL --------
+        // Use named result variable instead of "_" so postcondition can reference it
+        string resultVar = "_result" + idx;
         stmts.push_back(
             make_unique<Assign>(
-                make_unique<Var>("_"),
+                make_unique<Var>(resultVar),
                 move(call1)
             )
         );
@@ -310,6 +407,8 @@ Program buildATCFromBlockSequence(
         // -------- ASSERT --------
         if (post1) {
             post1 = removethedashexpr(post1, primed);
+            // Replace "_result" with "_result{idx}" in postcondition
+            post1 = replaceResultVar(move(post1), "_result", resultVar);
             stmts.push_back(make_unique<Assert>(move(post1)));
         }
     }

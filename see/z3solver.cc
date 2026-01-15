@@ -457,12 +457,12 @@ void Z3InputMaker::visitFuncCall(const FuncCall &node) {
     }
     
     // ========== Logical Operations ==========
-    else if ((node.name == "And" || node.name == "and" || node.name == "&&") && node.args.size() == 2) {
+    else if ((node.name == "And" || node.name == "and" || node.name == "&&" || node.name == "AND") && node.args.size() == 2) {
         z3::expr left = convertArg(node.args[0]);
         z3::expr right = convertArg(node.args[1]);
         theStack.push(left && right);
     }
-    else if ((node.name == "Or" || node.name == "or" || node.name == "||") && node.args.size() == 2) {
+    else if ((node.name == "Or" || node.name == "or" || node.name == "||" || node.name == "OR") && node.args.size() == 2) {
         z3::expr left = convertArg(node.args[0]);
         z3::expr right = convertArg(node.args[1]);
         theStack.push(left || right);

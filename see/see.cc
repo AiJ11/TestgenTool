@@ -197,6 +197,21 @@ bool SEE::isReady(Stmt& s, SymbolTable& st) {
         Assume& assume = dynamic_cast<Assume&>(s);
         return isReady(*assume.expr, st);
     }
+    // Add ASSERT handling
+    else if(s.statementType == StmtType::ASSERT) {
+    Assert& assertStmt = dynamic_cast<Assert&>(s);
+    // Handle null or trivial assertions
+    if (!assertStmt.expr) {
+        return true;  // Empty assertion is always ready
+    }
+    if (assertStmt.expr->exprType == ExprType::NUM) {
+        Num* num = dynamic_cast<Num*>(assertStmt.expr.get());
+        if (num && num->value == 1) {
+            return true;  // Trivial assertion is always ready
+        }
+    }
+    return isReady(*assertStmt.expr, st);
+}
     else if(s.statementType == StmtType::DECL) {
         // Declaration statements are always ready
         return true;
@@ -447,6 +462,12 @@ void SEE::execute(Program &pg, SymbolTable& st) {
     // Clear previous state
     pathConstraint.clear();
     baseNameToSuffixed.clear(); // Clear base name mapping
+
+    // Add role constants to sigma
+    sigma.setValue("CUSTOMER", new String("customer")); 
+    sigma.setValue("OWNER", new String("restaurant_owner"));   // match backend
+    sigma.setValue("AGENT", new String("delivery_agent"));   
+    
     
     // Iterate through statements
     for (size_t i = 0; i < pg.statements.size(); i++) {
@@ -577,7 +598,50 @@ void SEE::executeStmt(Stmt& stmt, SymbolTable& st) {
         cout << "[ASSUME] Adding constraint: " << exprToString(constraint) << endl;
         
         pathConstraint.push_back(constraint);
-    } else if(stmt.statementType == StmtType::DECL) {
+    }
+    
+    // NEW: Add ASSERT handling
+    else if(stmt.statementType == StmtType::ASSERT) {
+        Assert& assertStmt = dynamic_cast<Assert&>(stmt);
+
+        // NEW: Handle null or trivial assertions
+    if (!assertStmt.expr) {
+        cout << "\n[ASSERT] Empty assertion, PASSED" << endl;
+        return;
+    }
+    
+    // NEW: Handle Num(1) as trivial true assertion
+    if (assertStmt.expr->exprType == ExprType::NUM) {
+        Num* num = dynamic_cast<Num*>(assertStmt.expr.get());
+        if (num && num->value == 1) {
+            cout << "\n[ASSERT] Trivial assertion (1 = true), PASSED" << endl;
+            return;
+        }
+    }
+        
+        cout << "\n[ASSERT] Evaluating: " << exprToString(assertStmt.expr.get()) << endl;
+        
+        // Evaluate the assertion expression
+        Expr* result = evaluateExpr(*assertStmt.expr, st);
+        
+        cout << "[ASSERT] Result: " << exprToString(result) << endl;
+        
+        // Check if assertion holds (should evaluate to true/BoolConst(true))
+        if (result->exprType == ExprType::BOOL_CONST) {
+            BoolConst* bc = dynamic_cast<BoolConst*>(result);
+            if (bc->value) {
+                cout << "[ASSERT] ✓ Assertion PASSED" << endl;
+            } else {
+                cout << "[ASSERT] ✗ Assertion FAILED" << endl;
+            }
+        } else {
+            // If not fully evaluated, add to path constraints
+            cout << "[ASSERT] Adding to path constraints (not fully concrete)" << endl;
+            pathConstraint.push_back(result);
+        }
+    }
+    
+    else if(stmt.statementType == StmtType::DECL) {
         // taking this as the declaration of a symbolic variable or the input statement
         // we need to get the last symbolic variable and add it to sigma with a new symbolic expression
         Decl& decl = dynamic_cast<Decl&>(stmt);
@@ -704,7 +768,9 @@ Expr* SEE::evaluateExpr(Expr& expr, SymbolTable& st) {
                 // Extract all keys into a Set
                 vector<unique_ptr<Expr>> keys;
                 for (const auto& kv : map->value) {
-                    keys.push_back(cloner.cloneExpr(kv.first.get()));
+                    // CHANGED: Convert Var keys to String for proper comparison
+                Var* keyVar = kv.first.get();
+                keys.push_back(make_unique<String>(keyVar->name));  // ← Use String!
                 }
                 
                 cout << "    [EVAL] Domain has " << keys.size() << " keys" << endl;
@@ -843,7 +909,17 @@ Expr* SEE::evaluateExpr(Expr& expr, SymbolTable& st) {
                         Num* n2 = dynamic_cast<Num*>(setElem.get());
                         match = (n1->value == n2->value);
                     }
-                    
+                    // NEW: Cross-type comparisons (String vs Var)
+            else if (elem->exprType == ExprType::STRING && setElem->exprType == ExprType::VAR) {
+                String* s1 = dynamic_cast<String*>(elem);
+                Var* v2 = dynamic_cast<Var*>(setElem.get());
+                match = (s1->value == v2->name);
+            }
+            else if (elem->exprType == ExprType::VAR && setElem->exprType == ExprType::STRING) {
+                Var* v1 = dynamic_cast<Var*>(elem);
+                String* s2 = dynamic_cast<String*>(setElem.get());
+                match = (v1->name == s2->value);
+            }
                     if (match) {
                         cout << "    [EVAL] Element found in set: true" << endl;
                         return new BoolConst(true); // true
@@ -896,6 +972,17 @@ if (fc.name == "not_in" && fc.args.size() == 2) {
                 Num* n1 = dynamic_cast<Num*>(elem);
                 Num* n2 = dynamic_cast<Num*>(setElem.get());
                 match = (n1->value == n2->value);
+            }
+            // NEW: Cross-type comparisons (String vs Var)
+            else if (elem->exprType == ExprType::STRING && setElem->exprType == ExprType::VAR) {
+                String* s1 = dynamic_cast<String*>(elem);
+                Var* v2 = dynamic_cast<Var*>(setElem.get());
+                match = (s1->value == v2->name);
+            }
+            else if (elem->exprType == ExprType::VAR && setElem->exprType == ExprType::STRING) {
+                Var* v1 = dynamic_cast<Var*>(elem);
+                String* s2 = dynamic_cast<String*>(setElem.get());
+                match = (v1->name == s2->value);
             }
             
             if (match) {

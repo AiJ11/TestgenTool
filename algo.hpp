@@ -65,6 +65,13 @@ vector<unique_ptr<Stmt>> genInit(
     TypeMap* globalTM
 );
 
+// Replace a variable name in expression (for result variable renaming)
+unique_ptr<Expr> replaceResultVar(
+    unique_ptr<Expr> expr,
+    const string& oldName,
+    const string& newName
+);
+
 // Build ATC from a resolved sequence of API blocks
 Program buildATCFromBlockSequence(
     const vector<const API*>& blockSeq

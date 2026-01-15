@@ -262,7 +262,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         indexArgs2.push_back(make_unique<FuncCall>("'", std::move(tprimeArgs)));
         indexArgs2.push_back(make_unique<Var>("email"));
         postArgs.push_back(make_unique<FuncCall>("[]", std::move(indexArgs2)));
-        postArgs.push_back(make_unique<Var>("token"));
+        postArgs.push_back(make_unique<Var>("_result"));
         auto post = make_unique<FuncCall>("=", std::move(postArgs));
 
         blocks.push_back(make_unique<API>(
@@ -553,7 +553,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         vector<unique_ptr<Expr>> postArgs;
         
         vector<unique_ptr<Expr>> inArgs3;
-        inArgs3.push_back(make_unique<Var>("orderId"));
+        inArgs3.push_back(make_unique<Var>("_result"));
         vector<unique_ptr<Expr>> oprimeArgs;
         oprimeArgs.push_back(make_unique<Var>("O"));
         vector<unique_ptr<Expr>> domArgs3;
@@ -608,7 +608,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         );
 
         vector<unique_ptr<Expr>> postArgs;
-        postArgs.push_back(make_unique<Var>("reviewId"));
+        postArgs.push_back(make_unique<Var>("_result"));
         vector<unique_ptr<Expr>> revprimeArgs;
         revprimeArgs.push_back(make_unique<Var>("Rev"));
         vector<unique_ptr<Expr>> domArgs3;
@@ -658,7 +658,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         vector<unique_ptr<Expr>> postArgs;
         
         vector<unique_ptr<Expr>> inArgs2;
-        inArgs2.push_back(make_unique<Var>("restaurantId"));
+        inArgs2.push_back(make_unique<Var>("_result"));
         vector<unique_ptr<Expr>> rprimeArgs;
         rprimeArgs.push_back(make_unique<Var>("R"));
         vector<unique_ptr<Expr>> domArgs2;
@@ -671,7 +671,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         ownersprimeArgs.push_back(make_unique<Var>("Owners"));
         vector<unique_ptr<Expr>> indexArgs2;
         indexArgs2.push_back(make_unique<FuncCall>("'", std::move(ownersprimeArgs)));
-        indexArgs2.push_back(make_unique<Var>("restaurantId"));
+        indexArgs2.push_back(make_unique<Var>("_result"));
         eq2Args.push_back(make_unique<FuncCall>("[]", std::move(indexArgs2)));
         eq2Args.push_back(make_unique<Var>("email"));
         postArgs.push_back(make_unique<FuncCall>("=", std::move(eq2Args)));
@@ -729,7 +729,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         );
 
         vector<unique_ptr<Expr>> postArgs;
-        postArgs.push_back(make_unique<Var>("menuItemId"));
+        postArgs.push_back(make_unique<Var>("_result"));
         vector<unique_ptr<Expr>> mprimeArgs;
         mprimeArgs.push_back(make_unique<Var>("M"));
         vector<unique_ptr<Expr>> domArgs3;
