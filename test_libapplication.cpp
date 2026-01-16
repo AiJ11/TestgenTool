@@ -188,10 +188,13 @@ namespace RestaurantTests {
         executor.runTest(
             "Test 07: Registerowner -> Loginowner ->create restaurant-> Browse-> view menu(Depth=5)",
             makeRestaurantSpec(),
-            {"registerCustomerOk",
-        "loginOk",
-        "browseRestaurantsOk",
-        "viewMenuOk"} //should be SAT
+            {"registerOwnerOk",      // 1. Owner registers
+            "loginOwnerOk",         // 2. Owner logs in
+            "createRestaurantOk",   // 3. Owner creates restaurant
+            "registerCustomerOk",   // 4. Customer registers
+            "loginCustomerOk",      // 5. Customer logs in
+            "browseRestaurantsOk",  // 6. Customer browses
+            "viewMenuOk"  } //should be SAT
         );
     }
     
@@ -439,8 +442,8 @@ int main() {
         //RestaurantTests::test05_registerOwnerAndLogin(executor);
         //RestaurantTests::test06_registerAgentAndLogin(executor);
         
-        //RestaurantTests::test07_loginBrowseView(executor);//issue
-        RestaurantTests::test08_loginAndAddToCart(executor);
+        RestaurantTests::test07_loginBrowseView(executor);//issue
+        //RestaurantTests::test08_loginAndAddToCart(executor);
         //RestaurantTests::test09_loginAndReview(executor);
         //RestaurantTests::test10_reviewWithoutLogin(executor);
         

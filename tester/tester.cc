@@ -5,10 +5,8 @@
 #include "../printvisitor.hh"
 #include <iostream>
 
-
 // Generate realistic test values based on variable name hints
 Expr* generateRealisticValue(const string& varName, int index) {
-    // Extract base name (email0 -> email)
     string baseName = varName;
     size_t i = varName.length();
     while (i > 0 && isdigit(varName[i - 1])) {
@@ -30,13 +28,10 @@ Expr* generateRealisticValue(const string& varName, int index) {
         return new String("Test User " + suffix);
     }
     else if (baseName == "mobile") {
-        // Generate 10-digit mobile number (no dashes)
-        // Format: 555000XXXX where XXXX is padded index
         string paddedIndex = suffix;
         while (paddedIndex.length() < 4) {
             paddedIndex = "0" + paddedIndex;
         }
-        // Ensure exactly 10 digits
         return new String("555000" + paddedIndex.substr(paddedIndex.length() - 4));
     }
     else if (baseName == "token") {
@@ -52,13 +47,12 @@ Expr* generateRealisticValue(const string& varName, int index) {
         return new String("contact" + suffix + "@test.com");
     }
     else {
-        // Default string value
         return new String("value_" + suffix);
     }
 }
+
 void Tester::generateTest() {}
 
-// Check if a statement is an Input statement (x := input())
 bool isInputStmt(const Stmt& stmt) {
     if(stmt.statementType == StmtType::ASSIGN) {
         const Assign* assign = dynamic_cast<const Assign*>(&stmt);
@@ -72,7 +66,6 @@ bool isInputStmt(const Stmt& stmt) {
     return false;
 }
 
-// Check if the test case has at least one input statement
 bool isAbstract(const Program& prog) {
     for(const auto& stmt : prog.statements) {
         if(isInputStmt(*stmt)) {
@@ -82,103 +75,378 @@ bool isAbstract(const Program& prog) {
     return false;
 }
 
-// Generate Concrete Test Case (genCTC)
-// function genCTC(t, L, σ)
-//   if ¬isAbstract(t) then return t
-//   else
-//     t' ← rewriteATC(t, L)
-//     L' ← symex(t', σ)
-//     return getCTC(t', L', σ)
+// Helper to extract base name from versioned variable name
+string extractBaseName(const string& varName) {
+    string baseName = varName;
+    size_t idx = varName.length();
+    while (idx > 0 && isdigit(varName[idx - 1])) idx--;
+    if (idx < varName.length()) baseName = varName.substr(0, idx);
+    return baseName;
+}
+
+// Check if a variable needs to be resolved from sigma (constraint-aware IDs)
+bool needsSigmaLookup(const string& baseName) {
+    return baseName == "restaurantId" || 
+           baseName == "menuItemId" || 
+           baseName == "orderId";
+}
+
+// Search sigma for the LATEST non-empty map with given prefix and return first key
+string Tester::findKeyFromMapInSigma(const string& prefix) {
+    cout << "    [findKeyFromMapInSigma] Searching for prefix: " << prefix << endl;
+    
+    // Search from high to low to find the LATEST version
+    for (int i = 20; i >= 0; i--) {
+        string varName = prefix + to_string(i);
+        
+        if (see.getSigma().hasValue(varName)) {
+            Expr* value = see.getSigma().getValue(varName);
+            
+            if (value && value->exprType == ExprType::MAP) {
+                Map* map = dynamic_cast<Map*>(value);
+                
+                if (map && !map->value.empty()) {
+                    Var* firstKey = map->value[0].first.get();
+                    cout << "    [findKeyFromMapInSigma] Found " << varName 
+                         << " with " << map->value.size() << " entries, returning key: " 
+                         << firstKey->name << endl;
+                    return firstKey->name;
+                } else {
+                    cout << "    [findKeyFromMapInSigma] " << varName << " is empty map" << endl;
+                }
+            }
+        }
+    }
+    
+    cout << "    [findKeyFromMapInSigma] No non-empty map found for " << prefix << endl;
+    return "";
+}
+
+// Generate value for a variable based on its base name
+Expr* Tester::generateValueForBaseName(const string& baseName, const string& varName, 
+                                        int index, map<string, Expr*>& baseNameToValue,
+                                        bool lookupFromSigma) {
+    Expr* value = nullptr;
+    
+    // OWNER ROLE VARIABLES
+    if (baseName == "ownerEmail") {
+        value = new String("owner@example.com");
+    }
+    else if (baseName == "ownerPassword") {
+        value = new String("OwnerPass1!");
+    }
+    else if (baseName == "ownerFullName") {
+        value = new String("Test Owner");
+    }
+    else if (baseName == "ownerMobile") {
+        value = new String("5550000001");
+    }
+    // CUSTOMER ROLE VARIABLES
+    else if (baseName == "customerEmail") {
+        value = new String("customer@example.com");
+    }
+    else if (baseName == "customerPassword") {
+        value = new String("CustomerPass1!");
+    }
+    else if (baseName == "customerFullName") {
+        value = new String("Test Customer");
+    }
+    else if (baseName == "customerMobile") {
+        value = new String("5550000002");
+    }
+    // AGENT ROLE VARIABLES
+    else if (baseName == "agentEmail") {
+        value = new String("agent@example.com");
+    }
+    else if (baseName == "agentPassword") {
+        value = new String("AgentPass1!");
+    }
+    else if (baseName == "agentFullName") {
+        value = new String("Test Agent");
+    }
+    else if (baseName == "agentMobile") {
+        value = new String("5550000003");
+    }
+    // CONSTRAINT-AWARE IDs - Look up from sigma if flag is set
+    else if (baseName == "restaurantId") {
+        if (lookupFromSigma) {
+            string realId = findKeyFromMapInSigma("tmp_R_");
+            if (!realId.empty()) {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] restaurantId = \"" << realId << "\"" << endl;
+            } else {
+                // Keep as placeholder - will be resolved in later iteration
+                value = new String("__NEEDS_RESTAURANT_ID__");
+                cout << "    [DEFERRED] restaurantId - no restaurant in sigma yet" << endl;
+            }
+        } else {
+            value = new String("__NEEDS_RESTAURANT_ID__");
+        }
+    }
+    else if (baseName == "menuItemId") {
+        if (lookupFromSigma) {
+            string realId = findKeyFromMapInSigma("tmp_M_");
+            if (!realId.empty()) {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] menuItemId = \"" << realId << "\"" << endl;
+            } else {
+                value = new String("__NEEDS_MENUITEM_ID__");
+                cout << "    [DEFERRED] menuItemId - no menu item in sigma yet" << endl;
+            }
+        } else {
+            value = new String("__NEEDS_MENUITEM_ID__");
+        }
+    }
+    else if (baseName == "orderId") {
+        if (lookupFromSigma) {
+            string realId = findKeyFromMapInSigma("tmp_O_");
+            if (!realId.empty()) {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] orderId = \"" << realId << "\"" << endl;
+            } else {
+                value = new String("__NEEDS_ORDER_ID__");
+                cout << "    [DEFERRED] orderId - no order in sigma yet" << endl;
+            }
+        } else {
+            value = new String("__NEEDS_ORDER_ID__");
+        }
+    }
+    // INTEGER TYPES
+    else if (baseName == "quantity") {
+        value = new Num(2);
+    }
+    else if (baseName == "itemPrice") {
+        value = new Num(150);
+    }
+    else if (baseName == "restaurantRating") {
+        value = new Num(5);
+    }
+    else if (baseName == "deliveryRating") {
+        value = new Num(4);
+    }
+    // RESTAURANT DETAILS
+    else if (baseName == "restaurantName") {
+        value = new String("Test Restaurant");
+    }
+    else if (baseName == "restaurantAddress") {
+        value = new String("123 Restaurant Street");
+    }
+    else if (baseName == "restaurantContact") {
+        value = new String("restaurant@test.com");
+    }
+    // MENU ITEM DETAILS
+    else if (baseName == "itemName") {
+        value = new String("Delicious Dish");
+    }
+    else if (baseName == "itemDescription") {
+        value = new String("A very tasty menu item");
+    }
+    else if (baseName == "itemCategory") {
+        value = new String("Main Course");
+    }
+    // ORDER & DELIVERY DETAILS
+    else if (baseName == "deliveryAddress") {
+        value = new String("456 Customer Lane, Apt 7");
+    }
+    else if (baseName == "paymentMethod") {
+        value = new String("card");
+    }
+    else if (baseName == "orderStatus") {
+        value = new String("delivered");
+    }
+    // REVIEW DETAILS
+    else if (baseName == "reviewComment") {
+        value = new String("Great food and fast delivery!");
+    }
+    // GENERIC FALLBACK
+    else {
+        value = generateRealisticValue(varName, index);
+    }
+    
+    if (value != nullptr) {
+        baseNameToValue[baseName] = value;
+    }
+    
+    return value;
+}
+
+// Check if program has any unresolved placeholder values
+bool hasUnresolvedPlaceholders(const Program& prog) {
+    for(const auto& stmt : prog.statements) {
+        if(stmt->statementType == StmtType::ASSIGN) {
+            const Assign* assign = dynamic_cast<const Assign*>(stmt.get());
+            if(assign && assign->right->exprType == ExprType::STRING) {
+                const String* str = dynamic_cast<const String*>(assign->right.get());
+                if(str && (str->value.find("__NEEDS_") == 0)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// Resolve placeholder values in concrete values list using sigma
+// IMPORTANT: Only resolve if value is available, otherwise KEEP the placeholder
+void resolvePlaceholdersInPlace(vector<Expr*>& concreteVals, 
+                                 const vector<string>& varNames,
+                                 Tester* tester) {
+    for (size_t i = 0; i < concreteVals.size(); i++) {
+        if (concreteVals[i]->exprType != ExprType::STRING) continue;
+        
+        String* strVal = dynamic_cast<String*>(concreteVals[i]);
+        if (!strVal) continue;
+        
+        if (strVal->value == "__NEEDS_RESTAURANT_ID__") {
+            string realId = tester->findKeyFromMapInSigma("tmp_R_");
+            if (!realId.empty()) {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            } else {
+                // KEEP THE PLACEHOLDER - don't convert to fallback!
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+        else if (strVal->value == "__NEEDS_MENUITEM_ID__") {
+            string realId = tester->findKeyFromMapInSigma("tmp_M_");
+            if (!realId.empty()) {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            } else {
+                // KEEP THE PLACEHOLDER
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+        else if (strVal->value == "__NEEDS_ORDER_ID__") {
+            string realId = tester->findKeyFromMapInSigma("tmp_O_");
+            if (!realId.empty()) {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            } else {
+                // KEEP THE PLACEHOLDER
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+    }
+}
+
+// Resolve placeholders in the program AST itself (for statements that already have placeholder values)
+// Resolve placeholders in the program AST itself (for statements that already have placeholder values)
+void resolvePlaceholdersInProgram(Program& prog, Tester* tester) {
+    cout << "\n>>> Resolving placeholders in program AST" << endl;
+    
+    // We need to modify the statements vector, but it's const
+    // So we'll cast away const (this is safe since we own the Program)
+    auto& stmts = const_cast<vector<unique_ptr<Stmt>>&>(prog.statements);
+    
+    for(size_t i = 0; i < stmts.size(); i++) {
+        if(stmts[i]->statementType == StmtType::ASSIGN) {
+            Assign* assign = dynamic_cast<Assign*>(stmts[i].get());
+            if(assign && assign->right->exprType == ExprType::STRING) {
+                const String* str = dynamic_cast<const String*>(assign->right.get());
+                if(str) {
+                    string newValue = "";
+                    
+                    if (str->value == "__NEEDS_RESTAURANT_ID__") {
+                        newValue = tester->findKeyFromMapInSigma("tmp_R_");
+                        if (newValue.empty()) {
+                            newValue = "no_restaurant_available";  // Final fallback
+                        }
+                    }
+                    else if (str->value == "__NEEDS_MENUITEM_ID__") {
+                        newValue = tester->findKeyFromMapInSigma("tmp_M_");
+                        if (newValue.empty()) {
+                            newValue = "no_menuitem_available";
+                        }
+                    }
+                    else if (str->value == "__NEEDS_ORDER_ID__") {
+                        newValue = tester->findKeyFromMapInSigma("tmp_O_");
+                        if (newValue.empty()) {
+                            newValue = "no_order_available";
+                        }
+                    }
+                    
+                    if (!newValue.empty()) {
+                        const Var* leftVar = dynamic_cast<const Var*>(assign->left.get());
+                        string varName = leftVar ? leftVar->name : "unknown";
+                        cout << "    [AST RESOLVED] " << varName << " = \"" << newValue << "\"" << endl;
+                        
+                        // Create a new statement with the resolved value
+                        auto newLeft = make_unique<Var>(varName);
+                        auto newRight = make_unique<String>(newValue);
+                        stmts[i] = make_unique<Assign>(std::move(newLeft), std::move(newRight));
+                    }
+                }
+            }
+        }
+    }
+}
+
 unique_ptr<Program> Tester::generateCTC(unique_ptr<Program> atc, vector<Expr*> ConcreteVals, ValueEnvironment* ve) {
     cout << "\n========================================" << endl;
     cout << ">>> generateCTC: Starting iteration" << endl;
     cout << "========================================" << endl;
     
-    // If not abstract (no input statements), return as-is
-    if(!isAbstract(*atc)) {
-        cout << ">>> generateCTC: Program is concrete, returning" << endl;
+    // Check if program is concrete AND has no unresolved placeholders
+    if(!isAbstract(*atc) && !hasUnresolvedPlaceholders(*atc)) {
+        cout << ">>> generateCTC: Program is fully concrete, returning" << endl;
         return atc;
     }
     
-    cout << ">>> generateCTC: Program is abstract, needs concretization" << endl;
+    cout << ">>> generateCTC: Program needs processing" << endl;
     cout << ">>> generateCTC: Concrete values provided: " << ConcreteVals.size() << endl;
+    cout << ">>> generateCTC: Is abstract: " << isAbstract(*atc) << endl;
+    cout << ">>> generateCTC: Has placeholders: " << hasUnresolvedPlaceholders(*atc) << endl;
     
-    // Rewrite the abstract test case by replacing Input statements with concrete values
+    // STEP 1: Rewrite ATC with provided concrete values
     cout << "\n>>> generateCTC: STEP 1 - Rewriting ATC with concrete values" << endl;
     unique_ptr<Program> rewritten = rewriteATC(atc, ConcreteVals);
     
-    // Run symbolic execution on the rewritten test case using class member
+    // STEP 2: Run symbolic execution to populate sigma
     cout << "\n>>> generateCTC: STEP 2 - Running symbolic execution" << endl;
     SymbolTable st(nullptr);
     see.execute(*rewritten, st);
     
-    // Get the path constraints from symbolic execution and store in class member
-    pathConstraints = see.getPathConstraint();
-    unique_ptr<Expr> pathConstraint = see.computePathConstraint();
+    // STEP 3: Check if program still has input() statements
+    bool stillAbstract = isAbstract(*rewritten);
+    bool stillHasPlaceholders = hasUnresolvedPlaceholders(*rewritten);
     
-    // Solve the path constraints to get new concrete values using class member
-    cout << "\n>>> generateCTC: STEP 3 - Solving path constraints with Z3" << endl;
-    Result result = solver.solve(std::move(pathConstraint));
+    cout << ">>> generateCTC: After symex - Is abstract: " << stillAbstract 
+         << ", Has placeholders: " << stillHasPlaceholders << endl;
     
-    // Extract concrete values from the solver result
-    vector<Expr*> newConcreteVals;
-    if(result.isSat) {
-        cout << ">>> generateCTC: SAT - Extracting " << result.model.size() << " concrete values" << endl;
+    // STEP 4: If program has placeholders but no input(), try to resolve them now
+    if (!stillAbstract && stillHasPlaceholders) {
+        cout << "\n>>> generateCTC: STEP 3a - Resolving placeholders in AST" << endl;
+        resolvePlaceholdersInProgram(*rewritten, this);
         
-        // Extract values from the model in order (X0, X1, X2, ...)
-        for(const auto& entry : result.model) {
-            if(entry.second->type == ResultType::INT) {
-                const IntResultValue* intVal = dynamic_cast<const IntResultValue*>(entry.second.get());
-                cout << "    " << entry.first << " = " << intVal->value << endl;
-                
-                // CHANGE 1: Generate realistic string value instead of using the integer
-                // Find which input variable this corresponds to
-                int varIndex = 0;
-                try {
-                    // Extract number from "X0", "X1", etc.
-                    string varName = entry.first;
-                    if (varName.length() > 1 && varName[0] == 'X') {
-                        varIndex = stoi(varName.substr(1));
-                    }
-                } catch (...) {
-                    varIndex = newConcreteVals.size();
-                }
-                
-                // Find the corresponding input statement to get variable name
-                int inputIndex = 0;
-                string targetVarName = "unknown";
-                for(const auto& stmt : rewritten->statements) {
-                    if(isInputStmt(*stmt)) {
-                        if(inputIndex == varIndex) {
-                            const Assign* assign = dynamic_cast<const Assign*>(stmt.get());
-                            const Var* leftVar = dynamic_cast<const Var*>(assign->left.get());
-                            if(leftVar) {
-                                targetVarName = leftVar->name;
-                            }
-                            break;
-                        }
-                        inputIndex++;
-                    }
-                }
-                
-                // Generate realistic value based on variable name
-                Expr* realisticValue = generateRealisticValue(targetVarName, varIndex);
-                newConcreteVals.push_back(realisticValue);
-                
-                if(realisticValue->exprType == ExprType::STRING) {
-                    cout << "    -> Converted to: \"" << dynamic_cast<String*>(realisticValue)->value << "\"" << endl;
-                }
-            }
+        // Check again
+        if (!hasUnresolvedPlaceholders(*rewritten)) {
+            cout << ">>> generateCTC: All placeholders resolved, program is fully concrete" << endl;
+            return rewritten;
+        } else {
+            cout << ">>> generateCTC: Some placeholders still unresolved (will use fallback)" << endl;
+            // Force resolve with fallbacks
+            resolvePlaceholdersInProgram(*rewritten, this);
+            return rewritten;
         }
-        
-        // CHANGE 2: If no values from Z3 but we still have input() statements,
-        // generate realistic default values for remaining inputs
-        if(newConcreteVals.empty() && isAbstract(*rewritten)) {
-    cout << ">>> generateCTC: No constrained values, generating defaults for remaining inputs" << endl;
+    }
     
-    // STEP 1: Build a map of base names to concrete values from ALREADY REWRITTEN statements
+    // STEP 5: If still abstract, generate values for remaining inputs
+    if (!stillAbstract) {
+        cout << ">>> generateCTC: Program is now fully concrete" << endl;
+        return rewritten;
+    }
+    
+    cout << "\n>>> generateCTC: STEP 3 - Generating values with sigma lookup" << endl;
+    
+    vector<Expr*> newConcreteVals;
+    vector<string> newVarNames;
     map<string, Expr*> baseNameToValue;
     
+    // Collect existing concrete values (skip placeholders)
     for(const auto& stmt : rewritten->statements) {
         if(stmt->statementType == StmtType::ASSIGN) {
             const Assign* assign = dynamic_cast<const Assign*>(stmt.get());
@@ -187,126 +455,113 @@ unique_ptr<Program> Tester::generateCTC(unique_ptr<Program> atc, vector<Expr*> C
             const Var* leftVar = dynamic_cast<const Var*>(assign->left.get());
             if(!leftVar) continue;
             
-            // Skip if RHS is input() - not concrete yet
+            // Skip input statements
             if(assign->right->exprType == ExprType::FUNCCALL) {
                 const FuncCall* fc = dynamic_cast<const FuncCall*>(assign->right.get());
                 if(fc && fc->name == "input") continue;
             }
             
-            // This is a concrete assignment like: email0 := "testuser0@example.com"
-            string varName = leftVar->name;
+            // Skip placeholder values - don't reuse them!
+            if(assign->right->exprType == ExprType::STRING) {
+                const String* str = dynamic_cast<const String*>(assign->right.get());
+                if(str && str->value.find("__NEEDS_") == 0) continue;
+            }
             
-            // Extract base name (email0 -> email)
-            string baseName = varName;
-            size_t i = varName.length();
-            while (i > 0 && isdigit(varName[i - 1])) i--;
-            if (i < varName.length()) baseName = varName.substr(0, i);
+            string baseName = extractBaseName(leftVar->name);
             
-            // Store first concrete value for this base name
             if(baseNameToValue.find(baseName) == baseNameToValue.end()) {
                 baseNameToValue[baseName] = assign->right.get();
-                cout << "    [Found existing] " << baseName << " -> " << varName << endl;
+                cout << "    [Found existing] " << baseName << " -> " << leftVar->name << endl;
             }
         }
     }
     
-    // STEP 2: Generate values for remaining input() statements
-    int inputCount = 0;
+    // Generate values for remaining input statements
+    int inputIndex = 0;
     for(const auto& stmt : rewritten->statements) {
-        if(isInputStmt(*stmt)) {
-            const Assign* assign = dynamic_cast<const Assign*>(stmt.get());
-            const Var* leftVar = dynamic_cast<const Var*>(assign->left.get());
-            string varName = leftVar ? leftVar->name : "unknown";
-            
-            // Extract base name
-            string baseName = varName;
-            size_t i = varName.length();
-            while (i > 0 && isdigit(varName[i - 1])) i--;
-            if (i < varName.length()) baseName = varName.substr(0, i);
-            
-            Expr* value;
-            
-            // Check if we already have a concrete value for this base name
-            if (baseNameToValue.find(baseName) != baseNameToValue.end()) {
-                // REUSE the existing value!
-                value = baseNameToValue[baseName];
-                cout << "    " << varName << " = (reusing " << baseName << ") ";
-            } else {
-                // Generate NEW realistic value and store for future reuse
-                value = generateRealisticValue(varName, inputCount);
-                baseNameToValue[baseName] = value;
-                cout << "    " << varName << " = ";
-            }
-            
-            newConcreteVals.push_back(value);
-            
-            if(value->exprType == ExprType::STRING) {
-                cout << "\"" << dynamic_cast<String*>(value)->value << "\"" << endl;
-            } else if(value->exprType == ExprType::NUM) {
-                cout << dynamic_cast<Num*>(value)->value << endl;
-            }
-            inputCount++;
+        if(!isInputStmt(*stmt)) continue;
+        
+        const Assign* assign = dynamic_cast<const Assign*>(stmt.get());
+        const Var* leftVar = dynamic_cast<const Var*>(assign->left.get());
+        string varName = leftVar ? leftVar->name : "unknown";
+        string baseName = extractBaseName(varName);
+        
+        Expr* value = nullptr;
+        
+        // For IDs that need sigma lookup, ALWAYS try sigma first
+        if (needsSigmaLookup(baseName)) {
+            value = generateValueForBaseName(baseName, varName, inputIndex, baseNameToValue, true);
+            cout << "    " << varName << " = ";
         }
-    }
-}
-    } else {
-        cout << ">>> generateCTC: UNSAT - No solution found, cannot continue" << endl;
+        else if (baseNameToValue.find(baseName) != baseNameToValue.end()) {
+            Expr* existing = baseNameToValue[baseName];
+            if (existing->exprType == ExprType::STRING) {
+                value = new String(dynamic_cast<String*>(existing)->value);
+            } else if (existing->exprType == ExprType::NUM) {
+                value = new Num(dynamic_cast<Num*>(existing)->value);
+            } else {
+                value = generateValueForBaseName(baseName, varName, inputIndex, baseNameToValue, true);
+            }
+            cout << "    " << varName << " = (reusing " << baseName << ") ";
+        } else {
+            // Generate with sigma lookup ENABLED
+            value = generateValueForBaseName(baseName, varName, inputIndex, baseNameToValue, true);
+            cout << "    " << varName << " = ";
+        }
+        
+        newConcreteVals.push_back(value);
+        newVarNames.push_back(varName);
+        
+        if (value->exprType == ExprType::STRING) {
+            cout << "\"" << dynamic_cast<String*>(value)->value << "\"" << endl;
+        } else if (value->exprType == ExprType::NUM) {
+            cout << dynamic_cast<Num*>(value)->value << endl;
+        }
+        
+        inputIndex++;
     }
     
-    // If we didn't get any new concrete values, we can't make progress
+    // STEP 6: Try to resolve any placeholders in the concrete values
+    cout << "\n>>> generateCTC: STEP 4 - Resolving placeholders from sigma" << endl;
+    resolvePlaceholdersInPlace(newConcreteVals, newVarNames, this);
+    
     if(newConcreteVals.empty()) {
-        cout << ">>> generateCTC: No new concrete values, returning partially rewritten program" << endl;
+        cout << ">>> generateCTC: No new concrete values needed" << endl;
         return rewritten;
     }
     
-    // Recursively generate CTC with the new concrete values
-    cout << "\n>>> generateCTC: STEP 4 - Recursing with " << newConcreteVals.size() << " new concrete values" << endl;
+    // STEP 7: Recurse
+    cout << "\n>>> generateCTC: STEP 5 - Recursing with " << newConcreteVals.size() << " concrete values" << endl;
     return generateCTC(std::move(rewritten), newConcreteVals, ve);
 }
 
-// Generate Abstract Test Case from specification
 unique_ptr<Program> Tester::generateATC(
     unique_ptr<Spec> spec,
     vector<string> ts
 ) {
-    // Step 1: generate logical ATC
     Program raw = genATC(*spec, ts);
 
-    // Step 2: move to heap
     auto& mutable_stmts = const_cast<vector<unique_ptr<Stmt>>&>(raw.statements);
-auto logicalATC = unique_ptr<Program>(new Program(std::move(mutable_stmts)));
+    auto logicalATC = unique_ptr<Program>(new Program(std::move(mutable_stmts)));
 
-        PrintVisitor printer;  // ← Declare ONCE at the top
+    PrintVisitor printer;
 
-    // Step 3: rewrite globals -> Test API
     RewriteGlobalsVisitor rewriter;
-    rewriter.visitProgram(*logicalATC);   // runs rewrite on logical ATC
+    rewriter.visitProgram(*logicalATC);
 
     unique_ptr<Program> testApiATC = std::move(rewriter.rewrittenProgram);
 
-    // DEBUG: Print Test-API ATC
     cout << "\n=== TEST-API ATC (After Rewrite) ===" << endl;
     printer.visitProgram(*testApiATC);
 
-    // Step 4: return rewritten ATC
     return testApiATC;
 }
 
-// Rewrite Abstract Test Case (rewriteATC)
-// function rewriteATC(t, L)
-//   if |t| = 0 ∧ |L| ≠ 0 then raise Error
-//   match s₁ with
-//   | case Input(x) ⇒
-//       s'₁ ← Assign(x, v₁)
-//       return s'₁ :: rewriteATC([s₂; ...; sₙ] [v₂; ...; vₘ])
-//   | _ ⇒ return s₁ :: rewriteATC([s₂; ...; sₙ] [v₁; ...; vₘ])
 unique_ptr<Program> Tester::rewriteATC(unique_ptr<Program>& atc, vector<Expr*> ConcreteVals) {
-    // Check error condition: empty test case but concrete values provided
     if(atc->statements.size() == 0 && ConcreteVals.size() != 0) {
         throw runtime_error("Empty test case but concrete values provided");
     }
     
-    // Create a new program with rewritten statements
     vector<unique_ptr<Stmt>> newStmts;
     int concreteValIndex = 0;
     CloneVisitor cloner;
@@ -314,17 +569,14 @@ unique_ptr<Program> Tester::rewriteATC(unique_ptr<Program>& atc, vector<Expr*> C
     for(int i = 0; i < atc->statements.size(); i++) {
         const auto& stmt = atc->statements[i];
 
-        // Check if this is an Input statement (x := input())
         if(stmt->statementType == StmtType::ASSIGN) {
             Assign* assign = dynamic_cast<Assign*>(stmt.get());
             
             if(assign && assign->right->exprType == ExprType::FUNCCALL) {
                 FuncCall* fc = dynamic_cast<FuncCall*>(assign->right.get());
                 
-                // If it's input() and we have concrete values, replace it
                 if(fc && fc->name == "input" && fc->args.size() == 0) {
                     if(concreteValIndex < ConcreteVals.size()) {
-                        // Create new assignment: x := concreteValue
                         Var* leftVarPtr = dynamic_cast<Var*>(assign->left.get());
                         if (!leftVarPtr) {
                             throw runtime_error("Expected Var on left side of input assignment");
@@ -335,7 +587,6 @@ unique_ptr<Program> Tester::rewriteATC(unique_ptr<Program>& atc, vector<Expr*> C
                         newStmts.push_back(make_unique<Assign>(move(leftVar), move(rightExpr)));
                         concreteValIndex++;
                     } else {
-                        // No concrete value available yet, keep the input() statement
                         newStmts.push_back(cloner.cloneStmt(stmt.get()));
                     }
                     continue;
@@ -343,7 +594,6 @@ unique_ptr<Program> Tester::rewriteATC(unique_ptr<Program>& atc, vector<Expr*> C
             }
         }
         
-        // For all other statements, clone them as-is
         newStmts.push_back(cloner.cloneStmt(stmt.get()));
     }
     
