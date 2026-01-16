@@ -96,11 +96,31 @@ json APIFunction::extractJson(Expr *expr)
 
 string APIFunction::getCurrentToken(const string &email)
 {
+    // First check local cache
     auto it = factory->getT().find(email);
-    if (it != factory->getT().end())
+    if (it != factory->getT().end() && !it->second.empty())
     {
         return it->second;
     }
+
+    // If not found locally, fetch from backend
+    HttpResponse resp = factory->getHttpClient()->get("/api/test/get_T");
+    if (resp.statusCode == 200)
+    {
+        json data = resp.getJson();
+        for (auto &[k, v] : data.items())
+        {
+            factory->getT()[k] = v.get<string>();
+        }
+
+        // Try again after refresh
+        it = factory->getT().find(email);
+        if (it != factory->getT().end())
+        {
+            return it->second;
+        }
+    }
+
     return "";
 }
 
@@ -821,8 +841,7 @@ unique_ptr<Expr> SetAssignmentsFunc::execute()
 /* ============================================================
  * Business API Functions
  * ============================================================ */
-
-// ========== CUSTOMER REGISTRATION (role = "customer") ==========
+// ========== CUSTOMER REGISTRATION ==========
 RegisterCustomerFunc::RegisterCustomerFunc(RestaurantFunctionFactory *factory, vector<Expr *> args)
     : APIFunction(factory, args) {}
 
@@ -845,26 +864,15 @@ unique_ptr<Expr> RegisterCustomerFunc::execute()
             {"password", password},
             {"fullName", fullName},
             {"mobile", mobile},
-            {"role", "customer"} // ← FIXED: Explicit customer role
-        };
+            {"role", "customer"}};
 
         HttpResponse resp = factory->getHttpClient()->post("/api/auth/register", body);
 
         if (resp.statusCode >= 200 && resp.statusCode < 300)
         {
-            // Update caches
+            // Update local caches only - DO NOT call set_U (it deletes all users!)
             factory->getU()[email] = password;
             factory->getRoles()[email] = "customer";
-
-            // Sync to backend Test API
-            json uMap, rolesMap;
-            for (const auto &[e, p] : factory->getU())
-                uMap[e] = p;
-            for (const auto &[e, r] : factory->getRoles())
-                rolesMap[e] = r;
-
-            factory->getHttpClient()->post("/api/test/set_U", {{"data", uMap}});
-            factory->getHttpClient()->post("/api/test/set_Roles", {{"data", rolesMap}});
         }
 
         return make_unique<Num>(resp.statusCode);
@@ -899,24 +907,15 @@ unique_ptr<Expr> RegisterOwnerFunc::execute()
             {"password", password},
             {"fullName", fullName},
             {"mobile", mobile},
-            {"role", "restaurant_owner"} // ← Owner role
-        };
+            {"role", "restaurant_owner"}};
 
         HttpResponse resp = factory->getHttpClient()->post("/api/auth/register", body);
 
         if (resp.statusCode >= 200 && resp.statusCode < 300)
         {
+            // Update local caches only - DO NOT call set_U (it deletes all users!)
             factory->getU()[email] = password;
             factory->getRoles()[email] = "restaurant_owner";
-
-            json uMap, rolesMap;
-            for (const auto &[e, p] : factory->getU())
-                uMap[e] = p;
-            for (const auto &[e, r] : factory->getRoles())
-                rolesMap[e] = r;
-
-            factory->getHttpClient()->post("/api/test/set_U", {{"data", uMap}});
-            factory->getHttpClient()->post("/api/test/set_Roles", {{"data", rolesMap}});
         }
 
         return make_unique<Num>(resp.statusCode);
@@ -951,24 +950,15 @@ unique_ptr<Expr> RegisterAgentFunc::execute()
             {"password", password},
             {"fullName", fullName},
             {"mobile", mobile},
-            {"role", "delivery_agent"} // ← Agent role
-        };
+            {"role", "delivery_agent"}};
 
         HttpResponse resp = factory->getHttpClient()->post("/api/auth/register", body);
 
         if (resp.statusCode >= 200 && resp.statusCode < 300)
         {
+            // Update local caches only - DO NOT call set_U (it deletes all users!)
             factory->getU()[email] = password;
             factory->getRoles()[email] = "delivery_agent";
-
-            json uMap, rolesMap;
-            for (const auto &[e, p] : factory->getU())
-                uMap[e] = p;
-            for (const auto &[e, r] : factory->getRoles())
-                rolesMap[e] = r;
-
-            factory->getHttpClient()->post("/api/test/set_U", {{"data", uMap}});
-            factory->getHttpClient()->post("/api/test/set_Roles", {{"data", rolesMap}});
         }
 
         return make_unique<Num>(resp.statusCode);
@@ -979,7 +969,6 @@ unique_ptr<Expr> RegisterAgentFunc::execute()
         return make_unique<Num>(500);
     }
 }
-
 // ========== LOGIN ==========
 LoginFunc::LoginFunc(RestaurantFunctionFactory *factory, vector<Expr *> args)
     : APIFunction(factory, args) {}
@@ -1011,12 +1000,11 @@ unique_ptr<Expr> LoginFunc::execute()
                 string token = respData["token"].get<string>();
                 cout << "[LoginFunc] Token received for: " << email << endl;
 
+                // Store in local cache only - backend auth.js now saves token directly
                 factory->getT()[email] = token;
 
-                json tMap;
-                for (const auto &[e, t] : factory->getT())
-                    tMap[e] = t;
-                factory->getHttpClient()->post("/api/test/set_T", {{"data", tMap}});
+                // REMOVED: Don't call set_T here - it overwrites other users' tokens
+                // The backend's auth.js now saves the token to the User document directly
 
                 return make_unique<String>(token);
             }
@@ -1260,9 +1248,13 @@ unique_ptr<Expr> LeaveReviewFunc::execute()
                 string reviewId = respData["review"]["_id"].get<string>();
                 factory->getRev()[reviewId] = respData["review"].dump();
                 cout << "[LeaveReviewFunc] Review created: " << reviewId << endl;
+
+                // Return the review ID (not the status code) - spec expects this
+                return make_unique<String>(reviewId);
             }
         }
 
+        // Return status code on failure
         return make_unique<Num>(resp.statusCode);
     }
     catch (const exception &e)
@@ -1424,8 +1416,28 @@ unique_ptr<Expr> AssignOrderFunc::execute()
             return make_unique<Num>(401);
         }
 
+        // First, get the agent's user ID using test API endpoint
+        HttpResponse agentResp = factory->getHttpClient()->get("/api/test/get_user_id/" + agentEmail);
+
+        string agentId = "";
+        if (agentResp.statusCode == 200)
+        {
+            json agentData = agentResp.getJson();
+            if (agentData.contains("userId"))
+            {
+                agentId = agentData["userId"].get<string>();
+                cout << "[AssignOrderFunc] Found agent ID: " << agentId << " for email: " << agentEmail << endl;
+            }
+        }
+
+        if (agentId.empty())
+        {
+            cerr << "[AssignOrderFunc] Error: Could not find agent ID for " << agentEmail << endl;
+            return make_unique<Num>(404);
+        }
+
         json body = {
-            {"deliveryAgentId", agentEmail}};
+            {"deliveryAgentId", agentId}};
 
         HttpResponse resp = factory->getHttpClient()->put("/api/orders/" + orderId + "/assign", body, {{"Authorization", "Bearer " + token}});
 
@@ -1433,6 +1445,10 @@ unique_ptr<Expr> AssignOrderFunc::execute()
         {
             factory->getAssignments()[orderId] = agentEmail;
             cout << "[AssignOrderFunc] Order assigned successfully" << endl;
+        }
+        else
+        {
+            cerr << "[AssignOrderFunc] Error response: " << resp.body << endl;
         }
 
         return make_unique<Num>(resp.statusCode);

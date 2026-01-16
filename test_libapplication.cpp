@@ -261,16 +261,24 @@ namespace RestaurantTests
         executor.runTest(
             "Test 10: Browse → Leave Review (No Auth) (Depth=2)",
             makeRestaurantSpec(),
-            {"registerOwnerOk",     // 1. Owner registers
-             "loginOwnerOk",        // 2. Owner logs in
-             "createRestaurantOk",  // 3. Owner creates restaurant
-             "addMenuItemOk",       // 4. Owner adds menu item  <-- ADD THIS
-             "registerCustomerOk",  // 5. Customer registers
-             "loginCustomerOk",     // 6. Customer logs in
-             "browseRestaurantsOk", // 7. Customer browses
-             "viewMenuOk",          // 8. Customer views menu
-             "addToCartOk",
-             "placeOrderOk",
+            {"registerOwnerOk",          // 1. Owner registers
+             "loginOwnerOk",             // 2. Owner logs in
+             "createRestaurantOk",       // 3. Owner creates restaurant
+             "addMenuItemOk",            // 4. Owner adds menu item
+             "registerCustomerOk",       // 5. Customer registers
+             "loginCustomerOk",          // 6. Customer logs in
+             "browseRestaurantsOk",      // 7. Customer browses
+             "viewMenuOk",               // 8. Customer views menu
+             "addToCartOk",              // 9. Customer adds to cart
+             "placeOrderOk",             // 10. Customer places order (status: placed)
+             "registerAgentOk",          // 11. Delivery agent registers
+             "loginAgentOk",             // 12. Delivery agent logs in
+             "updateOrderStatusOwnerOk", // 13. Owner accepts order (status: accepted)
+             "updateOrderStatusOwnerOk", // 14. Owner marks preparing (status: preparing)
+             "updateOrderStatusOwnerOk", // 15. Owner marks ready (status: ready)
+             "assignOrderOk",            // 16. Owner assigns delivery agent
+             "updateOrderStatusAgentOk", // 17. Agent picks up (status: picked_up)
+             "updateOrderStatusAgentOk", // 18. Agent delivers (status: delivered)
              "leaveReviewOk"});
     }
 

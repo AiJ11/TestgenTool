@@ -251,8 +251,35 @@ Expr* Tester::generateValueForBaseName(const string& baseName, const string& var
     else if (baseName == "paymentMethod") {
         value = new String("card");
     }
-    else if (baseName == "orderStatus") {
-        value = new String("delivered");
+    
+    else if (baseName == "orderStatus")
+    {
+        // Use static counter to track order status progression
+        // This counter resets implicitly when the program restarts
+        static int orderStatusCounter = 0;
+
+        // Status sequence for complete order flow:
+        // Owner calls: accepted -> preparing -> ready
+        // Agent calls: picked_up -> delivered
+        const char *statusSequence[] = {
+            "accepted",  // 1st call (owner accepts)
+            "preparing", // 2nd call (owner starts preparing)
+            "ready",     // 3rd call (owner marks ready)
+            "picked_up", // 4th call (agent picks up)
+            "delivered"  // 5th call (agent delivers)
+        };
+
+        int seqIndex = orderStatusCounter % 5;
+        value = new String(statusSequence[seqIndex]);
+
+        cout << "    [ORDER STATUS] Call #" << (orderStatusCounter + 1)
+             << " (index=" << index << ") -> status = \"" << statusSequence[seqIndex] << "\"" << endl;
+
+        orderStatusCounter++;
+
+        // DON'T cache this value - each call needs a different status
+        // Return early to skip the caching at the end of the function
+        return value;
     }
     // REVIEW DETAILS
     else if (baseName == "reviewComment") {
