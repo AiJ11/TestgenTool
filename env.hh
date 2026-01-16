@@ -47,7 +47,8 @@ class ValueEnvironment : public Env<string, Expr> {
         ValueEnvironment(ValueEnvironment *parent = nullptr);
         virtual void print();
         virtual string keyToString(string *);
-        
+        // method to ValueEnvironment class
+        const map<string, Expr*>& getAllEntries() const { return table; }
         // Value environment methods
         void setValue(const string& varName, Expr* value);
         Expr* getValue(const string& varName);
