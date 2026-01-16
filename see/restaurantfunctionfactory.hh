@@ -168,7 +168,6 @@ public:
  * Business API Functions
  * ============================================================ */
 
-// Registration functions (3 separate for 3 roles)
 class RegisterCustomerFunc : public APIFunction {
 public:
     RegisterCustomerFunc(RestaurantFunctionFactory* factory, vector<Expr*> args);
@@ -262,28 +261,25 @@ private:
     string baseUrl;
     
     // In-memory cache of global maps
-    map<string, string> U_cache;          // email -> password
-    map<string, string> T_cache;          // email -> token
-    map<string, string> Roles_cache;      // email -> role
-    map<string, string> C_cache;          // email -> cart JSON
-    map<string, string> R_cache;          // restaurantId -> restaurant JSON
-    map<string, string> M_cache;          // menuItemId -> menu JSON
-    map<string, string> O_cache;          // orderId -> order JSON
-    map<string, string> Rev_cache;        // reviewId -> review JSON
-    map<string, string> Owners_cache;     // restaurantId -> ownerEmail
-    map<string, string> Assignments_cache; // orderId -> agentEmail
+    map<string, string> U_cache;
+    map<string, string> T_cache;
+    map<string, string> Roles_cache;
+    map<string, string> C_cache;
+    map<string, string> R_cache;
+    map<string, string> M_cache;
+    map<string, string> O_cache;
+    map<string, string> Rev_cache;
+    map<string, string> Owners_cache;
+    map<string, string> Assignments_cache;
     
 public:
     RestaurantFunctionFactory(const string& baseUrl = "http://localhost:5002");
     ~RestaurantFunctionFactory() = default;
     
-    // Implement the factory method
     unique_ptr<Function> getFunction(string fname, vector<Expr*> args) override;
     
-    // Access to HTTP client
     HttpClient* getHttpClient() { return httpClient.get(); }
     
-    // Access to caches (for Test API functions)
     map<string, string>& getU() { return U_cache; }
     map<string, string>& getT() { return T_cache; }
     map<string, string>& getRoles() { return Roles_cache; }

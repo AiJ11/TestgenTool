@@ -186,9 +186,12 @@ namespace RestaurantTests {
     
     void test07_loginBrowseView(TestExecutor& executor) {
         executor.runTest(
-            "Test 07: Login → Browse → View Menu (Depth=4)",
+            "Test 07: Registerowner -> Loginowner ->create restaurant-> Browse-> view menu(Depth=5)",
             makeRestaurantSpec(),
-            {"registerCustomerOk","loginOk", "browseRestaurantsOk", "viewMenuOk"} //should be SAT
+            {"registerCustomerOk",
+        "loginOk",
+        "browseRestaurantsOk",
+        "viewMenuOk"} //should be SAT
         );
     }
     
@@ -427,23 +430,20 @@ int main() {
         // RestaurantTests::test04_registerAndLogin(executor);
         
         // RUN ALL 25 TESTS (comment out for selective testing)
-        cout << "\n=== DEPTH 1 TESTS ===" << endl;
-        RestaurantTests::test01_registerLogin(executor);
+        cout << "\n=== DEPTH TESTS ===" << endl;
+        //RestaurantTests::test01_registerLogin(executor);
         //RestaurantTests::test02_loginFailure(executor);
         //RestaurantTests::test03_browseOnly(executor);
         
-        //cout << "\n=== DEPTH 2 TESTS ===" << endl;
         //RestaurantTests::test04_Login(executor);
         //RestaurantTests::test05_registerOwnerAndLogin(executor);
         //RestaurantTests::test06_registerAgentAndLogin(executor);
         
-        //cout << "\n=== DEPTH 3 TESTS ===" << endl;
-        //RestaurantTests::test07_loginBrowseView(executor);
-        //RestaurantTests::test08_loginAndAddToCart(executor);
+        //RestaurantTests::test07_loginBrowseView(executor);//issue
+        RestaurantTests::test08_loginAndAddToCart(executor);
         //RestaurantTests::test09_loginAndReview(executor);
         //RestaurantTests::test10_reviewWithoutLogin(executor);
         
-        //cout << "\n=== DEPTH 4 TESTS ===" << endl;
         //RestaurantTests::test11_fullCustomerOrder(executor);
         //RestaurantTests::test12_ownerCreateRestaurant(executor);
         //RestaurantTests::test13_cartWithoutItems(executor);

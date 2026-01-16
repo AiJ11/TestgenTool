@@ -859,10 +859,19 @@ BrowseRestaurantsFunc::BrowseRestaurantsFunc(RestaurantFunctionFactory* factory,
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> BrowseRestaurantsFunc::execute() {
-    cout << "[BrowseRestaurantsFunc] Fetching restaurants..." << endl;
+    if (arguments.size() < 1) throw runtime_error("browseRestaurants requires 1 argument");
+    
+    string email = extractString(arguments[0]);
+    
+    cout << "[BrowseRestaurantsFunc] Fetching restaurants for " << email << endl;
     
     try {
-        string token = getCurrentToken(extractString(arguments[0])); // email from context
+        string token = getCurrentToken(email);
+        
+        if (token.empty()) {
+            cerr << "[BrowseRestaurantsFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
         
         HttpResponse resp = factory->getHttpClient()->get("/api/restaurants", {
             {"Authorization", "Bearer " + token}
@@ -874,6 +883,7 @@ unique_ptr<Expr> BrowseRestaurantsFunc::execute() {
         }
         
         return make_unique<Num>(resp.statusCode);
+        
     } catch (const exception& e) {
         cerr << "[BrowseRestaurantsFunc] Error: " << e.what() << endl;
         return make_unique<Num>(500);
@@ -885,14 +895,25 @@ ViewMenuFunc::ViewMenuFunc(RestaurantFunctionFactory* factory, vector<Expr*> arg
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> ViewMenuFunc::execute() {
-    if (arguments.size() < 1) throw runtime_error("viewMenu requires 1 argument");
+    if (arguments.size() < 2) throw runtime_error("viewMenu requires 2 arguments");
     
-    string restaurantId = extractString(arguments[0]);
+    string email = extractString(arguments[0]);
+    string restaurantId = extractString(arguments[1]);
     
-    cout << "[ViewMenuFunc] Viewing menu for restaurant: " << restaurantId << endl;
+    cout << "[ViewMenuFunc] " << email << " viewing menu for restaurant: " << restaurantId << endl;
     
     try {
-        HttpResponse resp = factory->getHttpClient()->get("/api/restaurants/" + restaurantId + "/menu");
+        string token = getCurrentToken(email);
+        
+        if (token.empty()) {
+            cerr << "[ViewMenuFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
+        
+        HttpResponse resp = factory->getHttpClient()->get(
+            "/api/restaurants/" + restaurantId + "/menu",
+            {{"Authorization", "Bearer " + token}}
+        );
         
         if (resp.statusCode == 200) {
             json menuItems = resp.getJson();
@@ -911,22 +932,25 @@ AddToCartFunc::AddToCartFunc(RestaurantFunctionFactory* factory, vector<Expr*> a
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> AddToCartFunc::execute() {
-    if (arguments.size() < 2) throw runtime_error("addToCart requires 2 arguments");
+    if (arguments.size() < 3) throw runtime_error("addToCart requires 3 arguments");
     
-    string menuItemId = extractString(arguments[0]);
-    string quantity = extractString(arguments[1]);
+    string email = extractString(arguments[0]);
+    string menuItemId = extractString(arguments[1]);
+    int quantity = extractInt(arguments[2]);
     
-    cout << "[AddToCartFunc] Adding item " << menuItemId << " to cart" << endl;
+    cout << "[AddToCartFunc] " << email << " adding item " << menuItemId << " (qty: " << quantity << ")" << endl;
     
     try {
-        // Need to get token from current user context
-        // This would be set by symbolic execution when email is resolved
-        string email = ""; // Will be resolved from symbolic execution context
         string token = getCurrentToken(email);
+        
+        if (token.empty()) {
+            cerr << "[AddToCartFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
         
         json body = {
             {"menuItemId", menuItemId},
-            {"quantity", stoi(quantity)}
+            {"quantity", quantity}
         };
         
         HttpResponse resp = factory->getHttpClient()->post("/api/cart", body, {
@@ -934,11 +958,11 @@ unique_ptr<Expr> AddToCartFunc::execute() {
         });
         
         if (resp.statusCode == 200) {
-            // Update C_cache
             json respData = resp.getJson();
             if (respData.contains("cart")) {
                 factory->getC()[email] = respData["cart"].dump();
             }
+            cout << "[AddToCartFunc] Item added to cart" << endl;
         }
         
         return make_unique<Num>(resp.statusCode);
@@ -949,20 +973,26 @@ unique_ptr<Expr> AddToCartFunc::execute() {
 }
 
 // ========== PLACE ORDER ==========
+
 PlaceOrderFunc::PlaceOrderFunc(RestaurantFunctionFactory* factory, vector<Expr*> args)
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> PlaceOrderFunc::execute() {
-    if (arguments.size() < 2) throw runtime_error("placeOrder requires 2 arguments");
+    if (arguments.size() < 3) throw runtime_error("placeOrder requires 3 arguments");
     
-    string deliveryAddress = extractString(arguments[0]);
-    string paymentMethod = extractString(arguments[1]);
+    string email = extractString(arguments[0]);
+    string deliveryAddress = extractString(arguments[1]);
+    string paymentMethod = extractString(arguments[2]);
     
-    cout << "[PlaceOrderFunc] Placing order..." << endl;
+    cout << "[PlaceOrderFunc] " << email << " placing order..." << endl;
     
     try {
-        string email = ""; // From symbolic execution context
         string token = getCurrentToken(email);
+        
+        if (token.empty()) {
+            cerr << "[PlaceOrderFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
         
         json body = {
             {"deliveryAddress", {
@@ -983,10 +1013,7 @@ unique_ptr<Expr> PlaceOrderFunc::execute() {
             if (respData.contains("order") && respData["order"].contains("_id")) {
                 string orderId = respData["order"]["_id"].get<string>();
                 factory->getO()[orderId] = respData["order"].dump();
-                
-                // Clear cart
-                factory->getC().erase(email);
-                
+                factory->getC().erase(email);  // Clear cart after order
                 cout << "[PlaceOrderFunc] Order placed: " << orderId << endl;
             }
         }
@@ -997,29 +1024,33 @@ unique_ptr<Expr> PlaceOrderFunc::execute() {
         return make_unique<Num>(500);
     }
 }
-
 // ========== LEAVE REVIEW ==========
 LeaveReviewFunc::LeaveReviewFunc(RestaurantFunctionFactory* factory, vector<Expr*> args)
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> LeaveReviewFunc::execute() {
-    if (arguments.size() < 4) throw runtime_error("leaveReview requires 4 arguments");
+    if (arguments.size() < 5) throw runtime_error("leaveReview requires 5 arguments");
     
-    string orderId = extractString(arguments[0]);
-    string restaurantRating = extractString(arguments[1]);
-    string deliveryRating = extractString(arguments[2]);
-    string comment = extractString(arguments[3]);
+    string email = extractString(arguments[0]);
+    string orderId = extractString(arguments[1]);
+    int restaurantRating = extractInt(arguments[2]);
+    int deliveryRating = extractInt(arguments[3]);
+    string comment = extractString(arguments[4]);
     
-    cout << "[LeaveReviewFunc] Leaving review for order: " << orderId << endl;
+    cout << "[LeaveReviewFunc] " << email << " leaving review for order: " << orderId << endl;
     
     try {
-        string email = ""; // From context
         string token = getCurrentToken(email);
+        
+        if (token.empty()) {
+            cerr << "[LeaveReviewFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
         
         json body = {
             {"orderId", orderId},
-            {"restaurantRating", stoi(restaurantRating)},
-            {"deliveryRating", stoi(deliveryRating)},
+            {"restaurantRating", restaurantRating},
+            {"deliveryRating", deliveryRating},
             {"restaurantComment", comment},
             {"deliveryComment", comment}
         };
@@ -1049,17 +1080,22 @@ CreateRestaurantFunc::CreateRestaurantFunc(RestaurantFunctionFactory* factory, v
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> CreateRestaurantFunc::execute() {
-    if (arguments.size() < 3) throw runtime_error("createRestaurant requires 3 arguments");
+    if (arguments.size() < 4) throw runtime_error("createRestaurant requires 4 arguments");
     
-    string name = extractString(arguments[0]);
-    string address = extractString(arguments[1]);
-    string contact = extractString(arguments[2]);
+    string email = extractString(arguments[0]);
+    string name = extractString(arguments[1]);
+    string address = extractString(arguments[2]);
+    string contact = extractString(arguments[3]);
     
-    cout << "[CreateRestaurantFunc] Creating restaurant: " << name << endl;
+    cout << "[CreateRestaurantFunc] " << email << " creating restaurant: " << name << endl;
     
     try {
-        string email = ""; // From context
         string token = getCurrentToken(email);
+        
+        if (token.empty()) {
+            cerr << "[CreateRestaurantFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
         
         json body = {
             {"name", name},
@@ -1070,8 +1106,8 @@ unique_ptr<Expr> CreateRestaurantFunc::execute() {
                 {"zipCode", "12345"}
             }},
             {"contact", {
-                {"phone", contact},
-                {"email", email}
+                {"phone", "1234567890"},    // ← Use a valid phone number
+                {"email", contact}           // ← Use contact as email instead
             }},
             {"cuisineTypes", json::array({"Indian", "Continental"})},
             {"hours", {
@@ -1080,9 +1116,13 @@ unique_ptr<Expr> CreateRestaurantFunc::execute() {
             }}
         };
         
+        cout << "[CreateRestaurantFunc] Request body: " << body.dump(2) << endl;  // Debug
+        
         HttpResponse resp = factory->getHttpClient()->post("/api/restaurants", body, {
             {"Authorization", "Bearer " + token}
         });
+        
+        cout << "[CreateRestaurantFunc] Response status: " << resp.statusCode << endl;  // Debug
         
         if (resp.statusCode == 201) {
             json respData = resp.getJson();
@@ -1090,9 +1130,14 @@ unique_ptr<Expr> CreateRestaurantFunc::execute() {
                 string restaurantId = respData["restaurant"]["_id"].get<string>();
                 factory->getR()[restaurantId] = respData["restaurant"].dump();
                 factory->getOwners()[restaurantId] = email;
-                
                 cout << "[CreateRestaurantFunc] Restaurant created: " << restaurantId << endl;
+                
+                // Return the restaurant ID as a string so it can be used later
+                return make_unique<String>(restaurantId);
             }
+        } else {
+            // Print response body for debugging
+            cout << "[CreateRestaurantFunc] Error response: " << resp.body << endl;
         }
         
         return make_unique<Num>(resp.statusCode);
@@ -1107,24 +1152,29 @@ AddMenuItemFunc::AddMenuItemFunc(RestaurantFunctionFactory* factory, vector<Expr
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> AddMenuItemFunc::execute() {
-    if (arguments.size() < 3) throw runtime_error("addMenuItem requires 3 arguments");
+    if (arguments.size() < 4) throw runtime_error("addMenuItem requires 4 arguments");
     
-    string restaurantId = extractString(arguments[0]);
-    string name = extractString(arguments[1]);
-    string price = extractString(arguments[2]);
+    string email = extractString(arguments[0]);
+    string restaurantId = extractString(arguments[1]);
+    string name = extractString(arguments[2]);
+    int price = extractInt(arguments[3]);
     
-    cout << "[AddMenuItemFunc] Adding menu item: " << name << endl;
+    cout << "[AddMenuItemFunc] " << email << " adding menu item: " << name << " to restaurant " << restaurantId << endl;
     
     try {
-        string email = ""; // From context
         string token = getCurrentToken(email);
+        
+        if (token.empty()) {
+            cerr << "[AddMenuItemFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
         
         json body = {
             {"restaurantId", restaurantId},
             {"name", name},
             {"description", "Test menu item"},
             {"category", "Main Course"},
-            {"price", stof(price)},
+            {"price", price},
             {"isVegetarian", true}
         };
         
@@ -1153,23 +1203,24 @@ AssignOrderFunc::AssignOrderFunc(RestaurantFunctionFactory* factory, vector<Expr
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> AssignOrderFunc::execute() {
-    if (arguments.size() < 2) throw runtime_error("assignOrder requires 2 arguments");
+    if (arguments.size() < 3) throw runtime_error("assignOrder requires 3 arguments");
     
-    string orderId = extractString(arguments[0]);
-    string agentEmail = extractString(arguments[1]);
+    string ownerEmail = extractString(arguments[0]);
+    string orderId = extractString(arguments[1]);
+    string agentEmail = extractString(arguments[2]);
     
-    cout << "[AssignOrderFunc] Assigning order " << orderId << " to " << agentEmail << endl;
+    cout << "[AssignOrderFunc] " << ownerEmail << " assigning order " << orderId << " to agent " << agentEmail << endl;
     
     try {
-        string email = ""; // Owner email from context
-        string token = getCurrentToken(email);
+        string token = getCurrentToken(ownerEmail);
         
-        // Need to get agent's user ID
-        // In real implementation, would query backend for user ID by email
-        // For now, pass email directly (backend needs to handle this)
+        if (token.empty()) {
+            cerr << "[AssignOrderFunc] Error: No token for " << ownerEmail << endl;
+            return make_unique<Num>(401);
+        }
         
         json body = {
-            {"deliveryAgentId", agentEmail}  // Simplified - should be ID
+            {"deliveryAgentId", agentEmail}
         };
         
         HttpResponse resp = factory->getHttpClient()->put("/api/orders/" + orderId + "/assign", body, {
@@ -1193,20 +1244,23 @@ UpdateOrderStatusOwnerFunc::UpdateOrderStatusOwnerFunc(RestaurantFunctionFactory
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> UpdateOrderStatusOwnerFunc::execute() {
-    if (arguments.size() < 2) throw runtime_error("updateOrderStatusOwner requires 2 arguments");
+    if (arguments.size() < 3) throw runtime_error("updateOrderStatusOwner requires 3 arguments");
     
-    string orderId = extractString(arguments[0]);
-    string status = extractString(arguments[1]);
+    string email = extractString(arguments[0]);
+    string orderId = extractString(arguments[1]);
+    string status = extractString(arguments[2]);
     
-    cout << "[UpdateOrderStatusOwnerFunc] Updating order " << orderId << " to " << status << endl;
+    cout << "[UpdateOrderStatusOwnerFunc] " << email << " updating order " << orderId << " to " << status << endl;
     
     try {
-        string email = ""; // From context
         string token = getCurrentToken(email);
         
-        json body = {
-            {"status", status}
-        };
+        if (token.empty()) {
+            cerr << "[UpdateOrderStatusOwnerFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
+        
+        json body = {{"status", status}};
         
         HttpResponse resp = factory->getHttpClient()->put("/api/orders/" + orderId + "/status", body, {
             {"Authorization", "Bearer " + token}
@@ -1228,20 +1282,23 @@ UpdateOrderStatusAgentFunc::UpdateOrderStatusAgentFunc(RestaurantFunctionFactory
     : APIFunction(factory, args) {}
 
 unique_ptr<Expr> UpdateOrderStatusAgentFunc::execute() {
-    if (arguments.size() < 2) throw runtime_error("updateOrderStatusAgent requires 2 arguments");
+    if (arguments.size() < 3) throw runtime_error("updateOrderStatusAgent requires 3 arguments");
     
-    string orderId = extractString(arguments[0]);
-    string status = extractString(arguments[1]);
+    string email = extractString(arguments[0]);
+    string orderId = extractString(arguments[1]);
+    string status = extractString(arguments[2]);
     
-    cout << "[UpdateOrderStatusAgentFunc] Updating order " << orderId << " to " << status << endl;
+    cout << "[UpdateOrderStatusAgentFunc] " << email << " updating order " << orderId << " to " << status << endl;
     
     try {
-        string email = ""; // From context
         string token = getCurrentToken(email);
         
-        json body = {
-            {"status", status}
-        };
+        if (token.empty()) {
+            cerr << "[UpdateOrderStatusAgentFunc] Error: No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
+        
+        json body = {{"status", status}};
         
         HttpResponse resp = factory->getHttpClient()->put("/api/orders/" + orderId + "/status", body, {
             {"Authorization", "Bearer " + token}
@@ -1257,7 +1314,6 @@ unique_ptr<Expr> UpdateOrderStatusAgentFunc::execute() {
         return make_unique<Num>(500);
     }
 }
-
 /* ============================================================
  * RestaurantFunctionFactory Implementation
  * ============================================================ */

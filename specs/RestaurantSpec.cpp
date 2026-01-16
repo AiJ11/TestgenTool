@@ -271,61 +271,65 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
     }
 
     /* ---------- browseRestaurantsOk ---------- */
-    {
-        vector<unique_ptr<Expr>> preArgs;
-        preArgs.push_back(make_unique<Var>("email"));
-        vector<unique_ptr<Expr>> domArgs;
-        domArgs.push_back(make_unique<Var>("T"));
-        preArgs.push_back(make_unique<FuncCall>("dom", std::move(domArgs)));
-        auto pre = make_unique<FuncCall>("in", std::move(preArgs));
+    
+{
+    vector<unique_ptr<Expr>> preArgs;
+    preArgs.push_back(make_unique<Var>("email"));
+    vector<unique_ptr<Expr>> domArgs;
+    domArgs.push_back(make_unique<Var>("T"));
+    preArgs.push_back(make_unique<FuncCall>("dom", std::move(domArgs)));
+    auto pre = make_unique<FuncCall>("in", std::move(preArgs));
 
-        vector<unique_ptr<Expr>> callArgs;
-        auto call = make_unique<APIcall>(
-            make_unique<FuncCall>("browseRestaurants", std::move(callArgs)),
-            Response(nullptr)
-        );
+    //  Add email as parameter
+    vector<unique_ptr<Expr>> callArgs;
+    callArgs.push_back(make_unique<Var>("email"));  // ← ADD THIS LINE
+    auto call = make_unique<APIcall>(
+        make_unique<FuncCall>("browseRestaurants", std::move(callArgs)),
+        Response(nullptr)
+    );
 
-        auto post = make_unique<Num>(1);
+    auto post = make_unique<Num>(1);
 
-        blocks.push_back(make_unique<API>(
-            std::move(pre), std::move(call), Response(std::move(post)), "browseRestaurantsOk"
-        ));
-    }
+    blocks.push_back(make_unique<API>(
+        std::move(pre), std::move(call), Response(std::move(post)), "browseRestaurantsOk"
+    ));
+}
 
     /* ---------- viewMenuOk ---------- */
-    {
-        vector<unique_ptr<Expr>> preArgs;
-        
-        vector<unique_ptr<Expr>> inArgs1;
-        inArgs1.push_back(make_unique<Var>("email"));
-        vector<unique_ptr<Expr>> domArgs1;
-        domArgs1.push_back(make_unique<Var>("T"));
-        inArgs1.push_back(make_unique<FuncCall>("dom", std::move(domArgs1)));
-        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs1)));
-        
-        vector<unique_ptr<Expr>> inArgs2;
-        inArgs2.push_back(make_unique<Var>("restaurantId"));
-        vector<unique_ptr<Expr>> domArgs2;
-        domArgs2.push_back(make_unique<Var>("R"));
-        inArgs2.push_back(make_unique<FuncCall>("dom", std::move(domArgs2)));
-        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs2)));
-        
-        auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
+{
+    vector<unique_ptr<Expr>> preArgs;
+    
+    vector<unique_ptr<Expr>> inArgs1;
+    inArgs1.push_back(make_unique<Var>("email"));
+    vector<unique_ptr<Expr>> domArgs1;
+    domArgs1.push_back(make_unique<Var>("T"));
+    inArgs1.push_back(make_unique<FuncCall>("dom", std::move(domArgs1)));
+    preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs1)));
+    
+    vector<unique_ptr<Expr>> inArgs2;
+    inArgs2.push_back(make_unique<Var>("restaurantId"));
+    vector<unique_ptr<Expr>> domArgs2;
+    domArgs2.push_back(make_unique<Var>("R"));
+    inArgs2.push_back(make_unique<FuncCall>("dom", std::move(domArgs2)));
+    preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs2)));
+    
+    auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
 
-        vector<unique_ptr<Expr>> callArgs;
-        callArgs.push_back(make_unique<Var>("restaurantId"));
-        auto call = make_unique<APIcall>(
-            make_unique<FuncCall>("viewMenu", std::move(callArgs)),
-            Response(nullptr)
-        );
+    //  Add email as first parameter
+    vector<unique_ptr<Expr>> callArgs;
+    callArgs.push_back(make_unique<Var>("email"));        // ADD email
+    callArgs.push_back(make_unique<Var>("restaurantId"));
+    auto call = make_unique<APIcall>(
+        make_unique<FuncCall>("viewMenu", std::move(callArgs)),
+        Response(nullptr)
+    );
 
-        auto post = make_unique<Num>(1);
+    auto post = make_unique<Num>(1);
 
-        blocks.push_back(make_unique<API>(
-            std::move(pre), std::move(call), Response(std::move(post)), "viewMenuOk"
-        ));
-    }
-
+    blocks.push_back(make_unique<API>(
+        std::move(pre), std::move(call), Response(std::move(post)), "viewMenuOk"
+    ));
+}
     /* ---------- loginErr ---------- */
 {
     // PRE: email NOT in dom(U) (user doesn't exist)
@@ -401,6 +405,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
     auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
 
     vector<unique_ptr<Expr>> callArgs;
+    callArgs.push_back(make_unique<Var>("email")); // ADD email
     callArgs.push_back(make_unique<Var>("deliveryAddress"));
     callArgs.push_back(make_unique<Var>("paymentMethod"));
     auto call = make_unique<APIcall>(
@@ -426,6 +431,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
     auto pre = make_unique<FuncCall>("not_in", std::move(preArgs));
 
     vector<unique_ptr<Expr>> callArgs;
+    callArgs.push_back(make_unique<Var>("email")); 
     callArgs.push_back(make_unique<Var>("orderId"));
     callArgs.push_back(make_unique<Var>("restaurantRating"));
     callArgs.push_back(make_unique<Var>("deliveryRating"));
@@ -465,6 +471,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
     auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
 
     vector<unique_ptr<Expr>> callArgs;
+    callArgs.push_back(make_unique<Var>("email"));
     callArgs.push_back(make_unique<Var>("name"));
     callArgs.push_back(make_unique<Var>("address"));
     callArgs.push_back(make_unique<Var>("contact"));
@@ -501,6 +508,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
 
         vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email"));
         callArgs.push_back(make_unique<Var>("menuItemId"));
         callArgs.push_back(make_unique<Var>("quantity"));
         auto call = make_unique<APIcall>(
@@ -543,6 +551,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
 
         vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email")); 
         callArgs.push_back(make_unique<Var>("deliveryAddress"));
         callArgs.push_back(make_unique<Var>("paymentMethod"));
         auto call = make_unique<APIcall>(
@@ -598,6 +607,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
 
         vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email")); 
         callArgs.push_back(make_unique<Var>("orderId"));
         callArgs.push_back(make_unique<Var>("restaurantRating"));
         callArgs.push_back(make_unique<Var>("deliveryRating"));
@@ -647,6 +657,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
 
         vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email"));
         callArgs.push_back(make_unique<Var>("name"));
         callArgs.push_back(make_unique<Var>("address"));
         callArgs.push_back(make_unique<Var>("contact"));
@@ -720,6 +731,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto pre = make_unique<FuncCall>("AND", std::move(preArgsVec));
 
         vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email"));  
         callArgs.push_back(make_unique<Var>("restaurantId"));
         callArgs.push_back(make_unique<Var>("name"));
         callArgs.push_back(make_unique<Var>("price"));
@@ -791,6 +803,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto pre = make_unique<FuncCall>("AND", std::move(preArgsVec));
 
         vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email")); 
         callArgs.push_back(make_unique<Var>("orderId"));
         callArgs.push_back(make_unique<Var>("agentEmail"));
         auto call = make_unique<APIcall>(
@@ -850,6 +863,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto pre = make_unique<FuncCall>("AND", std::move(preArgsVec));
 
         vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email"));
         callArgs.push_back(make_unique<Var>("orderId"));
         callArgs.push_back(make_unique<Var>("status"));
         auto call = make_unique<APIcall>(
@@ -925,6 +939,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto pre = make_unique<FuncCall>("AND", std::move(preArgsVec));
 
         vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("email")); 
         callArgs.push_back(make_unique<Var>("orderId"));
         callArgs.push_back(make_unique<Var>("status"));
         auto call = make_unique<APIcall>(
