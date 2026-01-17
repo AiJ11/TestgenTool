@@ -404,7 +404,7 @@ bool SEE::isReady(Expr &e, SymbolTable &st)
             return true;
         }
 
-        // NEW: Check if this is a base name with a mapped suffixed name
+        // Check if this is a base name with a mapped suffixed name
         auto it = baseNameToSuffixed.find(var.name);
         if (it != baseNameToSuffixed.end())
         {
@@ -849,6 +849,36 @@ string SEE::findMenuItemIdFromSigma()
 string SEE::findOrderIdFromSigma()
 {
     return findKeyFromMapInSigma("tmp_O_");
+}
+
+string SEE::findProductIdFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_P_");
+}
+
+string SEE::findCartIdFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_C_");
+}
+
+string SEE::findReviewIdFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_Rev_");
+}
+
+string SEE::findOrderStatusFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_OrderStatus_");
+}
+//restaurant webapp
+string SEE::findSellersFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_Sellers_");
+}
+
+string SEE::findStockFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_Stock_");
 }
 
 Expr *SEE::evaluateExpr(Expr &expr, SymbolTable &st)
@@ -1297,7 +1327,7 @@ Expr *SEE::evaluateExpr(Expr &expr, SymbolTable &st)
         {
             Expr *value = sigma.getValue(v.name);
 
-            // NEW: Check if the value is a placeholder that needs runtime resolution
+            // Check if the value is a placeholder that needs runtime resolution
             if (value->exprType == ExprType::STRING)
             {
                 String *strVal = dynamic_cast<String *>(value);
@@ -1329,6 +1359,43 @@ Expr *SEE::evaluateExpr(Expr &expr, SymbolTable &st)
                 {
                     cout << "    [EVAL] Found placeholder __NEEDS_ORDER_ID__, attempting runtime resolution" << endl;
                     string resolvedId = findOrderIdFromSigma();
+                    if (!resolvedId.empty())
+                    {
+                        cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                        String *resolved = new String(resolvedId);
+                        sigma.setValue(v.name, resolved);
+                        return resolved;
+                    }
+                }
+
+                else if (strVal->value == "__NEEDS_PRODUCT_ID__")
+                {
+                    cout << "    [EVAL] Found placeholder __NEEDS_PRODUCT_ID__, attempting runtime resolution" << endl;
+                    string resolvedId = findProductIdFromSigma();
+                    if (!resolvedId.empty())
+                    {
+                        cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                        String *resolved = new String(resolvedId);
+                        sigma.setValue(v.name, resolved);
+                        return resolved;
+                    }
+                }
+                else if (strVal->value == "__NEEDS_CART_ID__")
+                {
+                    cout << "    [EVAL] Found placeholder __NEEDS_CART_ID__, attempting runtime resolution" << endl;
+                    string resolvedId = findCartIdFromSigma();
+                    if (!resolvedId.empty())
+                    {
+                        cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                        String *resolved = new String(resolvedId);
+                        sigma.setValue(v.name, resolved);
+                        return resolved;
+                    }
+                }
+                else if (strVal->value == "__NEEDS_REVIEW_ID__")
+                {
+                    cout << "    [EVAL] Found placeholder __NEEDS_REVIEW_ID__, attempting runtime resolution" << endl;
+                    string resolvedId = findReviewIdFromSigma();
                     if (!resolvedId.empty())
                     {
                         cout << "    [EVAL] Resolved to: " << resolvedId << endl;

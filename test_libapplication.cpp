@@ -8,10 +8,13 @@
 #include "tester/tester.hh"
 #include "env.hh"
 #include "see/restaurantfunctionfactory.hh"
+#include "see/ecommercefunctionfactory.hh"
 #include "see/see.hh"
 
 // Import webapp-specific specs
 #include "specs/RestaurantSpec.hpp"
+#include "specs/EcommerceSpec.hpp"
+
 
 using namespace std;
 

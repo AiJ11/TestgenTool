@@ -37,11 +37,18 @@ class SEE {
         // "email0" -> "email", "password1" -> "password"
         string extractBaseName(const string& suffixedName);
 
-        // Helper methods for runtime placeholder resolution
+        // Helper methods for runtime placeholder resolution, restaurant ID, menu item ID, order ID
         string findKeyFromMapInSigma(const string& prefix);
         string findRestaurantIdFromSigma();
         string findMenuItemIdFromSigma();
         string findOrderIdFromSigma();
+        // E-commerce ID resolution helpers
+        string findProductIdFromSigma();
+        string findCartIdFromSigma();
+        string findReviewIdFromSigma();
+        string findOrderStatusFromSigma();
+        string findSellersFromSigma();
+        string findStockFromSigma();
 
         unique_ptr<Expr> computePathConstraint(vector<Expr*>);
         // If the statement is a call to an API function, then none of its parameters

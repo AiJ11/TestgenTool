@@ -83,12 +83,21 @@ string extractBaseName(const string& varName) {
     if (idx < varName.length()) baseName = varName.substr(0, idx);
     return baseName;
 }
-
 // Check if a variable needs to be resolved from sigma (constraint-aware IDs)
 bool needsSigmaLookup(const string& baseName) {
-    return baseName == "restaurantId" || 
-           baseName == "menuItemId" || 
-           baseName == "orderId";
+    // Restaurant app IDs
+    if (baseName == "restaurantId" || 
+        baseName == "menuItemId" || 
+        baseName == "orderId") {
+        return true;
+    }
+    // E-commerce app IDs
+    if (baseName == "productId" ||
+        baseName == "cartId" ||
+        baseName == "reviewId") {
+        return true;
+    }
+    return false;
 }
 
 // Search sigma for the LATEST non-empty map with given prefix and return first key
@@ -127,6 +136,8 @@ Expr* Tester::generateValueForBaseName(const string& baseName, const string& var
                                         int index, map<string, Expr*>& baseNameToValue,
                                         bool lookupFromSigma) {
     Expr* value = nullptr;
+
+    
     
     // OWNER ROLE VARIABLES
     if (baseName == "ownerEmail") {
@@ -166,6 +177,117 @@ Expr* Tester::generateValueForBaseName(const string& baseName, const string& var
     }
     else if (baseName == "agentMobile") {
         value = new String("5550000003");
+    }
+    // ========================================
+    // E-COMMERCE: BUYER ROLE VARIABLES
+    // ========================================
+    else if (baseName == "buyerEmail") {
+        value = new String("buyer@example.com");
+    }
+    else if (baseName == "buyerPassword") {
+        value = new String("BuyerPass123!");
+    }
+    else if (baseName == "buyerFullName") {
+        value = new String("Test Buyer");
+    }
+    // E-COMMERCE: SELLER ROLE VARIABLES
+    else if (baseName == "sellerEmail") {
+        value = new String("seller@example.com");
+    }
+    else if (baseName == "sellerPassword") {
+        value = new String("SellerPass123!");
+    }
+    else if (baseName == "sellerFullName") {
+        value = new String("Test Seller");
+    }
+    else if (baseName == "storeName") {
+        value = new String("Test Store");
+    }
+    else if (baseName == "storeDescription") {
+        value = new String("A quality test store");
+    }
+    // E-COMMERCE: PRODUCT FIELDS
+    else if (baseName == "title") {
+        value = new String("Test Product");
+    }
+    else if (baseName == "description") {
+        value = new String("A great test product description");
+    }
+    else if (baseName == "category") {
+        value = new String("Electronics");
+    }
+    else if (baseName == "price") {
+        value = new Num(99);
+    }
+    // E-COMMERCE: CONSTRAINT-AWARE IDs
+    else if (baseName == "productId") {
+        if (lookupFromSigma) {
+            string realId = findKeyFromMapInSigma("tmp_P_");
+            if (!realId.empty()) {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] productId = \"" << realId << "\"" << endl;
+            } else {
+                value = new String("__NEEDS_PRODUCT_ID__");
+                cout << "    [DEFERRED] productId - no product in sigma yet" << endl;
+            }
+        } else {
+            value = new String("__NEEDS_PRODUCT_ID__");
+        }
+    }
+    else if (baseName == "cartId") {
+        if (lookupFromSigma) {
+            string realId = findKeyFromMapInSigma("tmp_C_");
+            if (!realId.empty()) {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] cartId = \"" << realId << "\"" << endl;
+            } else {
+                value = new String("__NEEDS_CART_ID__");
+                cout << "    [DEFERRED] cartId - no cart in sigma yet" << endl;
+            }
+        } else {
+            value = new String("__NEEDS_CART_ID__");
+        }
+    }
+    else if (baseName == "reviewId") {
+        if (lookupFromSigma) {
+            string realId = findKeyFromMapInSigma("tmp_Rev_");
+            if (!realId.empty()) {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] reviewId = \"" << realId << "\"" << endl;
+            } else {
+                value = new String("__NEEDS_REVIEW_ID__");
+                cout << "    [DEFERRED] reviewId - no review in sigma yet" << endl;
+            }
+        } else {
+            value = new String("__NEEDS_REVIEW_ID__");
+        }
+    }
+    // E-COMMERCE: SHIPPING ADDRESS
+    else if (baseName == "shippingAddress") {
+        value = new String("123 Test St,Test City,TS,12345,USA");
+    }
+    // E-COMMERCE: RATING
+    else if (baseName == "rating") {
+        value = new Num(5);
+    }
+    else if (baseName == "comment") {
+        value = new String("Great product, highly recommend!");
+    }
+    // E-COMMERCE: ORDER STATUS (for updateOrderStatus)
+    else if (baseName == "status") {
+        // Use static counter to track order status progression
+        static int ecommerceStatusCounter = 0;
+        const char* statusSequence[] = {
+            "Processing",  // 1st call
+            "Shipped",     // 2nd call
+            "Delivered"    // 3rd call
+        };
+        int seqIndex = ecommerceStatusCounter % 3;
+        value = new String(statusSequence[seqIndex]);
+        cout << "    [ORDER STATUS] Call #" << (ecommerceStatusCounter + 1)
+             << " -> status = \"" << statusSequence[seqIndex] << "\"" << endl;
+        ecommerceStatusCounter++;
+        return value;  // Return early, don't cache
     }
     // CONSTRAINT-AWARE IDs - Look up from sigma if flag is set
     else if (baseName == "restaurantId") {
@@ -357,10 +479,39 @@ void resolvePlaceholdersInPlace(vector<Expr*>& concreteVals,
                 cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
             }
         }
+        else if (strVal->value == "__NEEDS_PRODUCT_ID__") {
+            string realId = tester->findKeyFromMapInSigma("tmp_P_");
+            if (!realId.empty()) {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            } else {
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+        else if (strVal->value == "__NEEDS_CART_ID__") {
+            string realId = tester->findKeyFromMapInSigma("tmp_C_");
+            if (!realId.empty()) {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            } else {
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+        else if (strVal->value == "__NEEDS_REVIEW_ID__") {
+            string realId = tester->findKeyFromMapInSigma("tmp_Rev_");
+            if (!realId.empty()) {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            } else {
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
     }
 }
 
-// Resolve placeholders in the program AST itself (for statements that already have placeholder values)
 // Resolve placeholders in the program AST itself (for statements that already have placeholder values)
 void resolvePlaceholdersInProgram(Program& prog, Tester* tester) {
     cout << "\n>>> Resolving placeholders in program AST" << endl;
@@ -393,6 +544,25 @@ void resolvePlaceholdersInProgram(Program& prog, Tester* tester) {
                         newValue = tester->findKeyFromMapInSigma("tmp_O_");
                         if (newValue.empty()) {
                             newValue = "no_order_available";
+                        }
+                    }
+                    //ecommerce IDs
+                    else if (str->value == "__NEEDS_PRODUCT_ID__") {
+                        newValue = tester->findKeyFromMapInSigma("tmp_P_");
+                        if (newValue.empty()) {
+                            newValue = "no_product_available";
+                        }
+                    }
+                    else if (str->value == "__NEEDS_CART_ID__") {
+                        newValue = tester->findKeyFromMapInSigma("tmp_C_");
+                        if (newValue.empty()) {
+                            newValue = "no_cart_available";
+                        }
+                    }
+                    else if (str->value == "__NEEDS_REVIEW_ID__") {
+                        newValue = tester->findKeyFromMapInSigma("tmp_Rev_");
+                        if (newValue.empty()) {
+                            newValue = "no_review_available";
                         }
                     }
                     
