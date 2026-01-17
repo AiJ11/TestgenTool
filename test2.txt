@@ -1,0 +1,227 @@
+
+╔════════════════════════════════════════╗
+║  TESTGEN - RESTAURANT TEST SUITE      ║
+║  Total Tests: 25                       ║
+╚════════════════════════════════════════╝
+
+
+=== DEPTH TESTS ===
+
+========================================
+TEST: Test 02: Login Without Registration (Depth=1)
+MODE: Full Pipeline (With Backend)
+DEPTH: 1 API calls
+========================================
+
+[RestaurantFunctionFactory] Initialized with baseUrl: http://localhost:5002
+[RewriteGlobalsVisitor] Detected 10 globals: Assignments C M O Owners R Rev Roles T U 
+[RewriteGlobalsVisitor] Generated 0 statements in rewritten program
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: customerEmail0 := input()
+Statement 2: customerPassword0 := input()
+Statement 3: tmp_U_0 := get_U()
+Statement 4: assume(not_in(customerEmail, dom(tmp_U_0)))
+Statement 5: _result0 := login(customerEmail, customerPassword)
+Statement 6: assert()
+=== End Program ===
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+[HttpClient] POST /api/test/reset -> 200
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: customerEmail0 := input()
+[SEE] Mapping base name 'customerEmail' -> 'customerEmail0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X0
+[ASSIGN] Result: customerEmail0 := X0
+
+[ASSIGN] Evaluating: customerPassword0 := input()
+[SEE] Mapping base name 'customerPassword' -> 'customerPassword0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X1
+[ASSIGN] Result: customerPassword0 := X1
+[SEE] API call 'get_U' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_U_0 := get_U()
+[SEE] Mapping base name 'tmp_U_' -> 'tmp_U_0'
+[API_CALL] Executing API function: get_U
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_U
+  [API_CALL] Executing function...
+[GetUFunc] Fetching U...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_U_0
+[ASSIGN] Result: tmp_U_0 := {}
+
+[ASSUME] Evaluating: not_in(customerEmail, dom(tmp_U_0))
+  [EVAL] FuncCall: not_in with 2 args
+    [EVAL] Set non-membership: not_in
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+    [EVAL] Found in sigma: X0
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_U_0
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] not_in result: true (element not found)
+[ASSUME] Adding constraint: true
+[SEE] API call 'login' with symbolic arguments - interruption point
+[SEE] Interruption at statement 5
+
+[ASSIGN] Evaluating: _result0 := login(customerEmail, customerPassword)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+    [EVAL] Found in sigma: X0
+  [EVAL] Var lookup: customerPassword
+    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword0'
+    [EVAL] Found in sigma: X1
+[API_CALL] login has symbolic arguments - skipping actual execution
+  [API_ARG 0] X0 (symbolic: 1)
+  [API_ARG 1] X1 (symbolic: 1)
+[ASSIGN] Result: _result0 := -1 (symbolic placeholder)
+
+[ASSERT] Empty assertion, PASSED
+
+[SEE] Path Constraint: And(true, true)
+>>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
+
+>>> generateCTC: STEP 3 - Generating values with sigma lookup
+    [Found existing] _ -> _
+    [Found existing] tmp_U_ -> tmp_U_0
+    [Found existing] _result -> _result0
+    customerEmail0 = "customer@example.com"
+    customerPassword0 = "CustomerPass1!"
+
+>>> generateCTC: STEP 4 - Resolving placeholders from sigma
+
+>>> generateCTC: STEP 5 - Recursing with 2 concrete values
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 2
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+[HttpClient] POST /api/test/reset -> 200
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: customerEmail0 := "customer@example.com"
+[SEE] Mapping base name 'customerEmail' -> 'customerEmail0'
+  [EVAL] String: "customer@example.com"
+[ASSIGN] Result: customerEmail0 := "customer@example.com"
+
+[ASSIGN] Evaluating: customerPassword0 := "CustomerPass1!"
+[SEE] Mapping base name 'customerPassword' -> 'customerPassword0'
+  [EVAL] String: "CustomerPass1!"
+[ASSIGN] Result: customerPassword0 := "CustomerPass1!"
+[SEE] API call 'get_U' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_U_0 := get_U()
+[SEE] Mapping base name 'tmp_U_' -> 'tmp_U_0'
+[API_CALL] Executing API function: get_U
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_U
+  [API_CALL] Executing function...
+[GetUFunc] Fetching U...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_U_0
+[ASSIGN] Result: tmp_U_0 := {}
+
+[ASSUME] Evaluating: not_in(customerEmail, dom(tmp_U_0))
+  [EVAL] FuncCall: not_in with 2 args
+    [EVAL] Set non-membership: not_in
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_U_0
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] not_in result: true (element not found)
+[ASSUME] Adding constraint: true
+[SEE] API call 'login' ready for actual execution
+
+[ASSIGN] Evaluating: _result0 := login(customerEmail, customerPassword)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] Var lookup: customerPassword
+    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword0'
+    [EVAL] Found in sigma: "CustomerPass1!"
+[API_CALL] Executing API function: login
+  [API_ARG] "customer@example.com"
+  [API_ARG] "CustomerPass1!"
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: login
+  [API_CALL] Executing function...
+[LoginFunc] Logging in: customer@example.com
+[HttpClient] POST /api/auth/login -> 401
+  [API_CALL] Function returned: ""
+  [API_CALL] Storing result in variable: _result0
+[ASSIGN] Result: _result0 := ""
+
+[ASSERT] Empty assertion, PASSED
+
+[SEE] Path Constraint: And(true, true)
+>>> generateCTC: After symex - Is abstract: 0, Has placeholders: 0
+>>> generateCTC: Program is now fully concrete
+
+[FINAL CTC]
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: customerEmail0 := "customer@example.com"
+Statement 2: customerPassword0 := "CustomerPass1!"
+Statement 3: tmp_U_0 := get_U()
+Statement 4: assume(not_in(customerEmail, dom(tmp_U_0)))
+Statement 5: _result0 := login(customerEmail, customerPassword)
+Statement 6: assert()
+=== End Program ===
+
+✓ Test 02: Login Without Registration (Depth=1) COMPLETE!
+
