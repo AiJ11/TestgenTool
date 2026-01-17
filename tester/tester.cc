@@ -165,6 +165,11 @@ Expr* Tester::generateValueForBaseName(const string& baseName, const string& var
     else if (baseName == "customerMobile") {
         value = new String("5550000002");
     }
+    // WRONG PASSWORD FOR ERROR TESTING
+    else if (baseName == "wrongPassword")
+    {
+        value = new String("WrongPass123!");
+    }
     // AGENT ROLE VARIABLES
     else if (baseName == "agentEmail") {
         value = new String("agent@example.com");
@@ -581,7 +586,33 @@ void resolvePlaceholdersInProgram(Program& prog, Tester* tester) {
         }
     }
 }
+bool isPathConstraintUnsat(SEE &see)
+{
+    vector<Expr *> &pc = see.getPathConstraint();
 
+    for (Expr *constraint : pc)
+    {
+        // Check for BoolConst(false)
+        if (constraint->exprType == ExprType::BOOL_CONST)
+        {
+            BoolConst *bc = dynamic_cast<BoolConst *>(constraint);
+            if (bc && !bc->value)
+            {
+                return true; // Found concrete 'false'
+            }
+        }
+        // Check for Num(0) which also represents false
+        else if (constraint->exprType == ExprType::NUM)
+        {
+            Num *num = dynamic_cast<Num *>(constraint);
+            if (num && num->value == 0)
+            {
+                return true; // Found numeric false
+            }
+        }
+    }
+    return false;
+}
 unique_ptr<Program> Tester::generateCTC(unique_ptr<Program> atc, vector<Expr*> ConcreteVals, ValueEnvironment* ve) {
     cout << "\n========================================" << endl;
     cout << ">>> generateCTC: Starting iteration" << endl;
@@ -607,6 +638,14 @@ unique_ptr<Program> Tester::generateCTC(unique_ptr<Program> atc, vector<Expr*> C
     SymbolTable st(nullptr);
     see.execute(*rewritten, st);
     
+    // NEW: STEP 2a - Check if path constraint is satisfiable
+    if (isPathConstraintUnsat(see))
+    {
+        cout << "\n>>> generateCTC: UNSAT DETECTED!" << endl;
+        cout << ">>> Precondition cannot be satisfied with current database state." << endl;
+        cout << ">>> This test sequence requires prerequisite operations." << endl;
+        return nullptr; // Return nullptr to signal UNSAT
+    }
     // STEP 3: Check if program still has input() statements
     bool stillAbstract = isAbstract(*rewritten);
     bool stillHasPlaceholders = hasUnresolvedPlaceholders(*rewritten);

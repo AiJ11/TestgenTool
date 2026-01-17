@@ -67,9 +67,74 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
 
     vector<unique_ptr<API>> blocks;
 
+    /* ---------- loginWrongPasswordErr (correct email, wrong password) ---------- */
+    {
+        // PRE: customerEmail in dom(U) AND U[customerEmail] != wrongPassword
+        vector<unique_ptr<Expr>> preArgs;
+
+        // customerEmail in dom(U) - user exists
+        vector<unique_ptr<Expr>> inArgs;
+        inArgs.push_back(make_unique<Var>("customerEmail"));
+        vector<unique_ptr<Expr>> domArgs;
+        domArgs.push_back(make_unique<Var>("U"));
+        inArgs.push_back(make_unique<FuncCall>("dom", std::move(domArgs)));
+        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs)));
+
+        // U[customerEmail] != wrongPassword (password mismatch)
+        vector<unique_ptr<Expr>> neqArgs;
+        vector<unique_ptr<Expr>> indexArgs;
+        indexArgs.push_back(make_unique<Var>("U"));
+        indexArgs.push_back(make_unique<Var>("customerEmail"));
+        neqArgs.push_back(make_unique<FuncCall>("[]", std::move(indexArgs)));
+        neqArgs.push_back(make_unique<Var>("wrongPassword"));
+        preArgs.push_back(make_unique<FuncCall>("!=", std::move(neqArgs)));
+
+        auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
+
+        // CALL: login(customerEmail, wrongPassword)
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("customerEmail"));
+        callArgs.push_back(make_unique<Var>("wrongPassword"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("login", std::move(callArgs)),
+            Response(nullptr));
+
+        // POST: true (no state change, returns 401)
+        auto post = make_unique<Num>(1);
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "loginWrongPasswordErr"));
+    }
+
+    /* ---------- loginCustomerErr (login without registration) ---------- */
+    {
+        // PRE: customerEmail NOT in dom(U) - user doesn't exist
+        vector<unique_ptr<Expr>> notInArgs;
+        notInArgs.push_back(make_unique<Var>("customerEmail"));
+        vector<unique_ptr<Expr>> domArgs;
+        domArgs.push_back(make_unique<Var>("U"));
+        notInArgs.push_back(make_unique<FuncCall>("dom", std::move(domArgs)));
+        auto pre = make_unique<FuncCall>("not_in", std::move(notInArgs));
+
+        // CALL: login(customerEmail, customerPassword)
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("customerEmail"));
+        callArgs.push_back(make_unique<Var>("customerPassword"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("login", std::move(callArgs)),
+            Response(nullptr));
+
+        // POST: true (no state change, returns 401)
+        auto post = make_unique<Num>(1);
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "loginCustomerErr"));
+    }
+
     /* ========================================================================
      * CUSTOMER APIs
      * ======================================================================== */
+
 
     /* ---------- registerCustomerOk ---------- */
     {
