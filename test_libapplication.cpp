@@ -159,6 +159,134 @@ private:
 };
 
 // ============================================
+// ECOMMERCE TEST EXECUTOR
+// ============================================
+
+class EcommerceTestExecutor
+{
+private:
+    TestMode mode;
+    string backendUrl;
+
+public:
+    EcommerceTestExecutor(TestMode m, const string &url = "http://localhost:3000")
+        : mode(m), backendUrl(url) {}
+
+    void runTest(
+        const string &testName,
+        unique_ptr<Spec> spec,
+        const vector<string> &testSequence)
+    {
+        cout << "\n========================================" << endl;
+        cout << "TEST: " << testName << endl;
+        cout << "MODE: " << getModeString() << endl;
+        cout << "DEPTH: " << testSequence.size() << " API calls" << endl;
+        cout << "========================================\n"
+             << endl;
+
+        try
+        {
+            switch (mode)
+            {
+            case TestMode::ORIGINAL:
+                runOriginal(std::move(spec), testSequence);
+                break;
+            case TestMode::REWRITE_ONLY:
+                runRewriteOnly(std::move(spec), testSequence);
+                break;
+            case TestMode::FULL_PIPELINE:
+                runFullPipeline(std::move(spec), testSequence);
+                break;
+            }
+            cout << "\n✓ " << testName << " COMPLETE!\n"
+                 << endl;
+        }
+        catch (const runtime_error &e)
+        {
+            string errorMsg = e.what();
+            if (errorMsg.find("UNSAT") != string::npos)
+            {
+                cout << "\n⊘ " << testName << " UNSAT: Preconditions not satisfiable\n"
+                     << endl;
+            }
+            else
+            {
+                cout << "\n✗ " << testName << " FAILED: " << errorMsg << "\n"
+                     << endl;
+            }
+        }
+        catch (const exception &e)
+        {
+            cout << "\n✗ " << testName << " FAILED: " << e.what() << "\n"
+                 << endl;
+        }
+    }
+
+private:
+    string getModeString()
+    {
+        switch (mode)
+        {
+        case TestMode::ORIGINAL:
+            return "Original (No Rewrite)";
+        case TestMode::REWRITE_ONLY:
+            return "Rewrite Only (No Backend)";
+        case TestMode::FULL_PIPELINE:
+            return "Full Pipeline (With Backend)";
+        }
+        return "Unknown";
+    }
+
+    void runOriginal(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        Program atc = genATC(*spec, ts);
+        PrintVisitor printer;
+        printer.visitProgram(atc);
+    }
+
+    void runRewriteOnly(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        auto factory = make_unique<Ecommerce::EcommerceFunctionFactory>(backendUrl);
+        Tester tester(factory.get());
+
+        unique_ptr<Program> testApiATC = tester.generateATC(std::move(spec), ts);
+    }
+
+    void runFullPipeline(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        SymbolTable *symbolTable = new SymbolTable(nullptr);
+
+        auto factory = make_unique<Ecommerce::EcommerceFunctionFactory>(backendUrl);
+        Tester tester(factory.get());
+
+        unique_ptr<Program> testApiATC = tester.generateATC(std::move(spec), ts);
+
+        vector<Expr *> inputVars;
+        ValueEnvironment *valueEnv = new ValueEnvironment(nullptr);
+
+        unique_ptr<Program> ctc = tester.generateCTC(
+            std::move(testApiATC),
+            inputVars,
+            valueEnv);
+
+        if (!ctc)
+        {
+            cout << "\n[RESULT] UNSAT - Test preconditions cannot be satisfied" << endl;
+            delete symbolTable;
+            delete valueEnv;
+            throw runtime_error("UNSAT: Preconditions not satisfiable");
+        }
+
+        cout << "\n[FINAL CTC]" << endl;
+        PrintVisitor printer;
+        printer.visitProgram(*ctc);
+
+        delete symbolTable;
+        delete valueEnv;
+    }
+};
+
+// ============================================
 // 25 COMPREHENSIVE RESTAURANT TESTS
 // ============================================
 
@@ -526,6 +654,326 @@ namespace RestaurantTests
 }
 
 // ============================================
+// E-COMMERCE COMPREHENSIVE TESTS (30 tests: 21 SAT, 9 UNSAT)
+// ============================================
+
+namespace EcommerceTests
+{
+    // ╔════════════════════════════════════════════════════════════╗
+    // ║  SAT TESTS (21 tests = 70%)                                ║
+    // ╚════════════════════════════════════════════════════════════╝
+
+    // SAT-01: Register Buyer (Depth=1)
+    void test01_registerBuyer(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 01: Register Buyer (Depth=1)",
+            makeEcommerceSpec(),
+            {"registerBuyerOk"});
+    }
+
+    // SAT-02: Register Seller (Depth=1)
+    void test02_registerSeller(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 02: Register Seller (Depth=1)",
+            makeEcommerceSpec(),
+            {"registerSellerOk"});
+    }
+
+    // SAT-03: Browse Products - Public API (Depth=1)
+    void test03_browseProducts(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 03: Browse All Products - Public (Depth=1)",
+            makeEcommerceSpec(),
+            {"getAllProductsOk"});
+    }
+
+    // SAT-04: Register Buyer → Login (Depth=2)
+    void test04_buyerRegisterLogin(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 04: Register Buyer → Login (Depth=2)",
+            makeEcommerceSpec(),
+            {"registerBuyerOk", "loginBuyerOk"});
+    }
+
+    // SAT-05: Register Seller → Login (Depth=2)
+    void test05_sellerRegisterLogin(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 05: Register Seller → Login (Depth=2)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk"});
+    }
+
+    // SAT-06: Seller Creates Product (Depth=3)
+    void test06_sellerCreateProduct(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 06: Seller Creates Product (Depth=3)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk"});
+    }
+
+    // SAT-07: Seller Creates Multiple Products (Depth=5)
+    void test07_sellerCreateMultipleProducts(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 07: Seller Creates 3 Products (Depth=5)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk",
+             "createProductOk", "createProductOk", "createProductOk"});
+    }
+
+    // SAT-08: Seller Creates → Updates Product (Depth=4)
+    void test08_sellerUpdateProduct(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 08: Seller Creates → Updates Product (Depth=4)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk", "updateProductOk"});
+    }
+
+    // SAT-09: Seller Creates → Deletes Product (Depth=4)
+    void test09_sellerDeleteProduct(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 09: Seller Creates → Deletes Product (Depth=4)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk", "deleteProductOk"});
+    }
+
+    // SAT-10: Seller Views Own Inventory (Depth=4)
+    void test10_sellerViewInventory(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 10: Seller Creates → Views Inventory (Depth=4)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk", "getSellerProductsOk"});
+    }
+
+    // SAT-11: Seller creates product → Buyer browses (Depth=6)
+    void test11_multiUserBrowse(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 11: Seller Setup → Buyer Browses (Depth=6)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk", "getAllProductsOk"});
+    }
+
+    // SAT-12: Seller creates product → Buyer adds to cart (Depth=7)
+    void test12_multiUserAddToCart(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 12: Seller Setup → Buyer Adds to Cart (Depth=7)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk"});
+    }
+
+    // SAT-13: Seller creates product → Buyer views cart (Depth=8)
+    void test13_multiUserViewCart(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 13: Seller Setup → Buyer Adds & Views Cart (Depth=8)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "getCartOk"});
+    }
+
+    // SAT-14: Seller creates product → Buyer creates order (Depth=8)
+    void test14_multiUserCreateOrder(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 14: Seller Setup → Buyer Creates Order (Depth=8)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk"});
+    }
+
+    // SAT-15: Full order flow → Buyer views orders (Depth=9)
+    void test15_multiUserViewOrders(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 15: Full Order Flow → Buyer Views Orders (Depth=9)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk", "getBuyerOrdersOk"});
+    }
+
+    // SAT-16: Full order flow → Seller views orders (Depth=9)
+    void test16_sellerViewsOrders(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 16: Full Order → Seller Views Orders (Depth=9)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk", "getSellerOrdersOk"});
+    }
+
+    // SAT-17: Full flow → Buyer creates review (Depth=9)
+    void test17_multiUserCreateReview(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 17: Full Order → Buyer Creates Review (Depth=9)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk", "createReviewOk"});
+    }
+
+    // SAT-18: Complete E-Commerce Journey (Depth=12)
+    void test18_completeEcommerceFlow(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 18: Complete E-Commerce Flow (Depth=12)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "getAllProductsOk", "addToCartOk", "addToCartOk",
+             "createOrderOk", "getBuyerOrdersOk", "createReviewOk"});
+    }
+
+    // SAT-19: Multiple Orders by Same Buyer (Depth=12)
+    void test19_multipleOrders(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 19: Buyer Places Multiple Orders (Depth=12)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk",
+             "createProductOk", "createProductOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk",
+             "addToCartOk", "createOrderOk",
+             "getBuyerOrdersOk"});
+    }
+
+    // SAT-20: Seller Full Product Management (Depth=10)
+    void test20_sellerFullManagement(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 20: Seller Full Product Management (Depth=10)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk",
+             "createProductOk", "createProductOk", "createProductOk",
+             "updateProductOk", "updateProductOk",
+             "deleteProductOk",
+             "getSellerProductsOk", "getSellerOrdersOk"});
+    }
+
+    // SAT-21: Deep E-Commerce Workflow (Depth=15)
+    void test21_deepWorkflow(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[SAT] Test 21: Deep E-Commerce Workflow (Depth=15)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk",
+             "createProductOk", "createProductOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "getAllProductsOk", "addToCartOk", "addToCartOk",
+             "createOrderOk", "createReviewOk",
+             "addToCartOk", "createOrderOk", "createReviewOk"});
+    }
+
+    // ╔════════════════════════════════════════════════════════════╗
+    // ║  UNSAT TESTS (9 tests = 30%)                               ║
+    // ╚════════════════════════════════════════════════════════════╝
+
+    // UNSAT-01: Login without registration (Depth=1)
+    void test22_loginWithoutRegister(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 22: Buyer Login Without Registration (Depth=1)",
+            makeEcommerceSpec(),
+            {"loginBuyerOk"});
+    }
+
+    // UNSAT-02: Seller login without registration (Depth=1)
+    void test23_sellerLoginWithoutRegister(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 23: Seller Login Without Registration (Depth=1)",
+            makeEcommerceSpec(),
+            {"loginSellerOk"});
+    }
+
+    // UNSAT-03: Duplicate registration (Depth=2)
+    void test24_duplicateRegistration(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 24: Duplicate Buyer Registration (Depth=2)",
+            makeEcommerceSpec(),
+            {"registerBuyerOk", "registerBuyerOk"});
+    }
+
+    // UNSAT-04: Buyer tries to create product (Depth=3)
+    void test25_buyerCannotCreateProduct(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 25: Buyer Cannot Create Product (Depth=3)",
+            makeEcommerceSpec(),
+            {"registerBuyerOk", "loginBuyerOk", "createProductOk"});
+    }
+
+    // UNSAT-05: Seller tries to add to cart (Depth=3)
+    void test26_sellerCannotAddToCart(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 26: Seller Cannot Add to Cart (Depth=3)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "addToCartOk"});
+    }
+
+    // UNSAT-06: Seller tries to create order (Depth=4)
+    void test27_sellerCannotCreateOrder(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 27: Seller Cannot Create Order (Depth=4)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk", "createOrderOk"});
+    }
+
+    // UNSAT-07: Buyer adds to cart without product existing (Depth=3)
+    void test28_addToCartNoProduct(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 28: Add to Cart - No Product Exists (Depth=3)",
+            makeEcommerceSpec(),
+            {"registerBuyerOk", "loginBuyerOk", "addToCartOk"});
+    }
+
+    // UNSAT-08: Create order without items in cart (Depth=6)
+    void test29_createOrderEmptyCart(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 29: Create Order - Empty Cart (Depth=6)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "createOrderOk"});
+    }
+
+    // UNSAT-09: Create review without placing order (Depth=7)
+    void test30_reviewWithoutOrder(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[UNSAT] Test 30: Create Review - No Order Placed (Depth=7)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createReviewOk"});
+    }
+}
+
+// ============================================
 // MAIN FUNCTION - TEST SELECTION
 // ============================================
 
@@ -543,26 +991,26 @@ int main()
         TestMode mode = TestMode::FULL_PIPELINE; // Needs backend running!
 
         // Backend URL (only used for FULL_PIPELINE mode)
-        string backendUrl = "http://localhost:5002";
+        // string backendUrl = "http://localhost:5002"; // for restaurant
 
-        TestExecutor executor(mode, backendUrl);
+        // TestExecutor executor(mode, backendUrl); // for restaurant
 
         // ========================================
         // RUN TESTS
         // ========================================
 
-        cout << "\n╔════════════════════════════════════════╗" << endl;
-        cout << "║  TESTGEN - RESTAURANT TEST SUITE      ║" << endl;
-        cout << "║  Total Tests: 25                       ║" << endl;
-        cout << "╚════════════════════════════════════════╝\n"
-             << endl;
+        // cout << "\n╔════════════════════════════════════════╗" << endl; // for restaurant
+        // cout << "║  TESTGEN - RESTAURANT TEST SUITE      ║" << endl; // for restaurant
+        // cout << "║  Total Tests: 25                       ║" << endl; // for restaurant
+        // cout << "╚════════════════════════════════════════╝\n" // for restaurant
+        //     << endl; // for restaurant
 
         // QUICK TEST SUBSET (uncomment to run specific tests)
         // RestaurantTests::test01_registerOnly(executor);
         // RestaurantTests::test04_registerAndLogin(executor);
 
         // RUN ALL 25 TESTS (comment out for selective testing)
-        cout << "\n=== DEPTH TESTS ===" << endl;
+        // cout << "\n=== DEPTH TESTS ===" << endl; // for restaurant
         // RestaurantTests::test01_registerLogin(executor);
         // RestaurantTests::test02_loginFailure(executor);
         // RestaurantTests::test03_browseOnly(executor);
@@ -599,9 +1047,59 @@ int main()
         // RestaurantTests::test23_complexOrderManagement(executor);
         // RestaurantTests::test24_invalidSequence(executor);
         // RestaurantTests::test25_deepWorkflow(executor);
-         RestaurantTests::test26_registerCustomerDuplicate(executor);
+        // RestaurantTests::test26_registerCustomerDuplicate(executor);
         // RestaurantTests::test27_deepCustomerJourney(executor);
         // RestaurantTests::test28_deepOwnerJourney(executor);
+
+        // ECOMMERCE TEST CASES
+        // ========================================
+        // E-COMMERCE TESTS
+        // ========================================
+
+        cout << "\n╔════════════════════════════════════════╗" << endl;
+        cout << "║  TESTGEN - E-COMMERCE TEST SUITE       ║" << endl;
+        cout << "║  Total Tests: 30 (21 SAT, 9 UNSAT)     ║" << endl;
+        cout << "╚════════════════════════════════════════╝\n"
+             << endl;
+
+        // E-commerce backend URL
+        string ecommerceBackendUrl = "http://localhost:3000";
+        EcommerceTestExecutor ecommerceExecutor(mode, ecommerceBackendUrl);
+
+        // === SAT TESTS ===
+        // EcommerceTests::test01_registerBuyer(ecommerceExecutor);
+        // EcommerceTests::test02_registerSeller(ecommerceExecutor);
+        // EcommerceTests::test03_browseProducts(ecommerceExecutor);
+        // EcommerceTests::test04_buyerRegisterLogin(ecommerceExecutor);
+        // EcommerceTests::test05_sellerRegisterLogin(ecommerceExecutor);
+        // EcommerceTests::test06_sellerCreateProduct(ecommerceExecutor);
+        // EcommerceTests::test07_sellerCreateMultipleProducts(ecommerceExecutor);
+        // EcommerceTests::test08_sellerUpdateProduct(ecommerceExecutor);
+        // EcommerceTests::test09_sellerDeleteProduct(ecommerceExecutor);
+         EcommerceTests::test10_sellerViewInventory(ecommerceExecutor);
+        // EcommerceTests::test11_multiUserBrowse(ecommerceExecutor);
+        // EcommerceTests::test12_multiUserAddToCart(ecommerceExecutor);
+        // EcommerceTests::test13_multiUserViewCart(ecommerceExecutor);
+        // EcommerceTests::test14_multiUserCreateOrder(ecommerceExecutor);
+        // EcommerceTests::test15_multiUserViewOrders(ecommerceExecutor);
+        // EcommerceTests::test16_sellerViewsOrders(ecommerceExecutor);
+        // EcommerceTests::test17_multiUserCreateReview(ecommerceExecutor);
+        // EcommerceTests::test18_completeEcommerceFlow(ecommerceExecutor);
+        // EcommerceTests::test19_multipleOrders(ecommerceExecutor);
+        // EcommerceTests::test20_sellerFullManagement(ecommerceExecutor);
+        // EcommerceTests::test21_deepWorkflow(ecommerceExecutor);
+
+        // === UNSAT TESTS ===
+        // EcommerceTests::test22_loginWithoutRegister(ecommerceExecutor);
+        // EcommerceTests::test23_sellerLoginWithoutRegister(ecommerceExecutor);
+        // EcommerceTests::test24_duplicateRegistration(ecommerceExecutor);
+        // EcommerceTests::test25_buyerCannotCreateProduct(ecommerceExecutor);
+        // EcommerceTests::test26_sellerCannotAddToCart(ecommerceExecutor);
+        // EcommerceTests::test27_sellerCannotCreateOrder(ecommerceExecutor);
+        // EcommerceTests::test28_addToCartNoProduct(ecommerceExecutor);
+        // EcommerceTests::test29_createOrderEmptyCart(ecommerceExecutor);
+        // EcommerceTests::test30_reviewWithoutOrder(ecommerceExecutor);
+
     }
     catch (const exception &e)
     {

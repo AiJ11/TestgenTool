@@ -1,0 +1,40 @@
+
+╔════════════════════════════════════════╗
+║  TESTGEN - E-COMMERCE TEST SUITE       ║
+║  Total Tests: 30 (21 SAT, 9 UNSAT)     ║
+╚════════════════════════════════════════╝
+
+
+========================================
+TEST: [SAT] Test 03: Browse All Products - Public (Depth=1)
+MODE: Full Pipeline (With Backend)
+DEPTH: 1 API calls
+========================================
+
+[EcommerceFunctionFactory] Initialized with baseUrl: http://localhost:3000
+[RewriteGlobalsVisitor] Detected 10 globals: C O OrderStatus P Rev Roles Sellers Stock T U 
+[RewriteGlobalsVisitor] Generated 0 statements in rewritten program
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: assume(1)
+Statement 2: _result0 := getAllProducts()
+Statement 3: assert()
+=== End Program ===
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program is fully concrete, returning
+
+[FINAL CTC]
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: assume(1)
+Statement 2: _result0 := getAllProducts()
+Statement 3: assert()
+=== End Program ===
+
+✓ [SAT] Test 03: Browse All Products - Public (Depth=1) COMPLETE!
+

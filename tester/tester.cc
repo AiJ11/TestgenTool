@@ -7,6 +7,10 @@
 #include <set>
 
 static const std::map<std::string, std::set<std::string>> operationProducesState = {
+    // ========================================
+    // RESTAURANT APP OPERATIONS
+    // ========================================
+
     // Registration operations - add to U (users) and Roles
     {"registerOwnerOk", {"U", "Roles"}},
     {"registerCustomerOk", {"U", "Roles"}},
@@ -37,11 +41,52 @@ static const std::map<std::string, std::set<std::string>> operationProducesState
     // Read-only operations (produce no new state)
     {"browseRestaurantsOk", {}},
     {"viewMenuOk", {}},
+
+    // ========================================
+    // E-COMMERCE APP OPERATIONS
+    // ========================================
+
+    // Buyer registration & login
+    {"registerBuyerOk", {"U", "Roles"}},
+    {"loginBuyerOk", {"T"}},
+
+    // Seller registration & login
+    {"registerSellerOk", {"U", "Roles"}},
+    {"loginSellerOk", {"T"}},
+
+    // Product management (Seller)
+    {"createProductOk", {"P", "Stock", "Sellers"}},
+    {"updateProductOk", {}},
+    {"deleteProductOk", {}},
+    {"getSellerProductsOk", {}},
+
+    // Cart operations (Buyer)
+    {"addToCartOk", {"C"}}, // Already exists for restaurant, same key
+    {"getCartOk", {}},
+    {"updateCartOk", {}},
+
+    // Order operations
+    {"createOrderOk", {"O", "OrderStatus"}},
+    {"getBuyerOrdersOk", {}},
+    {"getSellerOrdersOk", {}},
+    {"updateOrderStatusOk", {}},
+
+    // Review operations
+    {"createReviewOk", {"Rev"}},
+    {"getProductReviewsOk", {}},
+
+    // Public read-only
+    {"getAllProductsOk", {}},
+    {"getProductByIdOk", {}},
 };
 
 // Mapping: Operation -> State variables that MUST be non-empty before this op
 // These are "hard" dependencies that cannot be satisfied by Z3 alone
 static const std::map<std::string, std::set<std::string>> operationRequiresState = {
+    // ========================================
+    // RESTAURANT APP REQUIREMENTS
+    // ========================================
+
     // Login requires user to exist
     {"loginOwnerOk", {"U"}},
     {"loginCustomerOk", {"U"}},
@@ -53,7 +98,7 @@ static const std::map<std::string, std::set<std::string>> operationRequiresState
     {"addMenuItemOk", {"R"}},
 
     // Cart operations require menu items to exist
-    {"addToCartOk", {"M"}},
+    // {"addToCartOk", {"M"}},  // Commented - handled by e-commerce below
 
     // Order operations require cart to have items
     {"placeOrderOk", {"C"}},
@@ -67,8 +112,40 @@ static const std::map<std::string, std::set<std::string>> operationRequiresState
     // Status update requires assignment
     {"updateOrderStatusAgentOk", {"Assignments"}},
     {"updateOrderStatusOwnerOk", {"O"}},
-};
 
+    // ========================================
+    // E-COMMERCE APP REQUIREMENTS
+    // ========================================
+
+    // Login requires registration
+    {"loginBuyerOk", {"U"}},
+    {"loginSellerOk", {"U"}},
+
+    // Product management requires seller to be logged in (T)
+    {"createProductOk", {"T"}},
+    {"updateProductOk", {"P"}},
+    {"deleteProductOk", {"P"}},
+    {"getSellerProductsOk", {"T"}},
+
+    // Cart operations require product to exist
+    {"addToCartOk", {"P"}}, // Buyer adds product to cart - product must exist
+    {"getCartOk", {"T"}},
+    {"updateCartOk", {"C"}},
+
+    // Order requires cart with items
+    {"createOrderOk", {"C"}},
+    {"getBuyerOrdersOk", {"T"}},
+    {"getSellerOrdersOk", {"T"}},
+    {"updateOrderStatusOk", {"O"}},
+
+    // Review requires order to exist
+    {"createReviewOk", {"O"}},
+    {"getProductReviewsOk", {"P"}},
+
+    // Product browsing - public, no requirements
+    // {"getAllProductsOk", {}},
+    // {"getProductByIdOk", {"P"}},  // Needs product to exist, but public
+};
 /**
  * Check if the operation sequence has all required dependencies.
  * Returns true if sequence is TRULY unsatisfiable (missing required prior operations).
