@@ -1076,7 +1076,7 @@ int main()
         // EcommerceTests::test07_sellerCreateMultipleProducts(ecommerceExecutor);
         // EcommerceTests::test08_sellerUpdateProduct(ecommerceExecutor);
         // EcommerceTests::test09_sellerDeleteProduct(ecommerceExecutor);
-         EcommerceTests::test10_sellerViewInventory(ecommerceExecutor);
+        // EcommerceTests::test10_sellerViewInventory(ecommerceExecutor);
         // EcommerceTests::test11_multiUserBrowse(ecommerceExecutor);
         // EcommerceTests::test12_multiUserAddToCart(ecommerceExecutor);
         // EcommerceTests::test13_multiUserViewCart(ecommerceExecutor);
@@ -1098,7 +1098,7 @@ int main()
         // EcommerceTests::test27_sellerCannotCreateOrder(ecommerceExecutor);
         // EcommerceTests::test28_addToCartNoProduct(ecommerceExecutor);
         // EcommerceTests::test29_createOrderEmptyCart(ecommerceExecutor);
-        // EcommerceTests::test30_reviewWithoutOrder(ecommerceExecutor);
+         EcommerceTests::test30_reviewWithoutOrder(ecommerceExecutor);
 
     }
     catch (const exception &e)
