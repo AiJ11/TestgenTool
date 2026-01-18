@@ -586,7 +586,7 @@ int main()
         // RestaurantTests::test16_agentAssignOrder(executor);
 
         // cout << "\n=== DEPTH 6 TESTS ===" << endl;
-         RestaurantTests::test17_ownerManageOrder(executor);
+        // RestaurantTests::test17_ownerManageOrder(executor);
         // RestaurantTests::test18_multipleCartAdditions(executor);
         // RestaurantTests::test19_wrongRoleAccess(executor);
 
@@ -599,7 +599,7 @@ int main()
         // RestaurantTests::test23_complexOrderManagement(executor);
         // RestaurantTests::test24_invalidSequence(executor);
         // RestaurantTests::test25_deepWorkflow(executor);
-        // RestaurantTests::test26_registerCustomerDuplicate(executor);
+         RestaurantTests::test26_registerCustomerDuplicate(executor);
         // RestaurantTests::test27_deepCustomerJourney(executor);
         // RestaurantTests::test28_deepOwnerJourney(executor);
     }

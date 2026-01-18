@@ -4,6 +4,118 @@
 #include "../clonevisitor.hh"
 #include "../printvisitor.hh"
 #include <iostream>
+#include <set>
+
+static const std::map<std::string, std::set<std::string>> operationProducesState = {
+    // Registration operations - add to U (users) and Roles
+    {"registerOwnerOk", {"U", "Roles"}},
+    {"registerCustomerOk", {"U", "Roles"}},
+    {"registerAgentOk", {"U", "Roles"}},
+
+    // Login operations - add to T (tokens)
+    {"loginOwnerOk", {"T"}},
+    {"loginCustomerOk", {"T"}},
+    {"loginAgentOk", {"T"}},
+    {"loginOk", {"T"}},
+
+    // Restaurant management
+    {"createRestaurantOk", {"R", "Owners"}},
+    {"addMenuItemOk", {"M"}},
+
+    // Customer operations
+    {"addToCartOk", {"C"}},
+    {"placeOrderOk", {"O"}}, // Creates order, clears cart
+
+    // Review operations
+    {"leaveReviewOk", {"Rev"}},
+
+    // Agent operations
+    {"assignOrderOk", {"Assignments"}},
+    {"updateOrderStatusAgentOk", {}},
+    {"updateOrderStatusOwnerOk", {}},
+
+    // Read-only operations (produce no new state)
+    {"browseRestaurantsOk", {}},
+    {"viewMenuOk", {}},
+};
+
+// Mapping: Operation -> State variables that MUST be non-empty before this op
+// These are "hard" dependencies that cannot be satisfied by Z3 alone
+static const std::map<std::string, std::set<std::string>> operationRequiresState = {
+    // Login requires user to exist
+    {"loginOwnerOk", {"U"}},
+    {"loginCustomerOk", {"U"}},
+    {"loginAgentOk", {"U"}},
+    {"loginOk", {"U"}},
+
+    // Restaurant operations require restaurant to exist
+    {"viewMenuOk", {"R"}},
+    {"addMenuItemOk", {"R"}},
+
+    // Cart operations require menu items to exist
+    {"addToCartOk", {"M"}},
+
+    // Order operations require cart to have items
+    {"placeOrderOk", {"C"}},
+
+    // Review requires order to exist
+    {"leaveReviewOk", {"O"}},
+
+    // Agent assignment requires order to exist
+    {"assignOrderOk", {"O"}},
+
+    // Status update requires assignment
+    {"updateOrderStatusAgentOk", {"Assignments"}},
+    {"updateOrderStatusOwnerOk", {"O"}},
+};
+
+/**
+ * Check if the operation sequence has all required dependencies.
+ * Returns true if sequence is TRULY unsatisfiable (missing required prior operations).
+ * Returns false if sequence COULD be satisfiable (all dependencies can be met).
+ */
+bool isSequenceTrulyUnsat(const std::vector<std::string> &sequence)
+{
+    std::set<std::string> availableState;
+
+    std::cout << "\n[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT..." << std::endl;
+
+    for (size_t i = 0; i < sequence.size(); i++)
+    {
+        const std::string &op = sequence[i];
+
+        // Check if this operation has hard state requirements
+        auto reqIt = operationRequiresState.find(op);
+        if (reqIt != operationRequiresState.end())
+        {
+            for (const auto &requiredState : reqIt->second)
+            {
+                if (availableState.find(requiredState) == availableState.end())
+                {
+                    // Required state is not available from any prior operation
+                    std::cout << "[DEPENDENCY-CHECK] ✗ Operation '" << op
+                              << "' requires state '" << requiredState
+                              << "' but no prior operation produces it." << std::endl;
+                    std::cout << "[DEPENDENCY-CHECK] Sequence is TRULY UNSAT." << std::endl;
+                    return true; // Truly UNSAT
+                }
+            }
+        }
+
+        // Add state that this operation produces
+        auto prodIt = operationProducesState.find(op);
+        if (prodIt != operationProducesState.end())
+        {
+            for (const auto &producedState : prodIt->second)
+            {
+                availableState.insert(producedState);
+            }
+        }
+    }
+
+    std::cout << "[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable." << std::endl;
+    return false; // Not truly UNSAT - all dependencies can be met
+}
 
 // Generate realistic test values based on variable name hints
 Expr* generateRealisticValue(const string& varName, int index) {
@@ -586,9 +698,11 @@ void resolvePlaceholdersInProgram(Program& prog, Tester* tester) {
         }
     }
 }
-bool isPathConstraintUnsat(SEE &see)
+bool isPathConstraintUnsat(SEE &see, const std::vector<std::string> &sequence)
 {
     vector<Expr *> &pc = see.getPathConstraint();
+
+    bool hasConcretelyFalse = false;
 
     for (Expr *constraint : pc)
     {
@@ -598,7 +712,8 @@ bool isPathConstraintUnsat(SEE &see)
             BoolConst *bc = dynamic_cast<BoolConst *>(constraint);
             if (bc && !bc->value)
             {
-                return true; // Found concrete 'false'
+                hasConcretelyFalse = true;
+                break;
             }
         }
         // Check for Num(0) which also represents false
@@ -607,11 +722,21 @@ bool isPathConstraintUnsat(SEE &see)
             Num *num = dynamic_cast<Num *>(constraint);
             if (num && num->value == 0)
             {
-                return true; // Found numeric false
+                hasConcretelyFalse = true;
+                break;
             }
         }
     }
-    return false;
+
+    if (!hasConcretelyFalse)
+    {
+        return false; // No false in path constraint - not UNSAT
+    }
+
+    // Path constraint has false - but is it TRULY unsat?
+    // Check if the sequence has proper dependencies
+    std::cout << "\n[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies..." << std::endl;
+    return isSequenceTrulyUnsat(sequence);
 }
 unique_ptr<Program> Tester::generateCTC(unique_ptr<Program> atc, vector<Expr*> ConcreteVals, ValueEnvironment* ve) {
     cout << "\n========================================" << endl;
@@ -637,9 +762,9 @@ unique_ptr<Program> Tester::generateCTC(unique_ptr<Program> atc, vector<Expr*> C
     cout << "\n>>> generateCTC: STEP 2 - Running symbolic execution" << endl;
     SymbolTable st(nullptr);
     see.execute(*rewritten, st);
-    
+
     // NEW: STEP 2a - Check if path constraint is satisfiable
-    if (isPathConstraintUnsat(see))
+    if (isPathConstraintUnsat(see, currentApiSequence)) 
     {
         cout << "\n>>> generateCTC: UNSAT DETECTED!" << endl;
         cout << ">>> Precondition cannot be satisfied with current database state." << endl;
@@ -773,11 +898,14 @@ unique_ptr<Program> Tester::generateCTC(unique_ptr<Program> atc, vector<Expr*> C
 
 unique_ptr<Program> Tester::generateATC(
     unique_ptr<Spec> spec,
-    vector<string> ts
-) {
+    vector<string> ts)
+{
+    // Store the API sequence for later use in UNSAT detection
+    currentApiSequence = ts; 
+
     Program raw = genATC(*spec, ts);
 
-    auto& mutable_stmts = const_cast<vector<unique_ptr<Stmt>>&>(raw.statements);
+    auto &mutable_stmts = const_cast<vector<unique_ptr<Stmt>> &>(raw.statements);
     auto logicalATC = unique_ptr<Program>(new Program(std::move(mutable_stmts)));
 
     PrintVisitor printer;
