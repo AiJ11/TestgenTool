@@ -7,6 +7,38 @@
 #include <set>
 
 static const std::map<std::string, std::set<std::string>> operationProducesState = {
+
+    // ========================================
+    // LIBRARY: Book operations
+    // ========================================
+    {"saveBookOk", {"B"}},
+    {"updateBookOk", {"B"}},
+    {"deleteBookOk", {}},
+    {"getAllBooksOk", {}},
+    {"getBookByCodeOk", {}},
+    {"getBookByCodeErr", {}},
+
+    // LIBRARY: Student operations
+    {"saveStudentOk", {"S"}},
+    {"updateStudentOk", {"S"}},
+    {"deleteStudentOk", {}},
+    {"getAllStudentsOk", {}},
+    {"getStudentByIdOk", {}},
+    {"getStudentByIdErr", {}},
+
+    // LIBRARY: Request operations
+    {"saveRequestOk", {"Req"}},
+    {"deleteRequestOk", {}},
+    {"getAllRequestsOk", {}},
+    {"getRequestByIdOk", {}},
+
+    // LIBRARY: Loan operations
+    {"acceptRequestOk", {"Loans"}}, // Creates loan, removes request
+    {"returnBookOk", {}},
+    {"saveLoanOk", {"Loans"}},
+    {"getAllLoansOk", {}},
+    {"getLoanByIdOk", {}},
+
     // ========================================
     // RESTAURANT APP OPERATIONS
     // ========================================
@@ -83,6 +115,32 @@ static const std::map<std::string, std::set<std::string>> operationProducesState
 // Mapping: Operation -> State variables that MUST be non-empty before this op
 // These are "hard" dependencies that cannot be satisfied by Z3 alone
 static const std::map<std::string, std::set<std::string>> operationRequiresState = {
+
+    // ========================================
+    // LIBRARY: Required state dependencies
+    // ========================================
+
+    // Book operations that need book to exist
+    {"getBookByCodeOk", {"B"}},
+    {"updateBookOk", {"B"}},
+    {"deleteBookOk", {"B"}},
+
+    // Student operations that need student to exist
+    {"getStudentByIdOk", {"S"}},
+    {"updateStudentOk", {"S"}},
+    {"deleteStudentOk", {"S"}},
+
+    // Request operations - need student AND book
+    {"saveRequestOk", {"S", "B"}},
+    {"getRequestByIdOk", {"Req"}},
+    {"deleteRequestOk", {"Req"}},
+
+    // Loan operations
+    {"acceptRequestOk", {"Req"}}, // Need existing request
+    {"getLoanByIdOk", {"Loans"}},
+    {"returnBookOk", {"Loans"}},
+    {"saveLoanOk", {"S", "B"}},
+
     // ========================================
     // RESTAURANT APP REQUIREMENTS
     // ========================================
@@ -274,6 +332,16 @@ string extractBaseName(const string& varName) {
 }
 // Check if a variable needs to be resolved from sigma (constraint-aware IDs)
 bool needsSigmaLookup(const string& baseName) {
+
+    // Library app IDs
+    if (baseName == "bookCode" ||
+        baseName == "studentId" ||
+        baseName == "requestId" ||
+        baseName == "loanId")
+    {
+        return true;
+    }
+
     // Restaurant app IDs
     if (baseName == "restaurantId" || 
         baseName == "menuItemId" || 
@@ -326,8 +394,6 @@ Expr* Tester::generateValueForBaseName(const string& baseName, const string& var
                                         bool lookupFromSigma) {
     Expr* value = nullptr;
 
-    
-    
     // OWNER ROLE VARIABLES
     if (baseName == "ownerEmail") {
         value = new String("owner@example.com");
@@ -609,7 +675,143 @@ Expr* Tester::generateValueForBaseName(const string& baseName, const string& var
     if (value != nullptr) {
         baseNameToValue[baseName] = value;
     }
-    
+
+    // ========================================
+    // LIBRARY: Book fields
+    // ========================================
+    else if (baseName == "bookTitle")
+    {
+        static int bookCounter = 0;
+        value = new String("Test Book " + to_string(++bookCounter));
+    }
+    else if (baseName == "bookAuthor")
+    {
+        value = new String("Test Author");
+    }
+    else if (baseName == "bookDesc")
+    {
+        value = new String("A comprehensive test book description");
+    }
+    else if (baseName == "bookCode")
+    {
+        if (lookupFromSigma)
+        {
+            string realId = findKeyFromMapInSigma("tmp_B_");
+            if (!realId.empty())
+            {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] bookCode = \"" << realId << "\"" << endl;
+            }
+            else
+            {
+                value = new String("__NEEDS_BOOK_CODE__");
+                cout << "    [DEFERRED] bookCode - no book in sigma yet" << endl;
+            }
+        }
+        else
+        {
+            value = new String("__NEEDS_BOOK_CODE__");
+        }
+    }
+
+    // ========================================
+    // LIBRARY: Student fields
+    // ========================================
+    else if (baseName == "studentName")
+    {
+        static int studentNameCounter = 0;
+        value = new String("Test Student " + to_string(++studentNameCounter));
+    }
+    else if (baseName == "studentEmail")
+    {
+        static int studentEmailCounter = 0;
+        value = new String("student" + to_string(++studentEmailCounter) + "@library.edu");
+    }
+    else if (baseName == "studentPhone")
+    {
+        static int phoneCounter = 0;
+        value = new String("555-000-" + to_string(1000 + phoneCounter++));
+    }
+    else if (baseName == "studentId")
+    {
+        if (lookupFromSigma)
+        {
+            string realId = findKeyFromMapInSigma("tmp_S_");
+            if (!realId.empty())
+            {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] studentId = \"" << realId << "\"" << endl;
+            }
+            else
+            {
+                value = new String("__NEEDS_STUDENT_ID__");
+                cout << "    [DEFERRED] studentId - no student in sigma yet" << endl;
+            }
+        }
+        else
+        {
+            value = new String("__NEEDS_STUDENT_ID__");
+        }
+    }
+
+    // ========================================
+    // LIBRARY: Request/Loan fields
+    // ========================================
+    else if (baseName == "requestId")
+    {
+        if (lookupFromSigma)
+        {
+            string realId = findKeyFromMapInSigma("tmp_Req_");
+            if (!realId.empty())
+            {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] requestId = \"" << realId << "\"" << endl;
+            }
+            else
+            {
+                value = new String("__NEEDS_REQUEST_ID__");
+                cout << "    [DEFERRED] requestId - no request in sigma yet" << endl;
+            }
+        }
+        else
+        {
+            value = new String("__NEEDS_REQUEST_ID__");
+        }
+    }
+    else if (baseName == "loanId")
+    {
+        if (lookupFromSigma)
+        {
+            string realId = findKeyFromMapInSigma("tmp_Loans_");
+            if (!realId.empty())
+            {
+                value = new String(realId);
+                cout << "    [RESOLVED from sigma] loanId = \"" << realId << "\"" << endl;
+            }
+            else
+            {
+                value = new String("__NEEDS_LOAN_ID__");
+                cout << "    [DEFERRED] loanId - no loan in sigma yet" << endl;
+            }
+        }
+        else
+        {
+            value = new String("__NEEDS_LOAN_ID__");
+        }
+    }
+    else if (baseName == "startDate")
+    {
+        // Generate future date for loan start
+        static int dateOffset = 0;
+        value = new String("2025-02-" + to_string(10 + (dateOffset++ % 15)) + "T00:00:00.000Z");
+    }
+    else if (baseName == "endDate")
+    {
+        // Generate date 14 days after start date
+        static int endDateOffset = 0;
+        value = new String("2025-02-" + to_string(24 + (endDateOffset++ % 5)) + "T00:00:00.000Z");
+    }
+
     return value;
 }
 
@@ -700,6 +902,63 @@ void resolvePlaceholdersInPlace(vector<Expr*>& concreteVals,
                 concreteVals[i] = new String(realId);
                 cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
             } else {
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+        //LIBRARY CHECK
+        else if (strVal->value == "__NEEDS_BOOK_CODE__")
+        {
+            string realId = tester->findKeyFromMapInSigma("tmp_B_");
+            if (!realId.empty())
+            {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            }
+            else
+            {
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+        else if (strVal->value == "__NEEDS_STUDENT_ID__")
+        {
+            string realId = tester->findKeyFromMapInSigma("tmp_S_");
+            if (!realId.empty())
+            {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            }
+            else
+            {
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+        else if (strVal->value == "__NEEDS_REQUEST_ID__")
+        {
+            string realId = tester->findKeyFromMapInSigma("tmp_Req_");
+            if (!realId.empty())
+            {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            }
+            else
+            {
+                cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
+            }
+        }
+        else if (strVal->value == "__NEEDS_LOAN_ID__")
+        {
+            string realId = tester->findKeyFromMapInSigma("tmp_Loans_");
+            if (!realId.empty())
+            {
+                delete concreteVals[i];
+                concreteVals[i] = new String(realId);
+                cout << "    [RESOLVED] " << varNames[i] << " = \"" << realId << "\"" << endl;
+            }
+            else
+            {
                 cout << "    [STILL PENDING] " << varNames[i] << " - keeping placeholder for next iteration" << endl;
             }
         }
