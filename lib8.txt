@@ -1,0 +1,229 @@
+
+╔════════════════════════════════════════╗
+║  TESTGEN - LIBRARY TEST SUITE          ║
+║  Total Tests: 25                       ║
+╚════════════════════════════════════════╝
+
+
+========================================
+TEST: Test 08: Get Book Not Found (Depth=1)
+MODE: Full Pipeline (With Backend)
+DEPTH: 1 API calls
+========================================
+
+[LibraryFunctionFactory] Initialized with baseUrl: http://localhost:8080
+[RewriteGlobalsVisitor] Detected 4 globals: B Loans Req S 
+[RewriteGlobalsVisitor] Generated 0 statements in rewritten program
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: bookCode0 := input()
+Statement 2: tmp_B_0 := get_B()
+Statement 3: assume(not_in(bookCode, dom(tmp_B_0)))
+Statement 4: _result0 := getBookByCode(bookCode)
+Statement 5: assert()
+=== End Program ===
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: bookCode0 := input()
+[SEE] Mapping base name 'bookCode' -> 'bookCode0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X0
+[ASSIGN] Result: bookCode0 := X0
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_0 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_0'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_0
+[ASSIGN] Result: tmp_B_0 := {}
+
+[ASSUME] Evaluating: not_in(bookCode, dom(tmp_B_0))
+  [EVAL] FuncCall: not_in with 2 args
+    [EVAL] Set non-membership: not_in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode0'
+    [EVAL] Found in sigma: X0
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_0
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] not_in result: true (element not found)
+[ASSUME] Adding constraint: true
+[SEE] API call 'getBookByCode' with symbolic arguments - interruption point
+[SEE] Interruption at statement 4
+
+[ASSIGN] Evaluating: _result0 := getBookByCode(bookCode)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode0'
+    [EVAL] Found in sigma: X0
+[API_CALL] getBookByCode has symbolic arguments - skipping actual execution
+  [API_ARG 0] X0 (symbolic: 1)
+[ASSIGN] Result: _result0 := -1 (symbolic placeholder)
+
+[ASSERT] Empty assertion, PASSED
+
+[SEE] Path Constraint: And(true, true)
+>>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
+
+>>> generateCTC: STEP 3 - Generating values with sigma lookup
+    [Found existing] _ -> _
+    [Found existing] tmp_B_ -> tmp_B_0
+    [Found existing] _result -> _result0
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [DEFERRED] bookCode - no book in sigma yet
+    bookCode0 = "__NEEDS_BOOK_CODE__"
+
+>>> generateCTC: STEP 4 - Resolving placeholders from sigma
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [STILL PENDING] bookCode0 - keeping placeholder for next iteration
+
+>>> generateCTC: STEP 5 - Recursing with 1 concrete values
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 1
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: bookCode0 := "__NEEDS_BOOK_CODE__"
+[SEE] Mapping base name 'bookCode' -> 'bookCode0'
+  [EVAL] String: "__NEEDS_BOOK_CODE__"
+[ASSIGN] Result: bookCode0 := "__NEEDS_BOOK_CODE__"
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_0 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_0'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_0
+[ASSIGN] Result: tmp_B_0 := {}
+
+[ASSUME] Evaluating: not_in(bookCode, dom(tmp_B_0))
+  [EVAL] FuncCall: not_in with 2 args
+    [EVAL] Set non-membership: not_in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode0'
+    [EVAL] Found placeholder __NEEDS_BOOK_CODE__, attempting runtime resolution
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [EVAL] Found in sigma: "__NEEDS_BOOK_CODE__"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_0
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] not_in result: true (element not found)
+[ASSUME] Adding constraint: true
+[SEE] API call 'getBookByCode' ready for actual execution
+
+[ASSIGN] Evaluating: _result0 := getBookByCode(bookCode)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode0'
+    [EVAL] Found placeholder __NEEDS_BOOK_CODE__, attempting runtime resolution
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [EVAL] Found in sigma: "__NEEDS_BOOK_CODE__"
+[API_CALL] Executing API function: getBookByCode
+  [API_ARG] "__NEEDS_BOOK_CODE__"
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: getBookByCode
+  [API_CALL] Executing function...
+[GetBookByCodeFunc] Getting book: __NEEDS_BOOK_CODE__
+  [API_CALL] Function returned: 400
+  [API_CALL] Storing result in variable: _result0
+[ASSIGN] Result: _result0 := 400
+
+[ASSERT] Empty assertion, PASSED
+
+[SEE] Path Constraint: And(true, true)
+>>> generateCTC: After symex - Is abstract: 0, Has placeholders: 1
+
+>>> generateCTC: STEP 3a - Resolving placeholders in AST
+
+>>> Resolving placeholders in program AST
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [AST RESOLVED] bookCode0 = "no_book_available"
+>>> generateCTC: All placeholders resolved, program is fully concrete
+
+[FINAL CTC]
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: bookCode0 := "no_book_available"
+Statement 2: tmp_B_0 := get_B()
+Statement 3: assume(not_in(bookCode, dom(tmp_B_0)))
+Statement 4: _result0 := getBookByCode(bookCode)
+Statement 5: assert()
+=== End Program ===
+
+✓ Test 08: Get Book Not Found (Depth=1) COMPLETE!
+
+
+╔════════════════════════════════════════╗
+║  ALL TESTS COMPLETED                   ║
+╚════════════════════════════════════════╝
+

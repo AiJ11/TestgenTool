@@ -575,16 +575,35 @@ namespace Library
                 {"email", studentEmail},
                 {"phone", studentPhone}};
 
-            // Using userId=1 (default test user)
-            HttpResponse resp = factory->getHttpClient()->post("/student/save?userId=1", body);
+            // Using incrementing userId
+            static int userIdCounter = 1;
+            string url = "/student/save?userId=" + to_string(userIdCounter++);
+            cout << "[SaveStudentFunc] Using " << url << endl;
+            HttpResponse resp = factory->getHttpClient()->post(url, body);
 
             if (resp.statusCode == 200 || resp.statusCode == 201)
             {
+                // Check if response is actually JSON
+                if (resp.body.empty() || resp.body[0] != '{')
+                {
+                    cerr << "[SaveStudentFunc] Error: Non-JSON response: " << resp.body << endl;
+                    return make_unique<Num>(500);
+                }
+
                 json data = resp.getJson();
-                string studentId = to_string(data["id"].get<int>());
-                factory->getS()[studentId] = data.dump();
-                cout << "[SaveStudentFunc] Created student with id: " << studentId << endl;
-                return make_unique<String>(studentId);
+
+                if (data.contains("id") && !data["id"].is_null())
+                {
+                    string studentId = to_string(data["id"].get<int>());
+                    factory->getS()[studentId] = data.dump();
+                    cout << "[SaveStudentFunc] Created student with id: " << studentId << endl;
+                    return make_unique<String>(studentId);
+                }
+                else
+                {
+                    cerr << "[SaveStudentFunc] Error: 'id' not found in response: " << resp.body << endl;
+                    return make_unique<Num>(500);
+                }
             }
 
             return make_unique<Num>(resp.statusCode);

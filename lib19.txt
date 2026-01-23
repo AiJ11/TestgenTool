@@ -1,0 +1,221 @@
+
+╔════════════════════════════════════════╗
+║  TESTGEN - LIBRARY TEST SUITE          ║
+║  Total Tests: 25                       ║
+╚════════════════════════════════════════╝
+
+
+========================================
+TEST: Test 19: Accept Without Request (Should be UNSAT)
+MODE: Full Pipeline (With Backend)
+DEPTH: 1 API calls
+========================================
+
+[LibraryFunctionFactory] Initialized with baseUrl: http://localhost:8080
+[RewriteGlobalsVisitor] Detected 4 globals: B Loans Req S 
+[RewriteGlobalsVisitor] Generated 0 statements in rewritten program
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: requestId0 := input()
+Statement 2: tmp_Loans_0 := get_Loans()
+Statement 3: Loans_old := tmp_Loans_0
+Statement 4: tmp_Req_0 := get_Req()
+Statement 5: Req_old := tmp_Req_0
+Statement 6: tmp_Req_1 := get_Req()
+Statement 7: assume(in(requestId, dom(tmp_Req_1)))
+Statement 8: _result0 := acceptRequest(requestId)
+Statement 9: tmp_Loans_1 := get_Loans()
+Statement 10: tmp_Req_2 := get_Req()
+Statement 11: assert(AND(in(_result0, dom(tmp_Loans_1)), not_in(requestId, dom(tmp_Req_2))))
+=== End Program ===
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: requestId0 := input()
+[SEE] Mapping base name 'requestId' -> 'requestId0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X0
+[ASSIGN] Result: requestId0 := X0
+[SEE] API call 'get_Loans' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_Loans_0 := get_Loans()
+[SEE] Mapping base name 'tmp_Loans_' -> 'tmp_Loans_0'
+[API_CALL] Executing API function: get_Loans
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_Loans
+  [API_CALL] Executing function...
+[GetLoansFunc] Fetching Loans...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_Loans_0
+[ASSIGN] Result: tmp_Loans_0 := {}
+
+[ASSIGN] Evaluating: Loans_old := tmp_Loans_0
+  [EVAL] Var lookup: tmp_Loans_0
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: Loans_old := {}
+[SEE] API call 'get_Req' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_Req_0 := get_Req()
+[SEE] Mapping base name 'tmp_Req_' -> 'tmp_Req_0'
+[API_CALL] Executing API function: get_Req
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_Req
+  [API_CALL] Executing function...
+[GetReqFunc] Fetching Req (Requests)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_Req_0
+[ASSIGN] Result: tmp_Req_0 := {}
+
+[ASSIGN] Evaluating: Req_old := tmp_Req_0
+  [EVAL] Var lookup: tmp_Req_0
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: Req_old := {}
+[SEE] API call 'get_Req' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_Req_1 := get_Req()
+[SEE] Mapping base name 'tmp_Req_' -> 'tmp_Req_1'
+[API_CALL] Executing API function: get_Req
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_Req
+  [API_CALL] Executing function...
+[GetReqFunc] Fetching Req (Requests)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_Req_1
+[ASSIGN] Result: tmp_Req_1 := {}
+
+[ASSUME] Evaluating: in(requestId, dom(tmp_Req_1))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: requestId
+    [EVAL] Resolved base name 'requestId' -> 'requestId0'
+    [EVAL] Found in sigma: X0
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_Req_1
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: X0
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSUME] Adding constraint: false
+[SEE] API call 'acceptRequest' with symbolic arguments - interruption point
+[SEE] Interruption at statement 8
+
+[ASSIGN] Evaluating: _result0 := acceptRequest(requestId)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: requestId
+    [EVAL] Resolved base name 'requestId' -> 'requestId0'
+    [EVAL] Found in sigma: X0
+[API_CALL] acceptRequest has symbolic arguments - skipping actual execution
+  [API_ARG 0] X0 (symbolic: 1)
+[ASSIGN] Result: _result0 := -1 (symbolic placeholder)
+[SEE] API call 'get_Loans' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_Loans_1 := get_Loans()
+[SEE] Mapping base name 'tmp_Loans_' -> 'tmp_Loans_1'
+[API_CALL] Executing API function: get_Loans
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_Loans
+  [API_CALL] Executing function...
+[GetLoansFunc] Fetching Loans...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_Loans_1
+[ASSIGN] Result: tmp_Loans_1 := {}
+[SEE] API call 'get_Req' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_Req_2 := get_Req()
+[SEE] Mapping base name 'tmp_Req_' -> 'tmp_Req_2'
+[API_CALL] Executing API function: get_Req
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_Req
+  [API_CALL] Executing function...
+[GetReqFunc] Fetching Req (Requests)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_Req_2
+[ASSIGN] Result: tmp_Req_2 := {}
+[SEE] Interruption at statement 11
+
+[ASSERT] Evaluating: AND(in(_result0, dom(tmp_Loans_1)), not_in(requestId, dom(tmp_Req_2)))
+  [EVAL] FuncCall: AND with 2 args
+    [EVAL] N-ary AND with 2 args
+    [EVAL] Arg[0]: in(_result0, dom(tmp_Loans_1))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result0
+    [EVAL] Found in sigma: -1
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_Loans_1
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: -1
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+    [EVAL] Arg[0] result: false
+    [EVAL] Arg[1]: not_in(requestId, dom(tmp_Req_2))
+  [EVAL] FuncCall: not_in with 2 args
+    [EVAL] Set non-membership: not_in
+  [EVAL] Var lookup: requestId
+    [EVAL] Resolved base name 'requestId' -> 'requestId0'
+    [EVAL] Found in sigma: X0
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_Req_2
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] not_in result: true (element not found)
+    [EVAL] Arg[1] result: true
+    [EVAL] FuncCall result: AND(...) = false (short-circuit)
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+[SEE] Path Constraint: And(true, false)
+
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✗ Operation 'acceptRequestOk' requires state 'Req' but no prior operation produces it.
+[DEPENDENCY-CHECK] Sequence is TRULY UNSAT.
+
+>>> generateCTC: UNSAT DETECTED!
+>>> Precondition cannot be satisfied with current database state.
+>>> This test sequence requires prerequisite operations.
+
+[RESULT] UNSAT - Test preconditions cannot be satisfied
+
+⊘ Test 19: Accept Without Request (Should be UNSAT) UNSAT: Preconditions not satisfiable
+
+
+╔════════════════════════════════════════╗
+║  ALL TESTS COMPLETED                   ║
+╚════════════════════════════════════════╝
+

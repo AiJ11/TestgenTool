@@ -1,0 +1,867 @@
+
+╔════════════════════════════════════════╗
+║  TESTGEN - LIBRARY TEST SUITE          ║
+║  Total Tests: 25                       ║
+╚════════════════════════════════════════╝
+
+
+========================================
+TEST: Test 09: Book CRUD - Save → Update → Delete (Depth=3)
+MODE: Full Pipeline (With Backend)
+DEPTH: 3 API calls
+========================================
+
+[LibraryFunctionFactory] Initialized with baseUrl: http://localhost:8080
+[RewriteGlobalsVisitor] Detected 4 globals: B Loans Req S 
+[RewriteGlobalsVisitor] Generated 0 statements in rewritten program
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: bookTitle0 := input()
+Statement 2: bookAuthor0 := input()
+Statement 3: bookDesc0 := input()
+Statement 4: tmp_B_0 := get_B()
+Statement 5: B_old := tmp_B_0
+Statement 6: assume(1)
+Statement 7: _result0 := saveBook(bookTitle, bookAuthor, bookDesc)
+Statement 8: tmp_B_1 := get_B()
+Statement 9: assert(in(_result0, dom(tmp_B_1)))
+Statement 10: bookCode1 := input()
+Statement 11: bookTitle1 := input()
+Statement 12: bookAuthor1 := input()
+Statement 13: bookDesc1 := input()
+Statement 14: tmp_B_2 := get_B()
+Statement 15: B_old := tmp_B_2
+Statement 16: tmp_B_3 := get_B()
+Statement 17: assume(in(bookCode, dom(tmp_B_3)))
+Statement 18: _result1 := updateBook(bookCode, bookTitle, bookAuthor, bookDesc)
+Statement 19: tmp_B_4 := get_B()
+Statement 20: assert(in(bookCode, dom(tmp_B_4)))
+Statement 21: bookCode2 := input()
+Statement 22: tmp_B_5 := get_B()
+Statement 23: B_old := tmp_B_5
+Statement 24: tmp_B_6 := get_B()
+Statement 25: assume(in(bookCode, dom(tmp_B_6)))
+Statement 26: _result2 := deleteBook(bookCode)
+Statement 27: tmp_B_7 := get_B()
+Statement 28: assert(not_in(bookCode, dom(tmp_B_7)))
+=== End Program ===
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: bookTitle0 := input()
+[SEE] Mapping base name 'bookTitle' -> 'bookTitle0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X0
+[ASSIGN] Result: bookTitle0 := X0
+
+[ASSIGN] Evaluating: bookAuthor0 := input()
+[SEE] Mapping base name 'bookAuthor' -> 'bookAuthor0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X1
+[ASSIGN] Result: bookAuthor0 := X1
+
+[ASSIGN] Evaluating: bookDesc0 := input()
+[SEE] Mapping base name 'bookDesc' -> 'bookDesc0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X2
+[ASSIGN] Result: bookDesc0 := X2
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_0 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_0'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_0
+[ASSIGN] Result: tmp_B_0 := {}
+
+[ASSIGN] Evaluating: B_old := tmp_B_0
+  [EVAL] Var lookup: tmp_B_0
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: B_old := {}
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'saveBook' with symbolic arguments - interruption point
+[SEE] Interruption at statement 7
+
+[ASSIGN] Evaluating: _result0 := saveBook(bookTitle, bookAuthor, bookDesc)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: bookTitle
+    [EVAL] Resolved base name 'bookTitle' -> 'bookTitle0'
+    [EVAL] Found in sigma: X0
+  [EVAL] Var lookup: bookAuthor
+    [EVAL] Resolved base name 'bookAuthor' -> 'bookAuthor0'
+    [EVAL] Found in sigma: X1
+  [EVAL] Var lookup: bookDesc
+    [EVAL] Resolved base name 'bookDesc' -> 'bookDesc0'
+    [EVAL] Found in sigma: X2
+[API_CALL] saveBook has symbolic arguments - skipping actual execution
+  [API_ARG 0] X0 (symbolic: 1)
+  [API_ARG 1] X1 (symbolic: 1)
+  [API_ARG 2] X2 (symbolic: 1)
+[ASSIGN] Result: _result0 := -1 (symbolic placeholder)
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_1 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_1'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_1
+[ASSIGN] Result: tmp_B_1 := {}
+
+[ASSERT] Evaluating: in(_result0, dom(tmp_B_1))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result0
+    [EVAL] Found in sigma: -1
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_1
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: -1
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+[ASSIGN] Evaluating: bookCode1 := input()
+[SEE] Mapping base name 'bookCode' -> 'bookCode1'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X3
+[ASSIGN] Result: bookCode1 := X3
+
+[ASSIGN] Evaluating: bookTitle1 := input()
+[SEE] Mapping base name 'bookTitle' -> 'bookTitle1'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X4
+[ASSIGN] Result: bookTitle1 := X4
+
+[ASSIGN] Evaluating: bookAuthor1 := input()
+[SEE] Mapping base name 'bookAuthor' -> 'bookAuthor1'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X5
+[ASSIGN] Result: bookAuthor1 := X5
+
+[ASSIGN] Evaluating: bookDesc1 := input()
+[SEE] Mapping base name 'bookDesc' -> 'bookDesc1'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X6
+[ASSIGN] Result: bookDesc1 := X6
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_2 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_2'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_2
+[ASSIGN] Result: tmp_B_2 := {}
+
+[ASSIGN] Evaluating: B_old := tmp_B_2
+  [EVAL] Var lookup: tmp_B_2
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: B_old := {}
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_3 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_3'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_3
+[ASSIGN] Result: tmp_B_3 := {}
+
+[ASSUME] Evaluating: in(bookCode, dom(tmp_B_3))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode1'
+    [EVAL] Found in sigma: X3
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_3
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: X3
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSUME] Adding constraint: false
+[SEE] API call 'updateBook' with symbolic arguments - interruption point
+[SEE] Interruption at statement 18
+
+[ASSIGN] Evaluating: _result1 := updateBook(bookCode, bookTitle, bookAuthor, bookDesc)
+[SEE] Mapping base name '_result' -> '_result1'
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode1'
+    [EVAL] Found in sigma: X3
+  [EVAL] Var lookup: bookTitle
+    [EVAL] Resolved base name 'bookTitle' -> 'bookTitle1'
+    [EVAL] Found in sigma: X4
+  [EVAL] Var lookup: bookAuthor
+    [EVAL] Resolved base name 'bookAuthor' -> 'bookAuthor1'
+    [EVAL] Found in sigma: X5
+  [EVAL] Var lookup: bookDesc
+    [EVAL] Resolved base name 'bookDesc' -> 'bookDesc1'
+    [EVAL] Found in sigma: X6
+[API_CALL] updateBook has symbolic arguments - skipping actual execution
+  [API_ARG 0] X3 (symbolic: 1)
+  [API_ARG 1] X4 (symbolic: 1)
+  [API_ARG 2] X5 (symbolic: 1)
+  [API_ARG 3] X6 (symbolic: 1)
+[ASSIGN] Result: _result1 := -1 (symbolic placeholder)
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_4 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_4'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_4
+[ASSIGN] Result: tmp_B_4 := {}
+
+[ASSERT] Evaluating: in(bookCode, dom(tmp_B_4))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode1'
+    [EVAL] Found in sigma: X3
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_4
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: X3
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+[ASSIGN] Evaluating: bookCode2 := input()
+[SEE] Mapping base name 'bookCode' -> 'bookCode2'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X7
+[ASSIGN] Result: bookCode2 := X7
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_5 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_5'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_5
+[ASSIGN] Result: tmp_B_5 := {}
+
+[ASSIGN] Evaluating: B_old := tmp_B_5
+  [EVAL] Var lookup: tmp_B_5
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: B_old := {}
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_6 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_6'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_6
+[ASSIGN] Result: tmp_B_6 := {}
+
+[ASSUME] Evaluating: in(bookCode, dom(tmp_B_6))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode2'
+    [EVAL] Found in sigma: X7
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_6
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: X7
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSUME] Adding constraint: false
+[SEE] API call 'deleteBook' with symbolic arguments - interruption point
+[SEE] Interruption at statement 26
+
+[ASSIGN] Evaluating: _result2 := deleteBook(bookCode)
+[SEE] Mapping base name '_result' -> '_result2'
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode2'
+    [EVAL] Found in sigma: X7
+[API_CALL] deleteBook has symbolic arguments - skipping actual execution
+  [API_ARG 0] X7 (symbolic: 1)
+[ASSIGN] Result: _result2 := -1 (symbolic placeholder)
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_7 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_7'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_7
+[ASSIGN] Result: tmp_B_7 := {}
+
+[ASSERT] Evaluating: not_in(bookCode, dom(tmp_B_7))
+  [EVAL] FuncCall: not_in with 2 args
+    [EVAL] Set non-membership: not_in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode2'
+    [EVAL] Found in sigma: X7
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_7
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] not_in result: true (element not found)
+[ASSERT] Result: true
+[ASSERT] ✓ Assertion PASSED
+
+[SEE] Path Constraint: And(true, And(1, And(false, false)))
+
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+>>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
+
+>>> generateCTC: STEP 3 - Generating values with sigma lookup
+    [Found existing] _ -> _
+    [Found existing] tmp_B_ -> tmp_B_0
+    [Found existing] B_old -> B_old
+    [Found existing] _result -> _result0
+    bookTitle0 = "Test Book 1"
+    bookAuthor0 = "Test Author"
+    bookDesc0 = "A comprehensive test book description"
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_7 is empty map
+    [findKeyFromMapInSigma] tmp_B_6 is empty map
+    [findKeyFromMapInSigma] tmp_B_5 is empty map
+    [findKeyFromMapInSigma] tmp_B_4 is empty map
+    [findKeyFromMapInSigma] tmp_B_3 is empty map
+    [findKeyFromMapInSigma] tmp_B_2 is empty map
+    [findKeyFromMapInSigma] tmp_B_1 is empty map
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [DEFERRED] bookCode - no book in sigma yet
+    bookCode1 = "__NEEDS_BOOK_CODE__"
+    bookTitle1 = (reusing bookTitle) "Test Book 1"
+    bookAuthor1 = (reusing bookAuthor) "Test Author"
+    bookDesc1 = (reusing bookDesc) "A comprehensive test book description"
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_7 is empty map
+    [findKeyFromMapInSigma] tmp_B_6 is empty map
+    [findKeyFromMapInSigma] tmp_B_5 is empty map
+    [findKeyFromMapInSigma] tmp_B_4 is empty map
+    [findKeyFromMapInSigma] tmp_B_3 is empty map
+    [findKeyFromMapInSigma] tmp_B_2 is empty map
+    [findKeyFromMapInSigma] tmp_B_1 is empty map
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [DEFERRED] bookCode - no book in sigma yet
+    bookCode2 = "__NEEDS_BOOK_CODE__"
+
+>>> generateCTC: STEP 4 - Resolving placeholders from sigma
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_7 is empty map
+    [findKeyFromMapInSigma] tmp_B_6 is empty map
+    [findKeyFromMapInSigma] tmp_B_5 is empty map
+    [findKeyFromMapInSigma] tmp_B_4 is empty map
+    [findKeyFromMapInSigma] tmp_B_3 is empty map
+    [findKeyFromMapInSigma] tmp_B_2 is empty map
+    [findKeyFromMapInSigma] tmp_B_1 is empty map
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [STILL PENDING] bookCode1 - keeping placeholder for next iteration
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_7 is empty map
+    [findKeyFromMapInSigma] tmp_B_6 is empty map
+    [findKeyFromMapInSigma] tmp_B_5 is empty map
+    [findKeyFromMapInSigma] tmp_B_4 is empty map
+    [findKeyFromMapInSigma] tmp_B_3 is empty map
+    [findKeyFromMapInSigma] tmp_B_2 is empty map
+    [findKeyFromMapInSigma] tmp_B_1 is empty map
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_B_
+    [STILL PENDING] bookCode2 - keeping placeholder for next iteration
+
+>>> generateCTC: STEP 5 - Recursing with 8 concrete values
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 8
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: bookTitle0 := "Test Book 1"
+[SEE] Mapping base name 'bookTitle' -> 'bookTitle0'
+  [EVAL] String: "Test Book 1"
+[ASSIGN] Result: bookTitle0 := "Test Book 1"
+
+[ASSIGN] Evaluating: bookAuthor0 := "Test Author"
+[SEE] Mapping base name 'bookAuthor' -> 'bookAuthor0'
+  [EVAL] String: "Test Author"
+[ASSIGN] Result: bookAuthor0 := "Test Author"
+
+[ASSIGN] Evaluating: bookDesc0 := "A comprehensive test book description"
+[SEE] Mapping base name 'bookDesc' -> 'bookDesc0'
+  [EVAL] String: "A comprehensive test book description"
+[ASSIGN] Result: bookDesc0 := "A comprehensive test book description"
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_0 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_0'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_0
+[ASSIGN] Result: tmp_B_0 := {}
+
+[ASSIGN] Evaluating: B_old := tmp_B_0
+  [EVAL] Var lookup: tmp_B_0
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: B_old := {}
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'saveBook' ready for actual execution
+
+[ASSIGN] Evaluating: _result0 := saveBook(bookTitle, bookAuthor, bookDesc)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: bookTitle
+    [EVAL] Resolved base name 'bookTitle' -> 'bookTitle0'
+    [EVAL] Found in sigma: "Test Book 1"
+  [EVAL] Var lookup: bookAuthor
+    [EVAL] Resolved base name 'bookAuthor' -> 'bookAuthor0'
+    [EVAL] Found in sigma: "Test Author"
+  [EVAL] Var lookup: bookDesc
+    [EVAL] Resolved base name 'bookDesc' -> 'bookDesc0'
+    [EVAL] Found in sigma: "A comprehensive test book description"
+[API_CALL] Executing API function: saveBook
+  [API_ARG] "Test Book 1"
+  [API_ARG] "Test Author"
+  [API_ARG] "A comprehensive test book description"
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: saveBook
+  [API_CALL] Executing function...
+[SaveBookFunc] Creating book: Test Book 1
+[HttpClient] POST /books/save -> 200
+[SaveBookFunc] Created book with code: 29
+  [API_CALL] Function returned: "29"
+  [API_CALL] Storing result in variable: _result0
+[ASSIGN] Result: _result0 := "29"
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_1 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_1'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+  [API_CALL] Storing result in variable: tmp_B_1
+[ASSIGN] Result: tmp_B_1 := {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+
+[ASSERT] Evaluating: in(_result0, dom(tmp_B_1))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result0
+    [EVAL] Found in sigma: "29"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_1
+    [EVAL] Found in sigma: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+    [EVAL] Map expr evaluated: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+    [EVAL] Domain has 1 keys
+    [EVAL] Element: "29"
+    [EVAL] Set: {"29"}
+    [EVAL] Element: "29"
+    [EVAL] Set: {"29"}
+    [EVAL] Element found in set: true
+[ASSERT] Result: true
+[ASSERT] ✓ Assertion PASSED
+
+[ASSIGN] Evaluating: bookCode1 := "__NEEDS_BOOK_CODE__"
+[SEE] Mapping base name 'bookCode' -> 'bookCode1'
+  [EVAL] String: "__NEEDS_BOOK_CODE__"
+[ASSIGN] Result: bookCode1 := "__NEEDS_BOOK_CODE__"
+
+[ASSIGN] Evaluating: bookTitle1 := "Test Book 1"
+[SEE] Mapping base name 'bookTitle' -> 'bookTitle1'
+  [EVAL] String: "Test Book 1"
+[ASSIGN] Result: bookTitle1 := "Test Book 1"
+
+[ASSIGN] Evaluating: bookAuthor1 := "Test Author"
+[SEE] Mapping base name 'bookAuthor' -> 'bookAuthor1'
+  [EVAL] String: "Test Author"
+[ASSIGN] Result: bookAuthor1 := "Test Author"
+
+[ASSIGN] Evaluating: bookDesc1 := "A comprehensive test book description"
+[SEE] Mapping base name 'bookDesc' -> 'bookDesc1'
+  [EVAL] String: "A comprehensive test book description"
+[ASSIGN] Result: bookDesc1 := "A comprehensive test book description"
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_2 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_2'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+  [API_CALL] Storing result in variable: tmp_B_2
+[ASSIGN] Result: tmp_B_2 := {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+
+[ASSIGN] Evaluating: B_old := tmp_B_2
+  [EVAL] Var lookup: tmp_B_2
+    [EVAL] Found in sigma: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+[ASSIGN] Result: B_old := {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_3 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_3'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+  [API_CALL] Storing result in variable: tmp_B_3
+[ASSIGN] Result: tmp_B_3 := {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+
+[ASSUME] Evaluating: in(bookCode, dom(tmp_B_3))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode1'
+    [EVAL] Found placeholder __NEEDS_BOOK_CODE__, attempting runtime resolution
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] Found tmp_B_1 with 1 entries, key: 29
+    [findKeyFromMapInSigma] Found tmp_B_2 with 1 entries, key: 29
+    [findKeyFromMapInSigma] Found tmp_B_3 with 1 entries, key: 29
+    [findKeyFromMapInSigma] tmp_B_4 is empty map
+    [findKeyFromMapInSigma] tmp_B_5 is empty map
+    [findKeyFromMapInSigma] tmp_B_6 is empty map
+    [findKeyFromMapInSigma] tmp_B_7 is empty map
+    [EVAL] Resolved to: 29
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_3
+    [EVAL] Found in sigma: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+    [EVAL] Map expr evaluated: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+    [EVAL] Domain has 1 keys
+    [EVAL] Element: "29"
+    [EVAL] Set: {"29"}
+    [EVAL] Element: "29"
+    [EVAL] Set: {"29"}
+    [EVAL] Element found in set: true
+[ASSUME] Adding constraint: true
+[SEE] API call 'updateBook' ready for actual execution
+
+[ASSIGN] Evaluating: _result1 := updateBook(bookCode, bookTitle, bookAuthor, bookDesc)
+[SEE] Mapping base name '_result' -> '_result1'
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode1'
+    [EVAL] Found in sigma: "29"
+  [EVAL] Var lookup: bookTitle
+    [EVAL] Resolved base name 'bookTitle' -> 'bookTitle1'
+    [EVAL] Found in sigma: "Test Book 1"
+  [EVAL] Var lookup: bookAuthor
+    [EVAL] Resolved base name 'bookAuthor' -> 'bookAuthor1'
+    [EVAL] Found in sigma: "Test Author"
+  [EVAL] Var lookup: bookDesc
+    [EVAL] Resolved base name 'bookDesc' -> 'bookDesc1'
+    [EVAL] Found in sigma: "A comprehensive test book description"
+[API_CALL] Executing API function: updateBook
+  [API_ARG] "29"
+  [API_ARG] "Test Book 1"
+  [API_ARG] "Test Author"
+  [API_ARG] "A comprehensive test book description"
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: updateBook
+  [API_CALL] Executing function...
+[UpdateBookFunc] Updating book: 29
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _result1
+[ASSIGN] Result: _result1 := 200
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_4 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_4'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+  [API_CALL] Storing result in variable: tmp_B_4
+[ASSIGN] Result: tmp_B_4 := {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+
+[ASSERT] Evaluating: in(bookCode, dom(tmp_B_4))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode1'
+    [EVAL] Found in sigma: "29"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_4
+    [EVAL] Found in sigma: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+    [EVAL] Map expr evaluated: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+    [EVAL] Domain has 1 keys
+    [EVAL] Element: "29"
+    [EVAL] Set: {"29"}
+    [EVAL] Element: "29"
+    [EVAL] Set: {"29"}
+    [EVAL] Element found in set: true
+[ASSERT] Result: true
+[ASSERT] ✓ Assertion PASSED
+
+[ASSIGN] Evaluating: bookCode2 := "__NEEDS_BOOK_CODE__"
+[SEE] Mapping base name 'bookCode' -> 'bookCode2'
+  [EVAL] String: "__NEEDS_BOOK_CODE__"
+[ASSIGN] Result: bookCode2 := "__NEEDS_BOOK_CODE__"
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_5 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_5'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+  [API_CALL] Storing result in variable: tmp_B_5
+[ASSIGN] Result: tmp_B_5 := {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+
+[ASSIGN] Evaluating: B_old := tmp_B_5
+  [EVAL] Var lookup: tmp_B_5
+    [EVAL] Found in sigma: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+[ASSIGN] Result: B_old := {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_6 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_6'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+  [API_CALL] Storing result in variable: tmp_B_6
+[ASSIGN] Result: tmp_B_6 := {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+
+[ASSUME] Evaluating: in(bookCode, dom(tmp_B_6))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode2'
+    [EVAL] Found placeholder __NEEDS_BOOK_CODE__, attempting runtime resolution
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_0 is empty map
+    [findKeyFromMapInSigma] Found tmp_B_1 with 1 entries, key: 29
+    [findKeyFromMapInSigma] Found tmp_B_2 with 1 entries, key: 29
+    [findKeyFromMapInSigma] Found tmp_B_3 with 1 entries, key: 29
+    [findKeyFromMapInSigma] Found tmp_B_4 with 1 entries, key: 29
+    [findKeyFromMapInSigma] Found tmp_B_5 with 1 entries, key: 29
+    [findKeyFromMapInSigma] Found tmp_B_6 with 1 entries, key: 29
+    [findKeyFromMapInSigma] tmp_B_7 is empty map
+    [EVAL] Resolved to: 29
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_6
+    [EVAL] Found in sigma: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+    [EVAL] Map expr evaluated: {29 -> "{"author":"Test Author","bookDesc":"A comprehensive test book description","bookTitle":"Test Book 1"}"}
+    [EVAL] Domain has 1 keys
+    [EVAL] Element: "29"
+    [EVAL] Set: {"29"}
+    [EVAL] Element: "29"
+    [EVAL] Set: {"29"}
+    [EVAL] Element found in set: true
+[ASSUME] Adding constraint: true
+[SEE] API call 'deleteBook' ready for actual execution
+
+[ASSIGN] Evaluating: _result2 := deleteBook(bookCode)
+[SEE] Mapping base name '_result' -> '_result2'
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode2'
+    [EVAL] Found in sigma: "29"
+[API_CALL] Executing API function: deleteBook
+  [API_ARG] "29"
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: deleteBook
+  [API_CALL] Executing function...
+[DeleteBookFunc] Deleting book: 29
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _result2
+[ASSIGN] Result: _result2 := 200
+[SEE] API call 'get_B' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_B_7 := get_B()
+[SEE] Mapping base name 'tmp_B_' -> 'tmp_B_7'
+[API_CALL] Executing API function: get_B
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_B
+  [API_CALL] Executing function...
+[GetBFunc] Fetching B (Books)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_B_7
+[ASSIGN] Result: tmp_B_7 := {}
+
+[ASSERT] Evaluating: not_in(bookCode, dom(tmp_B_7))
+  [EVAL] FuncCall: not_in with 2 args
+    [EVAL] Set non-membership: not_in
+  [EVAL] Var lookup: bookCode
+    [EVAL] Resolved base name 'bookCode' -> 'bookCode2'
+    [EVAL] Found in sigma: "29"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_B_7
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] not_in result: true (element not found)
+[ASSERT] Result: true
+[ASSERT] ✓ Assertion PASSED
+
+[SEE] Path Constraint: And(true, And(1, And(true, true)))
+>>> generateCTC: After symex - Is abstract: 0, Has placeholders: 1
+
+>>> generateCTC: STEP 3a - Resolving placeholders in AST
+
+>>> Resolving placeholders in program AST
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_7 is empty map
+    [findKeyFromMapInSigma] Found tmp_B_6 with 1 entries, returning key: 29
+    [AST RESOLVED] bookCode1 = "29"
+    [findKeyFromMapInSigma] Searching for prefix: tmp_B_
+    [findKeyFromMapInSigma] tmp_B_7 is empty map
+    [findKeyFromMapInSigma] Found tmp_B_6 with 1 entries, returning key: 29
+    [AST RESOLVED] bookCode2 = "29"
+>>> generateCTC: All placeholders resolved, program is fully concrete
+
+[FINAL CTC]
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: bookTitle0 := "Test Book 1"
+Statement 2: bookAuthor0 := "Test Author"
+Statement 3: bookDesc0 := "A comprehensive test book description"
+Statement 4: tmp_B_0 := get_B()
+Statement 5: B_old := tmp_B_0
+Statement 6: assume(1)
+Statement 7: _result0 := saveBook(bookTitle, bookAuthor, bookDesc)
+Statement 8: tmp_B_1 := get_B()
+Statement 9: assert(in(_result0, dom(tmp_B_1)))
+Statement 10: bookCode1 := "29"
+Statement 11: bookTitle1 := "Test Book 1"
+Statement 12: bookAuthor1 := "Test Author"
+Statement 13: bookDesc1 := "A comprehensive test book description"
+Statement 14: tmp_B_2 := get_B()
+Statement 15: B_old := tmp_B_2
+Statement 16: tmp_B_3 := get_B()
+Statement 17: assume(in(bookCode, dom(tmp_B_3)))
+Statement 18: _result1 := updateBook(bookCode, bookTitle, bookAuthor, bookDesc)
+Statement 19: tmp_B_4 := get_B()
+Statement 20: assert(in(bookCode, dom(tmp_B_4)))
+Statement 21: bookCode2 := "29"
+Statement 22: tmp_B_5 := get_B()
+Statement 23: B_old := tmp_B_5
+Statement 24: tmp_B_6 := get_B()
+Statement 25: assume(in(bookCode, dom(tmp_B_6)))
+Statement 26: _result2 := deleteBook(bookCode)
+Statement 27: tmp_B_7 := get_B()
+Statement 28: assert(not_in(bookCode, dom(tmp_B_7)))
+=== End Program ===
+
+✓ Test 09: Book CRUD - Save → Update → Delete (Depth=3) COMPLETE!
+
+
+╔════════════════════════════════════════╗
+║  ALL TESTS COMPLETED                   ║
+╚════════════════════════════════════════╝
+

@@ -1498,8 +1498,8 @@ int main()
         //cout << "\n=== BASIC SINGLE OPERATION TESTS ===" << endl;
         // LibraryTests::test01_getAllBooks(executor);
         // LibraryTests::test02_getAllStudents(executor);
-        LibraryTests::test03_saveBook(executor);
-        //LibraryTests::test04_saveStudent(executor);
+        // LibraryTests::test03_saveBook(executor);
+        // LibraryTests::test04_saveStudent(executor);
 
         // ========== DEPTH 2 TESTS ==========
         // cout << "\n=== DEPTH 2 TESTS ===" << endl;
@@ -1535,7 +1535,7 @@ int main()
         // LibraryTests::test22_multipleStudents(executor);
         // LibraryTests::test23_multipleBorrowings(executor);
         // LibraryTests::test24_fullLibraryWorkflow(executor);
-        // LibraryTests::test25_complexScenario(executor);
+         LibraryTests::test25_complexScenario(executor);
 
         cout << "\n╔════════════════════════════════════════╗" << endl;
         cout << "║  ALL TESTS COMPLETED                   ║" << endl;

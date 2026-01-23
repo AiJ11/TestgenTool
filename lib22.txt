@@ -1,0 +1,908 @@
+
+╔════════════════════════════════════════╗
+║  TESTGEN - LIBRARY TEST SUITE          ║
+║  Total Tests: 25                       ║
+╚════════════════════════════════════════╝
+
+
+========================================
+TEST: Test 22: Multiple Students (Depth=5)
+MODE: Full Pipeline (With Backend)
+DEPTH: 5 API calls
+========================================
+
+[LibraryFunctionFactory] Initialized with baseUrl: http://localhost:8080
+[RewriteGlobalsVisitor] Detected 4 globals: B Loans Req S 
+[RewriteGlobalsVisitor] Generated 0 statements in rewritten program
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: studentName0 := input()
+Statement 2: studentEmail0 := input()
+Statement 3: studentPhone0 := input()
+Statement 4: tmp_S_0 := get_S()
+Statement 5: S_old := tmp_S_0
+Statement 6: assume(1)
+Statement 7: _result0 := saveStudent(studentName, studentEmail, studentPhone)
+Statement 8: tmp_S_1 := get_S()
+Statement 9: assert(in(_result0, dom(tmp_S_1)))
+Statement 10: studentName1 := input()
+Statement 11: studentEmail1 := input()
+Statement 12: studentPhone1 := input()
+Statement 13: tmp_S_2 := get_S()
+Statement 14: S_old := tmp_S_2
+Statement 15: assume(1)
+Statement 16: _result1 := saveStudent(studentName, studentEmail, studentPhone)
+Statement 17: tmp_S_3 := get_S()
+Statement 18: assert(in(_result1, dom(tmp_S_3)))
+Statement 19: studentName2 := input()
+Statement 20: studentEmail2 := input()
+Statement 21: studentPhone2 := input()
+Statement 22: tmp_S_4 := get_S()
+Statement 23: S_old := tmp_S_4
+Statement 24: assume(1)
+Statement 25: _result2 := saveStudent(studentName, studentEmail, studentPhone)
+Statement 26: tmp_S_5 := get_S()
+Statement 27: assert(in(_result2, dom(tmp_S_5)))
+Statement 28: assume(1)
+Statement 29: _result3 := getAllStudents()
+Statement 30: assert()
+Statement 31: studentId4 := input()
+Statement 32: tmp_S_6 := get_S()
+Statement 33: assume(in(studentId, dom(tmp_S_6)))
+Statement 34: _result4 := getStudentById(studentId)
+Statement 35: assert()
+=== End Program ===
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: studentName0 := input()
+[SEE] Mapping base name 'studentName' -> 'studentName0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X0
+[ASSIGN] Result: studentName0 := X0
+
+[ASSIGN] Evaluating: studentEmail0 := input()
+[SEE] Mapping base name 'studentEmail' -> 'studentEmail0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X1
+[ASSIGN] Result: studentEmail0 := X1
+
+[ASSIGN] Evaluating: studentPhone0 := input()
+[SEE] Mapping base name 'studentPhone' -> 'studentPhone0'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X2
+[ASSIGN] Result: studentPhone0 := X2
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_0 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_0'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_S_0
+[ASSIGN] Result: tmp_S_0 := {}
+
+[ASSIGN] Evaluating: S_old := tmp_S_0
+  [EVAL] Var lookup: tmp_S_0
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: S_old := {}
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'saveStudent' with symbolic arguments - interruption point
+[SEE] Interruption at statement 7
+
+[ASSIGN] Evaluating: _result0 := saveStudent(studentName, studentEmail, studentPhone)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: studentName
+    [EVAL] Resolved base name 'studentName' -> 'studentName0'
+    [EVAL] Found in sigma: X0
+  [EVAL] Var lookup: studentEmail
+    [EVAL] Resolved base name 'studentEmail' -> 'studentEmail0'
+    [EVAL] Found in sigma: X1
+  [EVAL] Var lookup: studentPhone
+    [EVAL] Resolved base name 'studentPhone' -> 'studentPhone0'
+    [EVAL] Found in sigma: X2
+[API_CALL] saveStudent has symbolic arguments - skipping actual execution
+  [API_ARG 0] X0 (symbolic: 1)
+  [API_ARG 1] X1 (symbolic: 1)
+  [API_ARG 2] X2 (symbolic: 1)
+[ASSIGN] Result: _result0 := -1 (symbolic placeholder)
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_1 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_1'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_S_1
+[ASSIGN] Result: tmp_S_1 := {}
+
+[ASSERT] Evaluating: in(_result0, dom(tmp_S_1))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result0
+    [EVAL] Found in sigma: -1
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_S_1
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: -1
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+[ASSIGN] Evaluating: studentName1 := input()
+[SEE] Mapping base name 'studentName' -> 'studentName1'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X3
+[ASSIGN] Result: studentName1 := X3
+
+[ASSIGN] Evaluating: studentEmail1 := input()
+[SEE] Mapping base name 'studentEmail' -> 'studentEmail1'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X4
+[ASSIGN] Result: studentEmail1 := X4
+
+[ASSIGN] Evaluating: studentPhone1 := input()
+[SEE] Mapping base name 'studentPhone' -> 'studentPhone1'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X5
+[ASSIGN] Result: studentPhone1 := X5
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_2 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_2'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_S_2
+[ASSIGN] Result: tmp_S_2 := {}
+
+[ASSIGN] Evaluating: S_old := tmp_S_2
+  [EVAL] Var lookup: tmp_S_2
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: S_old := {}
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'saveStudent' with symbolic arguments - interruption point
+[SEE] Interruption at statement 16
+
+[ASSIGN] Evaluating: _result1 := saveStudent(studentName, studentEmail, studentPhone)
+[SEE] Mapping base name '_result' -> '_result1'
+  [EVAL] Var lookup: studentName
+    [EVAL] Resolved base name 'studentName' -> 'studentName1'
+    [EVAL] Found in sigma: X3
+  [EVAL] Var lookup: studentEmail
+    [EVAL] Resolved base name 'studentEmail' -> 'studentEmail1'
+    [EVAL] Found in sigma: X4
+  [EVAL] Var lookup: studentPhone
+    [EVAL] Resolved base name 'studentPhone' -> 'studentPhone1'
+    [EVAL] Found in sigma: X5
+[API_CALL] saveStudent has symbolic arguments - skipping actual execution
+  [API_ARG 0] X3 (symbolic: 1)
+  [API_ARG 1] X4 (symbolic: 1)
+  [API_ARG 2] X5 (symbolic: 1)
+[ASSIGN] Result: _result1 := -1 (symbolic placeholder)
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_3 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_3'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_S_3
+[ASSIGN] Result: tmp_S_3 := {}
+
+[ASSERT] Evaluating: in(_result1, dom(tmp_S_3))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result1
+    [EVAL] Found in sigma: -1
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_S_3
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: -1
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+[ASSIGN] Evaluating: studentName2 := input()
+[SEE] Mapping base name 'studentName' -> 'studentName2'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X6
+[ASSIGN] Result: studentName2 := X6
+
+[ASSIGN] Evaluating: studentEmail2 := input()
+[SEE] Mapping base name 'studentEmail' -> 'studentEmail2'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X7
+[ASSIGN] Result: studentEmail2 := X7
+
+[ASSIGN] Evaluating: studentPhone2 := input()
+[SEE] Mapping base name 'studentPhone' -> 'studentPhone2'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X8
+[ASSIGN] Result: studentPhone2 := X8
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_4 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_4'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_S_4
+[ASSIGN] Result: tmp_S_4 := {}
+
+[ASSIGN] Evaluating: S_old := tmp_S_4
+  [EVAL] Var lookup: tmp_S_4
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: S_old := {}
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'saveStudent' with symbolic arguments - interruption point
+[SEE] Interruption at statement 25
+
+[ASSIGN] Evaluating: _result2 := saveStudent(studentName, studentEmail, studentPhone)
+[SEE] Mapping base name '_result' -> '_result2'
+  [EVAL] Var lookup: studentName
+    [EVAL] Resolved base name 'studentName' -> 'studentName2'
+    [EVAL] Found in sigma: X6
+  [EVAL] Var lookup: studentEmail
+    [EVAL] Resolved base name 'studentEmail' -> 'studentEmail2'
+    [EVAL] Found in sigma: X7
+  [EVAL] Var lookup: studentPhone
+    [EVAL] Resolved base name 'studentPhone' -> 'studentPhone2'
+    [EVAL] Found in sigma: X8
+[API_CALL] saveStudent has symbolic arguments - skipping actual execution
+  [API_ARG 0] X6 (symbolic: 1)
+  [API_ARG 1] X7 (symbolic: 1)
+  [API_ARG 2] X8 (symbolic: 1)
+[ASSIGN] Result: _result2 := -1 (symbolic placeholder)
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_5 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_5'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_S_5
+[ASSIGN] Result: tmp_S_5 := {}
+
+[ASSERT] Evaluating: in(_result2, dom(tmp_S_5))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result2
+    [EVAL] Found in sigma: -1
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_S_5
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: -1
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'getAllStudents' ready for actual execution
+
+[ASSIGN] Evaluating: _result3 := getAllStudents()
+[SEE] Mapping base name '_result' -> '_result3'
+[API_CALL] Executing API function: getAllStudents
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: getAllStudents
+  [API_CALL] Executing function...
+[GetAllStudentsFunc] Getting all students...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _result3
+[ASSIGN] Result: _result3 := 200
+
+[ASSERT] Empty assertion, PASSED
+
+[ASSIGN] Evaluating: studentId4 := input()
+[SEE] Mapping base name 'studentId' -> 'studentId4'
+  [EVAL] FuncCall: input with 0 args
+    [EVAL] input() returns new symbolic variable: X9
+[ASSIGN] Result: studentId4 := X9
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_6 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_6'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_S_6
+[ASSIGN] Result: tmp_S_6 := {}
+
+[ASSUME] Evaluating: in(studentId, dom(tmp_S_6))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: studentId
+    [EVAL] Resolved base name 'studentId' -> 'studentId4'
+    [EVAL] Found in sigma: X9
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_S_6
+    [EVAL] Found in sigma: {}
+    [EVAL] Map expr evaluated: {}
+    [EVAL] Domain has 0 keys
+    [EVAL] Set: {}
+    [EVAL] Element: X9
+    [EVAL] Set: {}
+    [EVAL] Element not found in set: false
+[ASSUME] Adding constraint: false
+[SEE] API call 'getStudentById' with symbolic arguments - interruption point
+[SEE] Interruption at statement 34
+
+[ASSIGN] Evaluating: _result4 := getStudentById(studentId)
+[SEE] Mapping base name '_result' -> '_result4'
+  [EVAL] Var lookup: studentId
+    [EVAL] Resolved base name 'studentId' -> 'studentId4'
+    [EVAL] Found in sigma: X9
+[API_CALL] getStudentById has symbolic arguments - skipping actual execution
+  [API_ARG 0] X9 (symbolic: 1)
+[ASSIGN] Result: _result4 := -1 (symbolic placeholder)
+
+[ASSERT] Empty assertion, PASSED
+
+[SEE] Path Constraint: And(true, And(1, And(1, And(1, And(1, false)))))
+
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+>>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
+
+>>> generateCTC: STEP 3 - Generating values with sigma lookup
+    [Found existing] _ -> _
+    [Found existing] tmp_S_ -> tmp_S_0
+    [Found existing] S_old -> S_old
+    [Found existing] _result -> _result0
+    studentName0 = "Test Student 1"
+    studentEmail0 = "student1@library.edu"
+    studentPhone0 = "555-000-1000"
+    studentName1 = (reusing studentName) "Test Student 1"
+    studentEmail1 = (reusing studentEmail) "student1@library.edu"
+    studentPhone1 = (reusing studentPhone) "555-000-1000"
+    studentName2 = (reusing studentName) "Test Student 1"
+    studentEmail2 = (reusing studentEmail) "student1@library.edu"
+    studentPhone2 = (reusing studentPhone) "555-000-1000"
+    [findKeyFromMapInSigma] Searching for prefix: tmp_S_
+    [findKeyFromMapInSigma] tmp_S_6 is empty map
+    [findKeyFromMapInSigma] tmp_S_5 is empty map
+    [findKeyFromMapInSigma] tmp_S_4 is empty map
+    [findKeyFromMapInSigma] tmp_S_3 is empty map
+    [findKeyFromMapInSigma] tmp_S_2 is empty map
+    [findKeyFromMapInSigma] tmp_S_1 is empty map
+    [findKeyFromMapInSigma] tmp_S_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_S_
+    [DEFERRED] studentId - no student in sigma yet
+    studentId4 = "__NEEDS_STUDENT_ID__"
+
+>>> generateCTC: STEP 4 - Resolving placeholders from sigma
+    [findKeyFromMapInSigma] Searching for prefix: tmp_S_
+    [findKeyFromMapInSigma] tmp_S_6 is empty map
+    [findKeyFromMapInSigma] tmp_S_5 is empty map
+    [findKeyFromMapInSigma] tmp_S_4 is empty map
+    [findKeyFromMapInSigma] tmp_S_3 is empty map
+    [findKeyFromMapInSigma] tmp_S_2 is empty map
+    [findKeyFromMapInSigma] tmp_S_1 is empty map
+    [findKeyFromMapInSigma] tmp_S_0 is empty map
+    [findKeyFromMapInSigma] No non-empty map found for tmp_S_
+    [STILL PENDING] studentId4 - keeping placeholder for next iteration
+
+>>> generateCTC: STEP 5 - Recursing with 10 concrete values
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 10
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: reset
+  [API_CALL] Executing function...
+[ResetFunc] Clearing all collections...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
+
+[ASSIGN] Evaluating: studentName0 := "Test Student 1"
+[SEE] Mapping base name 'studentName' -> 'studentName0'
+  [EVAL] String: "Test Student 1"
+[ASSIGN] Result: studentName0 := "Test Student 1"
+
+[ASSIGN] Evaluating: studentEmail0 := "student1@library.edu"
+[SEE] Mapping base name 'studentEmail' -> 'studentEmail0'
+  [EVAL] String: "student1@library.edu"
+[ASSIGN] Result: studentEmail0 := "student1@library.edu"
+
+[ASSIGN] Evaluating: studentPhone0 := "555-000-1000"
+[SEE] Mapping base name 'studentPhone' -> 'studentPhone0'
+  [EVAL] String: "555-000-1000"
+[ASSIGN] Result: studentPhone0 := "555-000-1000"
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_0 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_0'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_S_0
+[ASSIGN] Result: tmp_S_0 := {}
+
+[ASSIGN] Evaluating: S_old := tmp_S_0
+  [EVAL] Var lookup: tmp_S_0
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: S_old := {}
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'saveStudent' ready for actual execution
+
+[ASSIGN] Evaluating: _result0 := saveStudent(studentName, studentEmail, studentPhone)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: studentName
+    [EVAL] Resolved base name 'studentName' -> 'studentName0'
+    [EVAL] Found in sigma: "Test Student 1"
+  [EVAL] Var lookup: studentEmail
+    [EVAL] Resolved base name 'studentEmail' -> 'studentEmail0'
+    [EVAL] Found in sigma: "student1@library.edu"
+  [EVAL] Var lookup: studentPhone
+    [EVAL] Resolved base name 'studentPhone' -> 'studentPhone0'
+    [EVAL] Found in sigma: "555-000-1000"
+[API_CALL] Executing API function: saveStudent
+  [API_ARG] "Test Student 1"
+  [API_ARG] "student1@library.edu"
+  [API_ARG] "555-000-1000"
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: saveStudent
+  [API_CALL] Executing function...
+[SaveStudentFunc] Creating student: Test Student 1
+[SaveStudentFunc] Using /student/save?userId=1
+[HttpClient] POST /student/save?userId=1 -> 200
+[SaveStudentFunc] Created student with id: 51
+  [API_CALL] Function returned: "51"
+  [API_CALL] Storing result in variable: _result0
+[ASSIGN] Result: _result0 := "51"
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_1 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_1'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}"}
+  [API_CALL] Storing result in variable: tmp_S_1
+[ASSIGN] Result: tmp_S_1 := {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}"}
+
+[ASSERT] Evaluating: in(_result0, dom(tmp_S_1))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result0
+    [EVAL] Found in sigma: "51"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_S_1
+    [EVAL] Found in sigma: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}"}
+    [EVAL] Map expr evaluated: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}"}
+    [EVAL] Domain has 1 keys
+    [EVAL] Element: "51"
+    [EVAL] Set: {"51"}
+    [EVAL] Element: "51"
+    [EVAL] Set: {"51"}
+    [EVAL] Element found in set: true
+[ASSERT] Result: true
+[ASSERT] ✓ Assertion PASSED
+
+[ASSIGN] Evaluating: studentName1 := "Test Student 1"
+[SEE] Mapping base name 'studentName' -> 'studentName1'
+  [EVAL] String: "Test Student 1"
+[ASSIGN] Result: studentName1 := "Test Student 1"
+
+[ASSIGN] Evaluating: studentEmail1 := "student1@library.edu"
+[SEE] Mapping base name 'studentEmail' -> 'studentEmail1'
+  [EVAL] String: "student1@library.edu"
+[ASSIGN] Result: studentEmail1 := "student1@library.edu"
+
+[ASSIGN] Evaluating: studentPhone1 := "555-000-1000"
+[SEE] Mapping base name 'studentPhone' -> 'studentPhone1'
+  [EVAL] String: "555-000-1000"
+[ASSIGN] Result: studentPhone1 := "555-000-1000"
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_2 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_2'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}"}
+  [API_CALL] Storing result in variable: tmp_S_2
+[ASSIGN] Result: tmp_S_2 := {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}"}
+
+[ASSIGN] Evaluating: S_old := tmp_S_2
+  [EVAL] Var lookup: tmp_S_2
+    [EVAL] Found in sigma: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}"}
+[ASSIGN] Result: S_old := {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}"}
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'saveStudent' ready for actual execution
+
+[ASSIGN] Evaluating: _result1 := saveStudent(studentName, studentEmail, studentPhone)
+[SEE] Mapping base name '_result' -> '_result1'
+  [EVAL] Var lookup: studentName
+    [EVAL] Resolved base name 'studentName' -> 'studentName1'
+    [EVAL] Found in sigma: "Test Student 1"
+  [EVAL] Var lookup: studentEmail
+    [EVAL] Resolved base name 'studentEmail' -> 'studentEmail1'
+    [EVAL] Found in sigma: "student1@library.edu"
+  [EVAL] Var lookup: studentPhone
+    [EVAL] Resolved base name 'studentPhone' -> 'studentPhone1'
+    [EVAL] Found in sigma: "555-000-1000"
+[API_CALL] Executing API function: saveStudent
+  [API_ARG] "Test Student 1"
+  [API_ARG] "student1@library.edu"
+  [API_ARG] "555-000-1000"
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: saveStudent
+  [API_CALL] Executing function...
+[SaveStudentFunc] Creating student: Test Student 1
+[SaveStudentFunc] Using /student/save?userId=2
+[HttpClient] POST /student/save?userId=2 -> 200
+[SaveStudentFunc] Created student with id: 52
+  [API_CALL] Function returned: "52"
+  [API_CALL] Storing result in variable: _result1
+[ASSIGN] Result: _result1 := "52"
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_3 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_3'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}"}
+  [API_CALL] Storing result in variable: tmp_S_3
+[ASSIGN] Result: tmp_S_3 := {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}"}
+
+[ASSERT] Evaluating: in(_result1, dom(tmp_S_3))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result1
+    [EVAL] Found in sigma: "52"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_S_3
+    [EVAL] Found in sigma: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}"}
+    [EVAL] Map expr evaluated: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}"}
+    [EVAL] Domain has 2 keys
+    [EVAL] Element: "51"
+    [EVAL] Element: "52"
+    [EVAL] Set: {"51", "52"}
+    [EVAL] Element: "52"
+    [EVAL] Set: {"51", "52"}
+    [EVAL] Element found in set: true
+[ASSERT] Result: true
+[ASSERT] ✓ Assertion PASSED
+
+[ASSIGN] Evaluating: studentName2 := "Test Student 1"
+[SEE] Mapping base name 'studentName' -> 'studentName2'
+  [EVAL] String: "Test Student 1"
+[ASSIGN] Result: studentName2 := "Test Student 1"
+
+[ASSIGN] Evaluating: studentEmail2 := "student1@library.edu"
+[SEE] Mapping base name 'studentEmail' -> 'studentEmail2'
+  [EVAL] String: "student1@library.edu"
+[ASSIGN] Result: studentEmail2 := "student1@library.edu"
+
+[ASSIGN] Evaluating: studentPhone2 := "555-000-1000"
+[SEE] Mapping base name 'studentPhone' -> 'studentPhone2'
+  [EVAL] String: "555-000-1000"
+[ASSIGN] Result: studentPhone2 := "555-000-1000"
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_4 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_4'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}"}
+  [API_CALL] Storing result in variable: tmp_S_4
+[ASSIGN] Result: tmp_S_4 := {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}"}
+
+[ASSIGN] Evaluating: S_old := tmp_S_4
+  [EVAL] Var lookup: tmp_S_4
+    [EVAL] Found in sigma: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}"}
+[ASSIGN] Result: S_old := {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}"}
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'saveStudent' ready for actual execution
+
+[ASSIGN] Evaluating: _result2 := saveStudent(studentName, studentEmail, studentPhone)
+[SEE] Mapping base name '_result' -> '_result2'
+  [EVAL] Var lookup: studentName
+    [EVAL] Resolved base name 'studentName' -> 'studentName2'
+    [EVAL] Found in sigma: "Test Student 1"
+  [EVAL] Var lookup: studentEmail
+    [EVAL] Resolved base name 'studentEmail' -> 'studentEmail2'
+    [EVAL] Found in sigma: "student1@library.edu"
+  [EVAL] Var lookup: studentPhone
+    [EVAL] Resolved base name 'studentPhone' -> 'studentPhone2'
+    [EVAL] Found in sigma: "555-000-1000"
+[API_CALL] Executing API function: saveStudent
+  [API_ARG] "Test Student 1"
+  [API_ARG] "student1@library.edu"
+  [API_ARG] "555-000-1000"
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: saveStudent
+  [API_CALL] Executing function...
+[SaveStudentFunc] Creating student: Test Student 1
+[SaveStudentFunc] Using /student/save?userId=3
+[HttpClient] POST /student/save?userId=3 -> 200
+[SaveStudentFunc] Created student with id: 53
+  [API_CALL] Function returned: "53"
+  [API_CALL] Storing result in variable: _result2
+[ASSIGN] Result: _result2 := "53"
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_5 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_5'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}", 53 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":3}"}
+  [API_CALL] Storing result in variable: tmp_S_5
+[ASSIGN] Result: tmp_S_5 := {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}", 53 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":3}"}
+
+[ASSERT] Evaluating: in(_result2, dom(tmp_S_5))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: _result2
+    [EVAL] Found in sigma: "53"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_S_5
+    [EVAL] Found in sigma: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}", 53 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":3}"}
+    [EVAL] Map expr evaluated: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}", 53 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":3}"}
+    [EVAL] Domain has 3 keys
+    [EVAL] Element: "51"
+    [EVAL] Element: "52"
+    [EVAL] Element: "53"
+    [EVAL] Set: {"51", "52", "53"}
+    [EVAL] Element: "53"
+    [EVAL] Set: {"51", "52", "53"}
+    [EVAL] Element found in set: true
+[ASSERT] Result: true
+[ASSERT] ✓ Assertion PASSED
+
+[ASSUME] Evaluating: 1
+  [EVAL] Num: 1
+[ASSUME] Adding constraint: 1
+[SEE] API call 'getAllStudents' ready for actual execution
+
+[ASSIGN] Evaluating: _result3 := getAllStudents()
+[SEE] Mapping base name '_result' -> '_result3'
+[API_CALL] Executing API function: getAllStudents
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: getAllStudents
+  [API_CALL] Executing function...
+[GetAllStudentsFunc] Getting all students...
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _result3
+[ASSIGN] Result: _result3 := 200
+
+[ASSERT] Empty assertion, PASSED
+
+[ASSIGN] Evaluating: studentId4 := "__NEEDS_STUDENT_ID__"
+[SEE] Mapping base name 'studentId' -> 'studentId4'
+  [EVAL] String: "__NEEDS_STUDENT_ID__"
+[ASSIGN] Result: studentId4 := "__NEEDS_STUDENT_ID__"
+[SEE] API call 'get_S' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_S_6 := get_S()
+[SEE] Mapping base name 'tmp_S_' -> 'tmp_S_6'
+[API_CALL] Executing API function: get_S
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: get_S
+  [API_CALL] Executing function...
+[GetSFunc] Fetching S (Students)...
+  [API_CALL] Function returned: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}", 53 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":3}"}
+  [API_CALL] Storing result in variable: tmp_S_6
+[ASSIGN] Result: tmp_S_6 := {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}", 53 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":3}"}
+
+[ASSUME] Evaluating: in(studentId, dom(tmp_S_6))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: studentId
+    [EVAL] Resolved base name 'studentId' -> 'studentId4'
+    [EVAL] Found placeholder __NEEDS_STUDENT_ID__, attempting runtime resolution
+    [findKeyFromMapInSigma] Searching for prefix: tmp_S_
+    [findKeyFromMapInSigma] tmp_S_0 is empty map
+    [findKeyFromMapInSigma] Found tmp_S_1 with 1 entries, key: 51
+    [findKeyFromMapInSigma] Found tmp_S_2 with 1 entries, key: 51
+    [findKeyFromMapInSigma] Found tmp_S_3 with 2 entries, key: 51
+    [findKeyFromMapInSigma] Found tmp_S_4 with 2 entries, key: 51
+    [findKeyFromMapInSigma] Found tmp_S_5 with 3 entries, key: 51
+    [findKeyFromMapInSigma] Found tmp_S_6 with 3 entries, key: 51
+    [EVAL] Resolved to: 51
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_S_6
+    [EVAL] Found in sigma: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}", 53 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":3}"}
+    [EVAL] Map expr evaluated: {51 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":49}", 52 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":2}", 53 -> "{"email":"student1@library.edu","phone":"555-000-1000","studentName":"Test Student 1","userId":3}"}
+    [EVAL] Domain has 3 keys
+    [EVAL] Element: "51"
+    [EVAL] Element: "52"
+    [EVAL] Element: "53"
+    [EVAL] Set: {"51", "52", "53"}
+    [EVAL] Element: "51"
+    [EVAL] Set: {"51", "52", "53"}
+    [EVAL] Element found in set: true
+[ASSUME] Adding constraint: true
+[SEE] API call 'getStudentById' ready for actual execution
+
+[ASSIGN] Evaluating: _result4 := getStudentById(studentId)
+[SEE] Mapping base name '_result' -> '_result4'
+  [EVAL] Var lookup: studentId
+    [EVAL] Resolved base name 'studentId' -> 'studentId4'
+    [EVAL] Found in sigma: "51"
+[API_CALL] Executing API function: getStudentById
+  [API_ARG] "51"
+  [API_CALL] Getting function from factory...
+[LibraryFactory] Creating function: getStudentById
+  [API_CALL] Executing function...
+[GetStudentByIdFunc] Getting student: 51
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _result4
+[ASSIGN] Result: _result4 := 200
+
+[ASSERT] Empty assertion, PASSED
+
+[SEE] Path Constraint: And(true, And(1, And(1, And(1, And(1, true)))))
+>>> generateCTC: After symex - Is abstract: 0, Has placeholders: 1
+
+>>> generateCTC: STEP 3a - Resolving placeholders in AST
+
+>>> Resolving placeholders in program AST
+    [findKeyFromMapInSigma] Searching for prefix: tmp_S_
+    [findKeyFromMapInSigma] Found tmp_S_6 with 3 entries, returning key: 51
+    [AST RESOLVED] studentId4 = "51"
+>>> generateCTC: All placeholders resolved, program is fully concrete
+
+[FINAL CTC]
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: studentName0 := "Test Student 1"
+Statement 2: studentEmail0 := "student1@library.edu"
+Statement 3: studentPhone0 := "555-000-1000"
+Statement 4: tmp_S_0 := get_S()
+Statement 5: S_old := tmp_S_0
+Statement 6: assume(1)
+Statement 7: _result0 := saveStudent(studentName, studentEmail, studentPhone)
+Statement 8: tmp_S_1 := get_S()
+Statement 9: assert(in(_result0, dom(tmp_S_1)))
+Statement 10: studentName1 := "Test Student 1"
+Statement 11: studentEmail1 := "student1@library.edu"
+Statement 12: studentPhone1 := "555-000-1000"
+Statement 13: tmp_S_2 := get_S()
+Statement 14: S_old := tmp_S_2
+Statement 15: assume(1)
+Statement 16: _result1 := saveStudent(studentName, studentEmail, studentPhone)
+Statement 17: tmp_S_3 := get_S()
+Statement 18: assert(in(_result1, dom(tmp_S_3)))
+Statement 19: studentName2 := "Test Student 1"
+Statement 20: studentEmail2 := "student1@library.edu"
+Statement 21: studentPhone2 := "555-000-1000"
+Statement 22: tmp_S_4 := get_S()
+Statement 23: S_old := tmp_S_4
+Statement 24: assume(1)
+Statement 25: _result2 := saveStudent(studentName, studentEmail, studentPhone)
+Statement 26: tmp_S_5 := get_S()
+Statement 27: assert(in(_result2, dom(tmp_S_5)))
+Statement 28: assume(1)
+Statement 29: _result3 := getAllStudents()
+Statement 30: assert()
+Statement 31: studentId4 := "51"
+Statement 32: tmp_S_6 := get_S()
+Statement 33: assume(in(studentId, dom(tmp_S_6)))
+Statement 34: _result4 := getStudentById(studentId)
+Statement 35: assert()
+=== End Program ===
+
+✓ Test 22: Multiple Students (Depth=5) COMPLETE!
+
+
+╔════════════════════════════════════════╗
+║  ALL TESTS COMPLETED                   ║
+╚════════════════════════════════════════╝
+

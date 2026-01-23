@@ -880,7 +880,29 @@ string SEE::findStockFromSigma()
 {
     return findKeyFromMapInSigma("tmp_Stock_");
 }
+// ========================================
+// LIBRARY ID RESOLUTION HELPERS
+// ========================================
 
+string SEE::findBookCodeFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_B_");
+}
+
+string SEE::findStudentIdFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_S_");
+}
+
+string SEE::findRequestIdFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_Req_");
+}
+
+string SEE::findLoanIdFromSigma()
+{
+    return findKeyFromMapInSigma("tmp_Loans_");
+}
 Expr *SEE::evaluateExpr(Expr &expr, SymbolTable &st)
 {
     CloneVisitor cloner;
@@ -1404,6 +1426,57 @@ Expr *SEE::evaluateExpr(Expr &expr, SymbolTable &st)
                         return resolved;
                     }
                 }
+                // ========================================
+                // LIBRARY PLACEHOLDER RESOLUTION
+                // ========================================
+                else if (strVal->value == "__NEEDS_BOOK_CODE__")
+                {
+                    cout << "    [EVAL] Found placeholder __NEEDS_BOOK_CODE__, attempting runtime resolution" << endl;
+                    string resolvedId = findBookCodeFromSigma();
+                    if (!resolvedId.empty())
+                    {
+                        cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                        String *resolved = new String(resolvedId);
+                        sigma.setValue(v.name, resolved);
+                        return resolved;
+                    }
+                }
+                else if (strVal->value == "__NEEDS_STUDENT_ID__")
+                {
+                    cout << "    [EVAL] Found placeholder __NEEDS_STUDENT_ID__, attempting runtime resolution" << endl;
+                    string resolvedId = findStudentIdFromSigma();
+                    if (!resolvedId.empty())
+                    {
+                        cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                        String *resolved = new String(resolvedId);
+                        sigma.setValue(v.name, resolved);
+                        return resolved;
+                    }
+                }
+                else if (strVal->value == "__NEEDS_REQUEST_ID__")
+                {
+                    cout << "    [EVAL] Found placeholder __NEEDS_REQUEST_ID__, attempting runtime resolution" << endl;
+                    string resolvedId = findRequestIdFromSigma();
+                    if (!resolvedId.empty())
+                    {
+                        cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                        String *resolved = new String(resolvedId);
+                        sigma.setValue(v.name, resolved);
+                        return resolved;
+                    }
+                }
+                else if (strVal->value == "__NEEDS_LOAN_ID__")
+                {
+                    cout << "    [EVAL] Found placeholder __NEEDS_LOAN_ID__, attempting runtime resolution" << endl;
+                    string resolvedId = findLoanIdFromSigma();
+                    if (!resolvedId.empty())
+                    {
+                        cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                        String *resolved = new String(resolvedId);
+                        sigma.setValue(v.name, resolved);
+                        return resolved;
+                    }
+                }
             }
 
             cout << "    [EVAL] Found in sigma: " << exprToString(value) << endl;
@@ -1453,6 +1526,54 @@ Expr *SEE::evaluateExpr(Expr &expr, SymbolTable &st)
                     {
                         cout << "    [EVAL] Found placeholder __NEEDS_ORDER_ID__, attempting runtime resolution" << endl;
                         string resolvedId = findOrderIdFromSigma();
+                        if (!resolvedId.empty())
+                        {
+                            cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                            String *resolved = new String(resolvedId);
+                            sigma.setValue(suffixedName, resolved);
+                            return resolved;
+                        }
+                    }
+                    else if (strVal->value == "__NEEDS_BOOK_CODE__")
+                    {
+                        cout << "    [EVAL] Found placeholder __NEEDS_BOOK_CODE__, attempting runtime resolution" << endl;
+                        string resolvedId = findBookCodeFromSigma();
+                        if (!resolvedId.empty())
+                        {
+                            cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                            String *resolved = new String(resolvedId);
+                            sigma.setValue(suffixedName, resolved);
+                            return resolved;
+                        }
+                    }
+                    else if (strVal->value == "__NEEDS_STUDENT_ID__")
+                    {
+                        cout << "    [EVAL] Found placeholder __NEEDS_STUDENT_ID__, attempting runtime resolution" << endl;
+                        string resolvedId = findStudentIdFromSigma();
+                        if (!resolvedId.empty())
+                        {
+                            cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                            String *resolved = new String(resolvedId);
+                            sigma.setValue(suffixedName, resolved);
+                            return resolved;
+                        }
+                    }
+                    else if (strVal->value == "__NEEDS_REQUEST_ID__")
+                    {
+                        cout << "    [EVAL] Found placeholder __NEEDS_REQUEST_ID__, attempting runtime resolution" << endl;
+                        string resolvedId = findRequestIdFromSigma();
+                        if (!resolvedId.empty())
+                        {
+                            cout << "    [EVAL] Resolved to: " << resolvedId << endl;
+                            String *resolved = new String(resolvedId);
+                            sigma.setValue(suffixedName, resolved);
+                            return resolved;
+                        }
+                    }
+                    else if (strVal->value == "__NEEDS_LOAN_ID__")
+                    {
+                        cout << "    [EVAL] Found placeholder __NEEDS_LOAN_ID__, attempting runtime resolution" << endl;
+                        string resolvedId = findLoanIdFromSigma();
                         if (!resolvedId.empty())
                         {
                             cout << "    [EVAL] Resolved to: " << resolvedId << endl;

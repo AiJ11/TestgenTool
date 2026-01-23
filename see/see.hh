@@ -49,7 +49,12 @@ class SEE {
         string findOrderStatusFromSigma();
         string findSellersFromSigma();
         string findStockFromSigma();
-
+        // Library ID resolution helpers
+        string findBookCodeFromSigma();
+        string findStudentIdFromSigma();
+        string findRequestIdFromSigma();
+        string findLoanIdFromSigma();
+        
         unique_ptr<Expr> computePathConstraint(vector<Expr*>);
         // If the statement is a call to an API function, then none of its parameters
         // should be variables whose values are symbolic expression.
