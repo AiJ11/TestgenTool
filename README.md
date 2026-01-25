@@ -82,14 +82,59 @@ vcpkg install z3:x64-windows curl:x64-windows nlohmann-json:x64-windows
 git clone <repository-url>
 cd TestgenTool
 
-# Build with CMake
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
+# Build the project
+make
 
-# Or build directly with g++
-g++ -std=c++17 -O2 -o testgen src/*.cpp -lz3 -lcurl -I/usr/include/nlohmann
+# Run the application
+make run
 ```
+
+### Build Commands
+
+| Command | Description |
+|---------|-------------|
+| `make` | Build the project |
+| `make run` | Build and run the project |
+| `make clean` | Remove built files |
+| `make rebuild` | Clean and rebuild |
+| `make help` | Show help message |
+
+### Platform Configuration
+
+The Makefile is configured for **macOS (Homebrew)** by default. For Linux, edit the `Makefile` and uncomment the Linux paths:
+
+```makefile
+# Linux (uncomment if using Linux)
+INCLUDES = -I/usr/include
+LDFLAGS = -L/usr/lib
+```
+
+### Manual Build (Alternative)
+
+```bash
+g++ -std=c++17 -Wall -I. -Isee -Itester -Ispecs \
+    -I/opt/homebrew/include \
+    test_libapplication.cpp \
+    algo.cpp ast.cc astvisitor.cc printvisitor.cc \
+    clonevisitor.cc rewrite_globals_visitor.cc \
+    symvar.cc env.cc typemap.cc \
+    specs/RestaurantSpec.cpp \
+    specs/EcommerceSpec.cpp \
+    specs/LibrarySpec.cpp \
+    see/see.cc see/solver.cc see/z3solver.cc \
+    see/functionfactory.cc see/httpclient.cc \
+    see/restaurantfunctionfactory.cc \
+    see/ecommercefunctionfactory.cc \
+    see/libraryfunctionfactory.cc \
+    tester/tester.cc \
+    -L/opt/homebrew/lib \
+    -lz3 -lcurl \
+    -o test_libapplication
+
+./test_libapplication
+```
+
+**Note:** For Linux, change `/opt/homebrew` to `/usr` in the include and library paths.
 
 ## Usage
 
@@ -200,6 +245,7 @@ Block createProduct {
 ```
 TestgenTool/
 │
+├── Makefile                    # Build configuration
 ├── test_libapplication.cpp     # Main entry point (comprises all tests)
 ├── algo.cpp                    # genATC algorithm implementation
 ├── algo.hpp                    
@@ -207,10 +253,12 @@ TestgenTool/
 ├── ast.hh                      
 ├── astvisitor.cc               # AST visitor pattern implementation
 ├── astvisitor.hh               
+├── printvisitor.cc             # Print visitor for AST
+├── printvisitor.hh             
 ├── clonevisitor.cc             # Clone visitor for AST
 ├── clonevisitor.hh             
-├── rewriteglobalsvisitor.cc    # Rewrite globals visitor (test API layer)
-├── rewriteglobalsvisitor.hh    
+├── rewrite_globals_visitor.cc  # Rewrite globals visitor (test API layer)
+├── rewrite_globals_visitor.hh  
 ├── env.cc                      # Environment/state management
 ├── env.hh                      
 ├── typemap.cc                  # Type mapping utilities
@@ -253,10 +301,13 @@ TestgenTool/
 
 | Module | Description |
 |--------|-------------|
+| **Makefile** | Build configuration for the project |
 | **test_libapplication.cpp** | Main entry point that runs all test cases |
 | **algo** | genATC algorithm - generates Abstract Test Cases from test strings |
 | **ast** | Abstract Syntax Tree for specification parsing |
-| **rewriteglobalsvisitor** | Rewrite globals visitor for test API layer |
+| **printvisitor** | Print visitor for AST visualization |
+| **clonevisitor** | Clone visitor for AST duplication |
+| **rewrite_globals_visitor** | Rewrite globals visitor for test API layer |
 | **env** | Environment and state management across API calls |
 | **symvar** | Symbolic variable definitions and operations |
 | **specs/** | Formal API specifications for each subject application |
