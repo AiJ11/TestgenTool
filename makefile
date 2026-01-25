@@ -1,33 +1,76 @@
+# TestGen Makefile
+# Specification-Based API Test Generation Tool
 
+# Compiler and flags
 CXX = g++
+CXXFLAGS = -std=c++17 -Wall -I. -Isee -Itester -Ispecs
 
-CXXFLAGS = -std=c++17 -Wall -Wextra -I. -g -O2
+# Platform-specific paths (adjust as needed)
+# macOS (Homebrew)
+INCLUDES = -I/opt/homebrew/include
+LDFLAGS = -L/opt/homebrew/lib
 
-CORE_SOURCES = test_libapplication.cpp jsCodeGenerator/jsCodeGen.cpp
+# Linux (uncomment if using Linux)
+# INCLUDES = -I/usr/include
+# LDFLAGS = -L/usr/lib
 
-SYMBOLIC_SOURCES = SymbolicEngine/TestGenSymbolicEnv.cpp SymbolicEngine/TestGenSymbolicVisitor.cpp SymbolicEngine/TestGenDriver.cpp
+# Libraries
+LIBS = -lz3 -lcurl
 
-basic: testgen_basic
+# Output binary
+TARGET = test_libapplication
 
-testgen_basic: $(CORE_SOURCES)
+# Source files
+SRCS = test_libapplication.cpp \
+       algo.cpp \
+       ast.cc \
+       astvisitor.cc \
+       printvisitor.cc \
+       clonevisitor.cc \
+       rewrite_globals_visitor.cc \
+       symvar.cc \
+       env.cc \
+       typemap.cc \
+       specs/RestaurantSpec.cpp \
+       specs/EcommerceSpec.cpp \
+       specs/LibrarySpec.cpp \
+       see/see.cc \
+       see/solver.cc \
+       see/z3solver.cc \
+       see/functionfactory.cc \
+       see/httpclient.cc \
+       see/restaurantfunctionfactory.cc \
+       see/ecommercefunctionfactory.cc \
+       see/libraryfunctionfactory.cc \
+       tester/tester.cc
 
-	$(CXX) $(CXXFLAGS) $^ -o $@
+# Default target
+all: $(TARGET)
 
-symbolic: testgen_symbolic
+# Build the executable
+$(TARGET): $(SRCS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(SRCS) $(LDFLAGS) $(LIBS) -o $(TARGET)
 
-testgen_symbolic: $(CORE_SOURCES) $(SYMBOLIC_SOURCES)
+# Build and run
+run: $(TARGET)
+	./$(TARGET)
 
-	$(CXX) $(CXXFLAGS) -ISymbolicEngine -DUSE_SYMBOLIC_ENGINE $^ -o $@
-
+# Clean build artifacts
 clean:
+	rm -f $(TARGET)
 
-	rm -f testgen_basic testgen_symbolic .o jsCodeGenerator/.o SymbolicEngine/*.o
+# Rebuild from scratch
+rebuild: clean all
 
+# Help
 help:
+	@echo "TestGen Makefile"
+	@echo ""
+	@echo "Usage:"
+	@echo "  make          - Build the project"
+	@echo "  make run      - Build and run the project"
+	@echo "  make clean    - Remove build artifacts"
+	@echo "  make rebuild  - Clean and rebuild"
+	@echo "  make help     - Show this help message"
 
-	@echo "make basic     - Build basic TestGen"
-
-	@echo "make symbolic  - Build TestGen + SymbolicEngine"
-
-.PHONY: basic symbolic clean help
-
+.PHONY: all run clean rebuild help
