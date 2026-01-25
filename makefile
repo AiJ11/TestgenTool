@@ -3,7 +3,14 @@
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -I. -Isee -Itester -Ispecs
+CXXFLAGS = -std=c++17 -Wall -I. -Isee -Itester -Ispecs \
+           -Wno-delete-non-abstract-non-virtual-dtor \
+           -Wno-unqualified-std-cast-call \
+           -Wno-reorder-ctor \
+           -Wno-deprecated-declarations \
+           -Wno-unused-variable \
+           -Wno-unused-function \
+           -Wno-unused-private-field
 
 # Platform-specific paths (adjust as needed)
 # macOS (Homebrew)

@@ -437,7 +437,7 @@ namespace RestaurantTests
     void test02_loginFailure(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 02: Login Without Registration (Depth=1)",
+            "Test 02: loginCustomerErr (Depth=1)",
             makeRestaurantSpec(), {"loginCustomerErr"}
             // {"loginCustomerOk"} // Should fail: user not in U
         );
@@ -446,7 +446,7 @@ namespace RestaurantTests
     void test03_browseOnly(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 03: Browse Restaurants (Depth=1)",
+            "Test 03: registerCustomerOk → loginWrongPasswordErr (Depth=2)",
             makeRestaurantSpec(),
             {"registerCustomerOk", "loginWrongPasswordErr"}
             // {"browseRestaurantsOk"} // Public API, no auth needed
@@ -460,7 +460,7 @@ namespace RestaurantTests
     void test04_Login(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 04: Login (Depth=1)",
+            "Test 04: loginCustomerOk (Depth=1, Expected UNSAT)",
             makeRestaurantSpec(),
             {"loginCustomerOk"}
             // {"loginOk"} // should be UNSAT
@@ -470,9 +470,9 @@ namespace RestaurantTests
     void test05_registerOwnerAndLogin(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 05: Register Owner → Login (Depth=2)",
+            "Test 05: registerCustomerOk → loginCustomerOk → addToCartOk (Depth=3, Expected UNSAT)",
             makeRestaurantSpec(),
-            {"registerCustomerOk", "loginCustomerOk", "addToCartOk"}//unsat
+            {"registerCustomerOk", "loginCustomerOk", "addToCartOk"} // unsat
             // {"registerOwnerOk", "loginOk"} // should be SAT
         );
     }
@@ -480,7 +480,7 @@ namespace RestaurantTests
     void test06_registerAgentAndLogin(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 06: Register Agent → Login (Depth=2)",
+            "Test 06: registerOwnerOk → loginOwnerOk → createRestaurantOk → placeOrderOk (Depth=4, Expected UNSAT)",
             makeRestaurantSpec(),
             {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "placeOrderOk"}
             // {"registerAgentOk", "loginOk"} // should be SAT
@@ -494,7 +494,7 @@ namespace RestaurantTests
     void test07_loginBrowseView(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 07: Registerowner -> Loginowner ->create restaurant-> Browse-> view menu(Depth=5)",
+            "Test 07: registerOwnerOk → loginOwnerOk → createRestaurantOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk (Depth=7)",
             makeRestaurantSpec(),
             {"registerOwnerOk",     // 1. Owner registers
              "loginOwnerOk",        // 2. Owner logs in
@@ -509,12 +509,12 @@ namespace RestaurantTests
     void test08_loginAndAddToCart(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 08: Login → Browse → Add to Cart (Depth=4)",
+            "Test 08: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartOk (Depth=9)",
             makeRestaurantSpec(),
             {"registerOwnerOk",     // 1. Owner registers
              "loginOwnerOk",        // 2. Owner logs in
              "createRestaurantOk",  // 3. Owner creates restaurant
-             "addMenuItemOk",       // 4. Owner adds menu item  <-- ADD THIS
+             "addMenuItemOk",       // 4. Owner adds menu item  
              "registerCustomerOk",  // 5. Customer registers
              "loginCustomerOk",     // 6. Customer logs in
              "browseRestaurantsOk", // 7. Customer browses
@@ -526,12 +526,12 @@ namespace RestaurantTests
     void test09_loginAndReview(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 09: Login → Browse → Leave Review (Depth=4)",
+            "Test 09: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartOk → placeOrderOk (Depth=10)",
             makeRestaurantSpec(),
             {"registerOwnerOk",     // 1. Owner registers
              "loginOwnerOk",        // 2. Owner logs in
              "createRestaurantOk",  // 3. Owner creates restaurant
-             "addMenuItemOk",       // 4. Owner adds menu item  <-- ADD THIS
+             "addMenuItemOk",       // 4. Owner adds menu item  
              "registerCustomerOk",  // 5. Customer registers
              "loginCustomerOk",     // 6. Customer logs in
              "browseRestaurantsOk", // 7. Customer browses
@@ -543,7 +543,7 @@ namespace RestaurantTests
     void test10_reviewWithoutLogin(TestExecutor &executor)
     {
         executor.runTest(
-            "Test 10: Browse → Leave Review (No Auth) (Depth=2)",
+            "Test 10: Full Order Lifecycle with Review (Depth=19)",
             makeRestaurantSpec(),
             {"registerOwnerOk",          // 1. Owner registers
              "loginOwnerOk",             // 2. Owner logs in
@@ -565,222 +565,223 @@ namespace RestaurantTests
              "updateOrderStatusAgentOk", // 18. Agent delivers (status: delivered)
              "leaveReviewOk"});
     }
-
-    // ========================================
-    // DEPTH 4: Four API Call Tests
-    // ========================================
-
-    void test11_fullCustomerOrder(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 11: Register → Login → Add to Cart → Place Order (Depth=4)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk"}
-            // {"registerCustomerOk", "loginOk", "addToCartOk", "placeOrderOk"} // should fail no browse restaurants
-        );
-    }
-
-    void test12_ownerCreateRestaurant(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 12: Register Owner → Login → Create Restaurant → Add Menu (Depth=4)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk",
-             "addMenuItemOk", "addMenuItemOk", "addMenuItemOk"}
-            // {"registerOwnerOk", "loginOk", "createRestaurantOk", "addMenuItemOk"}
-        );
-    }
-
-    void test13_cartWithoutItems(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 13: Login → Place Order (Empty Cart) (Depth=2)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
-             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
-             "addToCartOk"}
-            // {"registerCustomerOk", "loginOk", "placeOrderErr"} // Should fail: cart empty
-        );
-    }
-
-    // ========================================
-    // DEPTH 5: Five API Call Tests
-    // ========================================
-
-    void test14_customerFullWorkflow(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 14: Register → Login → Browse → Add Cart → Order (Depth=5)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
-             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
-             "addToCartOk", "placeOrderOk"}
-            // {"registerCustomerOk", "loginOk", "browseRestaurantsOk", "addToCartOk", "placeOrderOk"}
-        );
-    }
-
-    void test15_ownerFullSetup(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 15: Register Owner → Login → Create Restaurant → Add 2 Menu Items (Depth=5)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
-             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
-             "addToCartOk", "placeOrderOk",
-             "updateOrderStatusOwnerOk", // accepted
-             "updateOrderStatusOwnerOk", // preparing
-             "updateOrderStatusOwnerOk"}
-            // {"registerOwnerOk", "loginOk", "createRestaurantOk", "addMenuItemOk", "addMenuItemOk"}
-        );
-    }
-
-    void test16_agentAssignOrder(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 16: Register Agent → Login → Customer Places Order → Agent Assigned → Update Status (Depth=5)",
-            makeRestaurantSpec(),
-            {"registerCustomerOk", "registerCustomerOk"}
-            //{"registerAgentOk", "loginOk", "placeOrderOk", "assignOrderOk", "updateOrderStatusAgentOk"} // delivery agent can't place order
-        );
-    }
-
-    // ========================================
-    // DEPTH 6: Six API Call Tests
-    // ========================================
-
-    void test17_ownerManageOrder(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 17: Owner: Register → Login → Create Restaurant → owner tries to place order (Depth=6)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
-             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
-             "addToCartOk", "placeOrderOk",
-             "registerAgentOk", "loginAgentOk",
-             "updateOrderStatusAgentOk"}
-            //{"registerOwnerOk", "loginOk", "createRestaurantOk", "placeOrderOk"} // should be UNSAT, owner can't place order
-        );
-    }
-
-    void test18_multipleCartAdditions(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 18: Login → Browse → Add 3 Items to Cart → Place Order (Depth=6)",
-            makeRestaurantSpec(),
-            {"loginCustomerOk", "browseRestaurantsOk", "addToCartOk", "addToCartOk", "addToCartOk", "placeOrderOk"} // should return unsat as no registration
-        );
-    }
-
-    void test19_wrongRoleAccess(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 19: Customer Tries Owner Action (Depth=3)",
-            makeRestaurantSpec(),
-            {"registerCustomerOk", "loginCustomerOk", "createRestaurantOk"} // Customer can't create restaurant
-        );
-    }
-
-    // ========================================
-    // DEPTH 7: Seven API Call Tests
-    // ========================================
-
-    void test20_fullLifecycle(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 20: Full Order Lifecycle (Depth=7)",
-            makeRestaurantSpec(),
-            {"registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
-             "addToCartOk", "placeOrderOk", "leaveReviewOk"});
-    }
-
-    void test21_ownerCompleteFlow(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 21: Owner Complete Restaurant Management (Depth=7)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk",
-             "addMenuItemOk", "addMenuItemOk", "addMenuItemOk"});
-    }
-
-    // ========================================
-    // More Tests
-    // ========================================
-
-    // void test22_multiItems(TestExecutor &executor)
-    // {
-    //     executor.runTest(
-    //         "Test 22: (Depth=6, SAT)",
-    //         makeRestaurantSpec(),
-    //         {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk",
-    //          "addMenuItemOk", "addMenuItemOk", "addMenuItemOk"});
-    // }
-
-    void test23_complexOrderManagement(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 23: Complex Order Management with Multiple Updates (Depth=9)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk",          // 1. Owner registers
-             "loginOwnerOk",             // 2. Owner logs in
-             "createRestaurantOk",       // 3. Owner creates restaurant
-             "addMenuItemOk",            // 4. Owner adds menu item
-             "registerCustomerOk",       // 5. Customer registers
-             "loginCustomerOk",          // 6. Customer logs in
-             "browseRestaurantsOk",      // 7. Customer browses
-             "viewMenuOk",               // 8. Customer views menu
-             "addToCartOk",              // 9. Customer adds to cart
-             "placeOrderOk"});
-    }
-
-    void test24_invalidSequence(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 24: Invalid Sequence - Review Before Order (Depth=4)",
-            makeRestaurantSpec(),
-            {"registerCustomerOk", "loginCustomerOk", "leaveReviewOk"}
-            // Should fail: can't review restaurant you haven't ordered from
-        );
-    }
-
-    void test25_deepWorkflow(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 25: Deep Workflow  (Depth=10)",
-            makeRestaurantSpec(),
-            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk",
-             "addMenuItemOk", "addMenuItemOk", "addMenuItemOk",
-             "addMenuItemOk", "addMenuItemOk", "updateOrderStatusOwnerOk", "updateOrderStatusOwnerOk"});
-    }
-
-    void test26_registerCustomerDuplicate(TestExecutor &executor)
-    {
-        executor.runTest(
-            "Test 26: Register Customer → Register Again (Duplicate Email) (Depth=2)",
-            makeRestaurantSpec(),
-            {"registerCustomerOk", "registerCustomerOk"}); // edge case should return unsat
-    }
-    // void test27_deepCustomerJourney(TestExecutor &executor)
-    // {
-    //     executor.runTest(
-    //         "Test 27: Complete Customer Lifecycle with Multiple Operations (Depth=15)",
-    //         makeRestaurantSpec(),
-    //         {"registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
-    //          "addToCartOk", "addToCartOk", "addToCartOk", "placeOrderOk",
-    //          "browseRestaurantsOk", "viewMenuOk", "addToCartOk", "addToCartOk",
-    //          "placeOrderOk", "leaveReviewOk", "leaveReviewOk"});
-    // }
-    // void test28_deepOwnerJourney(TestExecutor &executor)
-    // {
-    //     executor.runTest(
-    //         "Test 28: Complete Owner Restaurant Management (Depth=15)",
-    //         makeRestaurantSpec(),
-    //         {"registerOwnerOk", "loginOk", "createRestaurantOk",
-    //          "addMenuItemOk", "addMenuItemOk", "addMenuItemOk", "addMenuItemOk",
-    //          "addMenuItemOk", "addMenuItemOk", "addMenuItemOk", "addMenuItemOk",
-    //          "updateOrderStatusOwnerOk", "updateOrderStatusOwnerOk",
-    //          "updateOrderStatusOwnerOk", "updateOrderStatusOwnerOk"});
-    // }
 }
+
+// ========================================
+// DEPTH 4: Four API Call Tests
+// ========================================
+
+void test11_fullCustomerOrder(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 11: registerOwnerOk → loginOwnerOk → createRestaurantOk (Depth=3)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk"}
+        // {"registerCustomerOk", "loginOk", "addToCartOk", "placeOrderOk"} // should fail no browse restaurants
+    );
+}
+
+void test12_ownerCreateRestaurant(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 12: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → addMenuItemOk → addMenuItemOk (Depth=6)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk",
+         "addMenuItemOk", "addMenuItemOk", "addMenuItemOk"}
+        // {"registerOwnerOk", "loginOk", "createRestaurantOk", "addMenuItemOk"}
+    );
+}
+
+void test13_cartWithoutItems(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 13: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartOk (Depth=9)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+         "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+         "addToCartOk"}
+        // {"registerCustomerOk", "loginOk", "placeOrderErr"} // Should fail: cart empty
+    );
+}
+
+// ========================================
+// DEPTH 5: Five API Call Tests
+// ========================================
+
+void test14_customerFullWorkflow(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 14: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartOk → placeOrderOk (Depth=10)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+         "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+         "addToCartOk", "placeOrderOk"}
+        // {"registerCustomerOk", "loginOk", "browseRestaurantsOk", "addToCartOk", "placeOrderOk"}
+    );
+}
+
+void test15_ownerFullSetup(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 15: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartOk → placeOrderOk → updateOrderStatusOwnerOk x3 (Depth=13)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+         "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+         "addToCartOk", "placeOrderOk",
+         "updateOrderStatusOwnerOk", // accepted
+         "updateOrderStatusOwnerOk", // preparing
+         "updateOrderStatusOwnerOk"}
+        // {"registerOwnerOk", "loginOk", "createRestaurantOk", "addMenuItemOk", "addMenuItemOk"}
+    );
+}
+
+void test16_agentAssignOrder(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 16: registerCustomerOk → registerCustomerOk (Depth=2, Expected UNSAT - Duplicate Registration)",
+        makeRestaurantSpec(),
+        {"registerCustomerOk", "registerCustomerOk"}
+        //{"registerAgentOk", "loginOk", "placeOrderOk", "assignOrderOk", "updateOrderStatusAgentOk"} // delivery agent can't place order
+    );
+}
+
+// ========================================
+// DEPTH 6: Six API Call Tests
+// ========================================
+
+void test17_ownerManageOrder(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 17: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartOk → placeOrderOk → registerAgentOk → loginAgentOk → updateOrderStatusAgentOk (Depth=13, Expected UNSAT)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+         "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+         "addToCartOk", "placeOrderOk",
+         "registerAgentOk", "loginAgentOk",
+         "updateOrderStatusAgentOk"}
+        //{"registerOwnerOk", "loginOk", "createRestaurantOk", "placeOrderOk"} // should be UNSAT, owner can't place order
+    );
+}
+
+void test18_multipleCartAdditions(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 18: loginCustomerOk → browseRestaurantsOk → addToCartOk x3 → placeOrderOk (Depth=6, Expected UNSAT - No Registration)",
+        makeRestaurantSpec(),
+        {"loginCustomerOk", "browseRestaurantsOk", "addToCartOk", "addToCartOk", "addToCartOk", "placeOrderOk"} // should return unsat as no registration
+    );
+}
+
+void test19_wrongRoleAccess(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 19: registerCustomerOk → loginCustomerOk → createRestaurantOk (Depth=3, Expected UNSAT - Customer Can't Create Restaurant)",
+        makeRestaurantSpec(),
+        {"registerCustomerOk", "loginCustomerOk", "createRestaurantOk"} // Customer can't create restaurant
+    );
+}
+
+// ========================================
+// DEPTH 7: Seven API Call Tests
+// ========================================
+
+void test20_fullLifecycle(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 20: registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartOk → placeOrderOk → leaveReviewOk (Depth=7, Expected UNSAT)",
+        makeRestaurantSpec(),
+        {"registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+         "addToCartOk", "placeOrderOk", "leaveReviewOk"});
+}
+
+void test21_ownerCompleteFlow(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 21: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk x3 (Depth=6)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk",
+         "addMenuItemOk", "addMenuItemOk", "addMenuItemOk"});
+}
+
+// ========================================
+// More Tests
+// ========================================
+
+// void test22_multiItems(TestExecutor &executor)
+// {
+//     executor.runTest(
+//         "Test 22: (Depth=6, SAT)",
+//         makeRestaurantSpec(),
+//         {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk",
+//          "addMenuItemOk", "addMenuItemOk", "addMenuItemOk"});
+// }
+
+void test23_complexOrderManagement(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 23: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartOk → placeOrderOk (Depth=10)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk",     // 1. Owner registers
+         "loginOwnerOk",        // 2. Owner logs in
+         "createRestaurantOk",  // 3. Owner creates restaurant
+         "addMenuItemOk",       // 4. Owner adds menu item
+         "registerCustomerOk",  // 5. Customer registers
+         "loginCustomerOk",     // 6. Customer logs in
+         "browseRestaurantsOk", // 7. Customer browses
+         "viewMenuOk",          // 8. Customer views menu
+         "addToCartOk",         // 9. Customer adds to cart
+         "placeOrderOk"});
+}
+
+void test24_invalidSequence(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 24: registerCustomerOk → loginCustomerOk → leaveReviewOk (Depth=3, Expected UNSAT - Review Before Order)",
+        makeRestaurantSpec(),
+        {"registerCustomerOk", "loginCustomerOk", "leaveReviewOk"}
+        // Should fail: can't review restaurant you haven't ordered from
+    );
+}
+
+void test25_deepWorkflow(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 25: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk x5 → updateOrderStatusOwnerOk x2 (Depth=10, Expected UNSAT)",
+        makeRestaurantSpec(),
+        {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk",
+         "addMenuItemOk", "addMenuItemOk", "addMenuItemOk",
+         "addMenuItemOk", "addMenuItemOk", "updateOrderStatusOwnerOk", "updateOrderStatusOwnerOk"});
+}
+
+void test26_registerCustomerDuplicate(TestExecutor &executor)
+{
+    executor.runTest(
+        "Test 26: registerCustomerOk → registerCustomerOk (Depth=2, Expected UNSAT - Duplicate Email)",
+        makeRestaurantSpec(),
+        {"registerCustomerOk", "registerCustomerOk"}); // edge case should return unsat
+}
+// void test27_deepCustomerJourney(TestExecutor &executor)
+// {
+//     executor.runTest(
+//         "Test 27: Complete Customer Lifecycle with Multiple Operations (Depth=15)",
+//         makeRestaurantSpec(),
+//         {"registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+//          "addToCartOk", "addToCartOk", "addToCartOk", "placeOrderOk",
+//          "browseRestaurantsOk", "viewMenuOk", "addToCartOk", "addToCartOk",
+//          "placeOrderOk", "leaveReviewOk", "leaveReviewOk"});
+// }
+// void test28_deepOwnerJourney(TestExecutor &executor)
+// {
+//     executor.runTest(
+//         "Test 28: Complete Owner Restaurant Management (Depth=15)",
+//         makeRestaurantSpec(),
+//         {"registerOwnerOk", "loginOk", "createRestaurantOk",
+//          "addMenuItemOk", "addMenuItemOk", "addMenuItemOk", "addMenuItemOk",
+//          "addMenuItemOk", "addMenuItemOk", "addMenuItemOk", "addMenuItemOk",
+//          "updateOrderStatusOwnerOk", "updateOrderStatusOwnerOk",
+//          "updateOrderStatusOwnerOk", "updateOrderStatusOwnerOk"});
+// }
+
 
 // ============================================
 // LIBRARY TESTS
@@ -1386,9 +1387,9 @@ int main()
         // RestaurantTests::test02_loginFailure(executor);
         // RestaurantTests::test03_browseOnly(executor);
 
-        //RestaurantTests::test04_Login(executor);
-        // RestaurantTests::test05_registerOwnerAndLogin(executor);
-        // RestaurantTests::test06_registerAgentAndLogin(executor);
+        // RestaurantTests::test04_Login(executor);
+        //  RestaurantTests::test05_registerOwnerAndLogin(executor);
+        //  RestaurantTests::test06_registerAgentAndLogin(executor);
 
         // RestaurantTests::test07_loginBrowseView(executor);
         // RestaurantTests::test08_loginAndAddToCart(executor);
@@ -1495,7 +1496,7 @@ int main()
              << endl;
 
         // ========== BASIC TESTS ==========
-        //cout << "\n=== BASIC SINGLE OPERATION TESTS ===" << endl;
+        // cout << "\n=== BASIC SINGLE OPERATION TESTS ===" << endl;
         // LibraryTests::test01_getAllBooks(executor);
         // LibraryTests::test02_getAllStudents(executor);
         // LibraryTests::test03_saveBook(executor);
