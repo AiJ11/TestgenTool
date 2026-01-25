@@ -1,5 +1,0 @@
----
-triple:          'x86_64-apple-darwin'
-binary-path:     testgen_symbolic
-relocations:     []
-...
