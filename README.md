@@ -138,33 +138,47 @@ g++ -std=c++17 -Wall -I. -Isee -Itester -Ispecs \
 
 ## Usage
 
-### Basic Usage
+### Running Test Cases
 
-```bash
-./testgen --spec <specification_file> --test-string <test_string> [options]
-```
+1. **Start the target web application backend** (the API you want to test must be running)
 
-### Options
+2. **Select the test string** to run by editing `test_libapplication.cpp`:
+   - Open `test_libapplication.cpp`
+   - In the `main()` function, uncomment the desired test string
+   - Comment out other test strings
 
-| Option | Description |
-|--------|-------------|
-| `--spec <file>` | Path to the API specification file |
-| `--test-string <string>` | Test string defining the API call sequence |
-| `--base-url <url>` | Base URL of the target API (default: http://localhost:3000) |
-| `--execute` | Execute generated tests against live backend |
-| `--verbose` | Enable verbose output |
-| `--output <file>` | Output file for generated test cases |
+3. **Build and run:**
+   ```bash
+   make run
+   ```
 
-### Example
+### Test Strings by Application
 
-```bash
-# Generate and execute tests for E-commerce application
-./testgen \
-  --spec specs/EcommerceSpec.cpp \
-  --test-string "registerSeller -> loginSeller -> createProduct -> registerBuyer -> loginBuyer -> addToCart -> placeOrder" \
-  --base-url http://localhost:3000 \
-  --execute
-```
+| Application | Test Strings Location |
+|-------------|----------------------|
+| Restaurant (Food Ordering) | Uncomment in `main()` |
+| E-commerce | Uncomment in `main()` |
+| Library Management | Uncomment in `main()` |
+
+### Test Output Files
+
+Test outputs are stored in the `all_tests_files/` folder:
+
+| Application | File Prefix |
+|-------------|-------------|
+| Restaurant (Food Ordering) | `test*.txt` |
+| E-commerce | `test*ecom.txt` |
+| Library Management | `lib*.txt` |
+
+### Backend Requirements
+
+Before running tests, ensure the corresponding backend is running:
+
+| Application | Default URL |
+|-------------|-------------|
+| Restaurant (Food Ordering) | `http://localhost:9000` |
+| E-commerce | `http://localhost:3000` |
+| Library Management | `http://localhost:8080` |
 
 ## Writing Specifications
 
@@ -295,6 +309,11 @@ TestgenTool/
     ├── libraryfunctionfactory.hh
     ├── httpclient.cc           # HTTP client for live execution
     └── httpclient.hh
+
+├── all_tests_files/            # Test output files
+│   ├── test*.txt              # Restaurant (Food Ordering) test outputs
+│   ├── test*ecom.txt          # E-commerce test outputs
+│   └── lib*.txt               # Library Management test outputs
 ```
 
 ### Module Descriptions
@@ -313,6 +332,7 @@ TestgenTool/
 | **specs/** | Formal API specifications for each subject application |
 | **tester/** | Concrete Test Case (CTC) generation from symbolic results (genCTC) |
 | **see/** | Symbolic Execution Engine with Z3 solver and HTTP client |
+| **all_tests_files/** | Test output files for all three applications |
 
 ## Supported Applications
 
@@ -348,36 +368,41 @@ TestGen has been evaluated on three real-world web applications:
 ## Example Output
 
 ```
-$ ./testgen --spec specs/EcommerceSpec.cpp --test-string "registerSeller -> loginSeller -> createProduct" --execute
+$ make run
 
-[TestGen] Parsing specification: specs/EcommerceSpec.cpp
-[TestGen] Test string: registerSeller -> loginSeller -> createProduct
+[TestGen] Loading E-commerce Specification...
+[TestGen] Test string: registerSeller -> loginSeller -> createProduct -> registerBuyer -> loginBuyer -> addToCart -> placeOrder
 [TestGen] Starting symbolic execution...
 
-[Step 1/3] registerSeller
-  Constraints: ¬∃(users, email_0)
-  Solving...
-  Generated: email_0 = "seller_a1b2@test.com", password_0 = "Pass123!"
+[Step 1/7] registerSeller
+  Generating constraints...
+  Solving with Z3... SAT
+  Generated values: email = "seller_test@example.com", password = "Pass123!"
 
-[Step 2/3] loginSeller  
-  Constraints: ∃(users, email_0)
-  Solving... SAT
-  Extracted: token_0 = "eyJhbGciOiJIUzI1NiIs..."
+[Step 2/7] loginSeller  
+  Precondition: User exists
+  Solving with Z3... SAT
+  Extracted: token = "eyJhbGciOiJIUzI1NiIs..."
 
-[Step 3/3] createProduct
-  Constraints: ValidToken(token_0) ∧ HasRole(email_0, "Seller")
-  Solving... SAT
-  Generated: productName = "Widget", productPrice = 99
+[Step 3/7] createProduct
+  Precondition: Valid seller token
+  Solving with Z3... SAT
+  Generated: productName = "TestProduct", price = 99
   Extracted: productId = "507f1f77bcf86cd799439011"
 
-[TestGen] Executing against http://localhost:3000...
+...
 
-POST /api/auth/register -> 201 Created ✓
-POST /api/auth/login -> 200 OK ✓
-POST /api/products -> 201 Created ✓
+[TestGen] Executing HTTP requests against http://localhost:3000...
 
-[TestGen] All 3 steps executed successfully.
-[TestGen] Test case generation complete.
+POST /api/auth/register -> 201 Created
+POST /api/auth/login -> 200 OK
+POST /api/products -> 201 Created
+POST /api/auth/register -> 201 Created
+POST /api/auth/login -> 200 OK
+POST /api/cart -> 200 OK
+POST /api/orders -> 201 Created
+
+[TestGen] Test execution complete. All 7 steps passed.
 ```
 
 ## Troubleshooting
