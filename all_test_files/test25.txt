@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 26                       ║
+║  Total Tests: 25                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 26: registerCustomerOk → registerCustomerOk (Depth=2, Expected UNSAT - Duplicate Email)
+TEST: Test 25: registerCustomerOk → registerCustomerOk (Depth=2, Expected UNSAT - Duplicate Email)
 MODE: Full Pipeline (With Backend)
 DEPTH: 2 API calls
 ========================================

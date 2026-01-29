@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 26                       ║
+║  Total Tests: 25                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 23: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartRestaurantOk → placeOrderOk (Depth=10)
+TEST: Test 22: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartRestaurantOk → placeOrderOk (Depth=10)
 MODE: Full Pipeline (With Backend)
 DEPTH: 10 API calls
 ========================================

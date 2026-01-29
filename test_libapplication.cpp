@@ -1336,7 +1336,7 @@ int main()
 
          cout << "\n╔════════════════════════════════════════╗" << endl; // for restaurant
          cout << "║  TESTGEN - RESTAURANT TEST SUITE      ║" << endl; // for restaurant
-         cout << "║  Total Tests: 26                       ║" << endl; // for restaurant
+         cout << "║  Total Tests: 25                       ║" << endl; // for restaurant
          cout << "╚════════════════════════════════════════╝\n" // for restaurant
              << endl; // for restaurant
 

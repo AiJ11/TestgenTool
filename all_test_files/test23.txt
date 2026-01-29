@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 26                       ║
+║  Total Tests: 25                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 24: registerCustomerOk → loginCustomerOk → leaveReviewOk (Depth=3, Expected UNSAT - Review Before Order)
+TEST: Test 23: registerCustomerOk → loginCustomerOk → leaveReviewOk (Depth=3, Expected UNSAT - Review Before Order)
 MODE: Full Pipeline (With Backend)
 DEPTH: 3 API calls
 ========================================
