@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 16: Register Agent → Login → Customer Places Order → Agent Assigned → Update Status (Depth=5)
+TEST: Test 16: registerCustomerOk → registerCustomerOk (Depth=2, Expected UNSAT - Duplicate Registration)
 MODE: Full Pipeline (With Backend)
 DEPTH: 2 API calls
 ========================================
@@ -20,34 +20,34 @@ DEPTH: 2 API calls
 === TEST-API ATC (After Rewrite) ===
 === Program ===
 Statement 0: _ := reset()
-Statement 1: customerEmail0 := input()
-Statement 2: customerPassword0 := input()
-Statement 3: customerFullName0 := input()
-Statement 4: customerMobile0 := input()
+Statement 1: ownerEmail0 := input()
+Statement 2: ownerPassword0 := input()
+Statement 3: ownerFullName0 := input()
+Statement 4: ownerMobile0 := input()
 Statement 5: tmp_Roles_0 := get_Roles()
 Statement 6: Roles_old := tmp_Roles_0
 Statement 7: tmp_U_0 := get_U()
 Statement 8: U_old := tmp_U_0
 Statement 9: tmp_U_1 := get_U()
-Statement 10: assume(not_in(customerEmail, dom(tmp_U_1)))
-Statement 11: _result0 := registerCustomer(customerEmail, customerPassword, customerFullName, customerMobile)
+Statement 10: assume(not_in(ownerEmail, dom(tmp_U_1)))
+Statement 11: _result0 := registerOwner(ownerEmail, ownerPassword, ownerFullName, ownerMobile)
 Statement 12: tmp_U_2 := get_U()
 Statement 13: tmp_Roles_1 := get_Roles()
-Statement 14: assert(AND(=([](tmp_U_2, customerEmail), customerPassword), =([](tmp_Roles_1, customerEmail), CUSTOMER)))
-Statement 15: customerEmail1 := input()
-Statement 16: customerPassword1 := input()
-Statement 17: customerFullName1 := input()
-Statement 18: customerMobile1 := input()
+Statement 14: assert(AND(=([](tmp_U_2, ownerEmail), ownerPassword), =([](tmp_Roles_1, ownerEmail), OWNER)))
+Statement 15: ownerEmail1 := input()
+Statement 16: ownerPassword1 := input()
+Statement 17: ownerFullName1 := input()
+Statement 18: ownerMobile1 := input()
 Statement 19: tmp_Roles_2 := get_Roles()
 Statement 20: Roles_old := tmp_Roles_2
 Statement 21: tmp_U_3 := get_U()
 Statement 22: U_old := tmp_U_3
 Statement 23: tmp_U_4 := get_U()
-Statement 24: assume(not_in(customerEmail, dom(tmp_U_4)))
-Statement 25: _result1 := registerCustomer(customerEmail, customerPassword, customerFullName, customerMobile)
+Statement 24: assume(not_in(ownerEmail, dom(tmp_U_4)))
+Statement 25: _result1 := registerOwner(ownerEmail, ownerPassword, ownerFullName, ownerMobile)
 Statement 26: tmp_U_5 := get_U()
 Statement 27: tmp_Roles_3 := get_Roles()
-Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](tmp_Roles_3, customerEmail), CUSTOMER)))
+Statement 28: assert(AND(=([](tmp_U_5, ownerEmail), ownerPassword), =([](tmp_Roles_3, ownerEmail), OWNER)))
 === End Program ===
 
 ========================================
@@ -74,29 +74,29 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
   [API_CALL] Storing result in variable: _
 [ASSIGN] Result: _ := 200
 
-[ASSIGN] Evaluating: customerEmail0 := input()
-[SEE] Mapping base name 'customerEmail' -> 'customerEmail0'
+[ASSIGN] Evaluating: ownerEmail0 := input()
+[SEE] Mapping base name 'ownerEmail' -> 'ownerEmail0'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X0
-[ASSIGN] Result: customerEmail0 := X0
+[ASSIGN] Result: ownerEmail0 := X0
 
-[ASSIGN] Evaluating: customerPassword0 := input()
-[SEE] Mapping base name 'customerPassword' -> 'customerPassword0'
+[ASSIGN] Evaluating: ownerPassword0 := input()
+[SEE] Mapping base name 'ownerPassword' -> 'ownerPassword0'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X1
-[ASSIGN] Result: customerPassword0 := X1
+[ASSIGN] Result: ownerPassword0 := X1
 
-[ASSIGN] Evaluating: customerFullName0 := input()
-[SEE] Mapping base name 'customerFullName' -> 'customerFullName0'
+[ASSIGN] Evaluating: ownerFullName0 := input()
+[SEE] Mapping base name 'ownerFullName' -> 'ownerFullName0'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X2
-[ASSIGN] Result: customerFullName0 := X2
+[ASSIGN] Result: ownerFullName0 := X2
 
-[ASSIGN] Evaluating: customerMobile0 := input()
-[SEE] Mapping base name 'customerMobile' -> 'customerMobile0'
+[ASSIGN] Evaluating: ownerMobile0 := input()
+[SEE] Mapping base name 'ownerMobile' -> 'ownerMobile0'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X3
-[ASSIGN] Result: customerMobile0 := X3
+[ASSIGN] Result: ownerMobile0 := X3
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_0 := get_Roles()
@@ -144,11 +144,11 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
   [API_CALL] Storing result in variable: tmp_U_1
 [ASSIGN] Result: tmp_U_1 := {}
 
-[ASSUME] Evaluating: not_in(customerEmail, dom(tmp_U_1))
+[ASSUME] Evaluating: not_in(ownerEmail, dom(tmp_U_1))
   [EVAL] FuncCall: not_in with 2 args
     [EVAL] Set non-membership: not_in
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail0'
     [EVAL] Found in sigma: X0
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
@@ -159,24 +159,24 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
     [EVAL] Set: {}
     [EVAL] not_in result: true (element not found)
 [ASSUME] Adding constraint: true
-[SEE] API call 'registerCustomer' with symbolic arguments - interruption point
+[SEE] API call 'registerOwner' with symbolic arguments - interruption point
 [SEE] Interruption at statement 11
 
-[ASSIGN] Evaluating: _result0 := registerCustomer(customerEmail, customerPassword, customerFullName, customerMobile)
+[ASSIGN] Evaluating: _result0 := registerOwner(ownerEmail, ownerPassword, ownerFullName, ownerMobile)
 [SEE] Mapping base name '_result' -> '_result0'
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail0'
     [EVAL] Found in sigma: X0
-  [EVAL] Var lookup: customerPassword
-    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword0'
+  [EVAL] Var lookup: ownerPassword
+    [EVAL] Resolved base name 'ownerPassword' -> 'ownerPassword0'
     [EVAL] Found in sigma: X1
-  [EVAL] Var lookup: customerFullName
-    [EVAL] Resolved base name 'customerFullName' -> 'customerFullName0'
+  [EVAL] Var lookup: ownerFullName
+    [EVAL] Resolved base name 'ownerFullName' -> 'ownerFullName0'
     [EVAL] Found in sigma: X2
-  [EVAL] Var lookup: customerMobile
-    [EVAL] Resolved base name 'customerMobile' -> 'customerMobile0'
+  [EVAL] Var lookup: ownerMobile
+    [EVAL] Resolved base name 'ownerMobile' -> 'ownerMobile0'
     [EVAL] Found in sigma: X3
-[API_CALL] registerCustomer has symbolic arguments - skipping actual execution
+[API_CALL] registerOwner has symbolic arguments - skipping actual execution
   [API_ARG 0] X0 (symbolic: 1)
   [API_ARG 1] X1 (symbolic: 1)
   [API_ARG 2] X2 (symbolic: 1)
@@ -208,71 +208,71 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [ASSIGN] Result: tmp_Roles_1 := {}
 [SEE] Interruption at statement 14
 
-[ASSERT] Evaluating: AND(=([](tmp_U_2, customerEmail), customerPassword), =([](tmp_Roles_1, customerEmail), CUSTOMER))
+[ASSERT] Evaluating: AND(=([](tmp_U_2, ownerEmail), ownerPassword), =([](tmp_Roles_1, ownerEmail), OWNER))
   [EVAL] FuncCall: AND with 2 args
     [EVAL] N-ary AND with 2 args
-    [EVAL] Arg[0]: =([](tmp_U_2, customerEmail), customerPassword)
+    [EVAL] Arg[0]: =([](tmp_U_2, ownerEmail), ownerPassword)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_U_2
     [EVAL] Found in sigma: {}
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail0'
     [EVAL] Found in sigma: X0
     [EVAL] Map expr evaluated: {}
     [EVAL] Key expr evaluated: X0
     [EVAL] Key not found in map
-  [EVAL] Var lookup: customerPassword
-    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword0'
+  [EVAL] Var lookup: ownerPassword
+    [EVAL] Resolved base name 'ownerPassword' -> 'ownerPassword0'
     [EVAL] Found in sigma: X1
     [EVAL] Symbolic Eq, returning BinaryOpExpr(EQ)
     [EVAL] Arg[0] result: (= []({}, X0) X1)
-    [EVAL] Arg[1]: =([](tmp_Roles_1, customerEmail), CUSTOMER)
+    [EVAL] Arg[1]: =([](tmp_Roles_1, ownerEmail), OWNER)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_Roles_1
     [EVAL] Found in sigma: {}
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail0'
     [EVAL] Found in sigma: X0
     [EVAL] Map expr evaluated: {}
     [EVAL] Key expr evaluated: X0
     [EVAL] Key not found in map
-  [EVAL] Var lookup: CUSTOMER
+  [EVAL] Var lookup: OWNER
     [EVAL] Not found in sigma, returning as-is
     [EVAL] Symbolic Eq, returning BinaryOpExpr(EQ)
-    [EVAL] Arg[1] result: (= []({}, X0) CUSTOMER)
-    [EVAL] FuncCall result: AND((= []({}, X0) X1), (= []({}, X0) CUSTOMER))
-[ASSERT] Result: AND((= []({}, X0) X1), (= []({}, X0) CUSTOMER))
+    [EVAL] Arg[1] result: (= []({}, X0) OWNER)
+    [EVAL] FuncCall result: AND((= []({}, X0) X1), (= []({}, X0) OWNER))
+[ASSERT] Result: AND((= []({}, X0) X1), (= []({}, X0) OWNER))
 [ASSERT] Adding to path constraints (not fully concrete)
 
-[ASSIGN] Evaluating: customerEmail1 := input()
-[SEE] Mapping base name 'customerEmail' -> 'customerEmail1'
+[ASSIGN] Evaluating: ownerEmail1 := input()
+[SEE] Mapping base name 'ownerEmail' -> 'ownerEmail1'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X4
-[ASSIGN] Result: customerEmail1 := X4
+[ASSIGN] Result: ownerEmail1 := X4
 
-[ASSIGN] Evaluating: customerPassword1 := input()
-[SEE] Mapping base name 'customerPassword' -> 'customerPassword1'
+[ASSIGN] Evaluating: ownerPassword1 := input()
+[SEE] Mapping base name 'ownerPassword' -> 'ownerPassword1'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X5
-[ASSIGN] Result: customerPassword1 := X5
+[ASSIGN] Result: ownerPassword1 := X5
 
-[ASSIGN] Evaluating: customerFullName1 := input()
-[SEE] Mapping base name 'customerFullName' -> 'customerFullName1'
+[ASSIGN] Evaluating: ownerFullName1 := input()
+[SEE] Mapping base name 'ownerFullName' -> 'ownerFullName1'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X6
-[ASSIGN] Result: customerFullName1 := X6
+[ASSIGN] Result: ownerFullName1 := X6
 
-[ASSIGN] Evaluating: customerMobile1 := input()
-[SEE] Mapping base name 'customerMobile' -> 'customerMobile1'
+[ASSIGN] Evaluating: ownerMobile1 := input()
+[SEE] Mapping base name 'ownerMobile' -> 'ownerMobile1'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X7
-[ASSIGN] Result: customerMobile1 := X7
+[ASSIGN] Result: ownerMobile1 := X7
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_2 := get_Roles()
@@ -320,11 +320,11 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
   [API_CALL] Storing result in variable: tmp_U_4
 [ASSIGN] Result: tmp_U_4 := {}
 
-[ASSUME] Evaluating: not_in(customerEmail, dom(tmp_U_4))
+[ASSUME] Evaluating: not_in(ownerEmail, dom(tmp_U_4))
   [EVAL] FuncCall: not_in with 2 args
     [EVAL] Set non-membership: not_in
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
     [EVAL] Found in sigma: X4
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
@@ -335,24 +335,24 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
     [EVAL] Set: {}
     [EVAL] not_in result: true (element not found)
 [ASSUME] Adding constraint: true
-[SEE] API call 'registerCustomer' with symbolic arguments - interruption point
+[SEE] API call 'registerOwner' with symbolic arguments - interruption point
 [SEE] Interruption at statement 25
 
-[ASSIGN] Evaluating: _result1 := registerCustomer(customerEmail, customerPassword, customerFullName, customerMobile)
+[ASSIGN] Evaluating: _result1 := registerOwner(ownerEmail, ownerPassword, ownerFullName, ownerMobile)
 [SEE] Mapping base name '_result' -> '_result1'
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
     [EVAL] Found in sigma: X4
-  [EVAL] Var lookup: customerPassword
-    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword1'
+  [EVAL] Var lookup: ownerPassword
+    [EVAL] Resolved base name 'ownerPassword' -> 'ownerPassword1'
     [EVAL] Found in sigma: X5
-  [EVAL] Var lookup: customerFullName
-    [EVAL] Resolved base name 'customerFullName' -> 'customerFullName1'
+  [EVAL] Var lookup: ownerFullName
+    [EVAL] Resolved base name 'ownerFullName' -> 'ownerFullName1'
     [EVAL] Found in sigma: X6
-  [EVAL] Var lookup: customerMobile
-    [EVAL] Resolved base name 'customerMobile' -> 'customerMobile1'
+  [EVAL] Var lookup: ownerMobile
+    [EVAL] Resolved base name 'ownerMobile' -> 'ownerMobile1'
     [EVAL] Found in sigma: X7
-[API_CALL] registerCustomer has symbolic arguments - skipping actual execution
+[API_CALL] registerOwner has symbolic arguments - skipping actual execution
   [API_ARG 0] X4 (symbolic: 1)
   [API_ARG 1] X5 (symbolic: 1)
   [API_ARG 2] X6 (symbolic: 1)
@@ -384,49 +384,49 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [ASSIGN] Result: tmp_Roles_3 := {}
 [SEE] Interruption at statement 28
 
-[ASSERT] Evaluating: AND(=([](tmp_U_5, customerEmail), customerPassword), =([](tmp_Roles_3, customerEmail), CUSTOMER))
+[ASSERT] Evaluating: AND(=([](tmp_U_5, ownerEmail), ownerPassword), =([](tmp_Roles_3, ownerEmail), OWNER))
   [EVAL] FuncCall: AND with 2 args
     [EVAL] N-ary AND with 2 args
-    [EVAL] Arg[0]: =([](tmp_U_5, customerEmail), customerPassword)
+    [EVAL] Arg[0]: =([](tmp_U_5, ownerEmail), ownerPassword)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_U_5
     [EVAL] Found in sigma: {}
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
     [EVAL] Found in sigma: X4
     [EVAL] Map expr evaluated: {}
     [EVAL] Key expr evaluated: X4
     [EVAL] Key not found in map
-  [EVAL] Var lookup: customerPassword
-    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword1'
+  [EVAL] Var lookup: ownerPassword
+    [EVAL] Resolved base name 'ownerPassword' -> 'ownerPassword1'
     [EVAL] Found in sigma: X5
     [EVAL] Symbolic Eq, returning BinaryOpExpr(EQ)
     [EVAL] Arg[0] result: (= []({}, X4) X5)
-    [EVAL] Arg[1]: =([](tmp_Roles_3, customerEmail), CUSTOMER)
+    [EVAL] Arg[1]: =([](tmp_Roles_3, ownerEmail), OWNER)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_Roles_3
     [EVAL] Found in sigma: {}
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
     [EVAL] Found in sigma: X4
     [EVAL] Map expr evaluated: {}
     [EVAL] Key expr evaluated: X4
     [EVAL] Key not found in map
-  [EVAL] Var lookup: CUSTOMER
+  [EVAL] Var lookup: OWNER
     [EVAL] Not found in sigma, returning as-is
     [EVAL] Symbolic Eq, returning BinaryOpExpr(EQ)
-    [EVAL] Arg[1] result: (= []({}, X4) CUSTOMER)
-    [EVAL] FuncCall result: AND((= []({}, X4) X5), (= []({}, X4) CUSTOMER))
-[ASSERT] Result: AND((= []({}, X4) X5), (= []({}, X4) CUSTOMER))
+    [EVAL] Arg[1] result: (= []({}, X4) OWNER)
+    [EVAL] FuncCall result: AND((= []({}, X4) X5), (= []({}, X4) OWNER))
+[ASSERT] Result: AND((= []({}, X4) X5), (= []({}, X4) OWNER))
 [ASSERT] Adding to path constraints (not fully concrete)
 
-[SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) CUSTOMER)), And(true, AND((= []({}, X4) X5), (= []({}, X4) CUSTOMER))))))
+[SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) OWNER)), And(true, AND((= []({}, X4) X5), (= []({}, X4) OWNER))))))
 >>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
 
 >>> generateCTC: STEP 3 - Generating values with sigma lookup
@@ -436,14 +436,14 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
     [Found existing] tmp_U_ -> tmp_U_0
     [Found existing] U_old -> U_old
     [Found existing] _result -> _result0
-    customerEmail0 = "customer@example.com"
-    customerPassword0 = "CustomerPass1!"
-    customerFullName0 = "Test Customer"
-    customerMobile0 = "5550000002"
-    customerEmail1 = (reusing customerEmail) "customer@example.com"
-    customerPassword1 = (reusing customerPassword) "CustomerPass1!"
-    customerFullName1 = (reusing customerFullName) "Test Customer"
-    customerMobile1 = (reusing customerMobile) "5550000002"
+    ownerEmail0 = "owner@example.com"
+    ownerPassword0 = "OwnerPass1!"
+    ownerFullName0 = "Test Owner"
+    ownerMobile0 = "5550000001"
+    ownerEmail1 = (reusing ownerEmail) "owner@example.com"
+    ownerPassword1 = (reusing ownerPassword) "OwnerPass1!"
+    ownerFullName1 = (reusing ownerFullName) "Test Owner"
+    ownerMobile1 = (reusing ownerMobile) "5550000001"
 
 >>> generateCTC: STEP 4 - Resolving placeholders from sigma
 
@@ -473,25 +473,25 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
   [API_CALL] Storing result in variable: _
 [ASSIGN] Result: _ := 200
 
-[ASSIGN] Evaluating: customerEmail0 := "customer@example.com"
-[SEE] Mapping base name 'customerEmail' -> 'customerEmail0'
-  [EVAL] String: "customer@example.com"
-[ASSIGN] Result: customerEmail0 := "customer@example.com"
+[ASSIGN] Evaluating: ownerEmail0 := "owner@example.com"
+[SEE] Mapping base name 'ownerEmail' -> 'ownerEmail0'
+  [EVAL] String: "owner@example.com"
+[ASSIGN] Result: ownerEmail0 := "owner@example.com"
 
-[ASSIGN] Evaluating: customerPassword0 := "CustomerPass1!"
-[SEE] Mapping base name 'customerPassword' -> 'customerPassword0'
-  [EVAL] String: "CustomerPass1!"
-[ASSIGN] Result: customerPassword0 := "CustomerPass1!"
+[ASSIGN] Evaluating: ownerPassword0 := "OwnerPass1!"
+[SEE] Mapping base name 'ownerPassword' -> 'ownerPassword0'
+  [EVAL] String: "OwnerPass1!"
+[ASSIGN] Result: ownerPassword0 := "OwnerPass1!"
 
-[ASSIGN] Evaluating: customerFullName0 := "Test Customer"
-[SEE] Mapping base name 'customerFullName' -> 'customerFullName0'
-  [EVAL] String: "Test Customer"
-[ASSIGN] Result: customerFullName0 := "Test Customer"
+[ASSIGN] Evaluating: ownerFullName0 := "Test Owner"
+[SEE] Mapping base name 'ownerFullName' -> 'ownerFullName0'
+  [EVAL] String: "Test Owner"
+[ASSIGN] Result: ownerFullName0 := "Test Owner"
 
-[ASSIGN] Evaluating: customerMobile0 := "5550000002"
-[SEE] Mapping base name 'customerMobile' -> 'customerMobile0'
-  [EVAL] String: "5550000002"
-[ASSIGN] Result: customerMobile0 := "5550000002"
+[ASSIGN] Evaluating: ownerMobile0 := "5550000001"
+[SEE] Mapping base name 'ownerMobile' -> 'ownerMobile0'
+  [EVAL] String: "5550000001"
+[ASSIGN] Result: ownerMobile0 := "5550000001"
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_0 := get_Roles()
@@ -539,12 +539,12 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
   [API_CALL] Storing result in variable: tmp_U_1
 [ASSIGN] Result: tmp_U_1 := {}
 
-[ASSUME] Evaluating: not_in(customerEmail, dom(tmp_U_1))
+[ASSUME] Evaluating: not_in(ownerEmail, dom(tmp_U_1))
   [EVAL] FuncCall: not_in with 2 args
     [EVAL] Set non-membership: not_in
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
-    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail0'
+    [EVAL] Found in sigma: "owner@example.com"
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_U_1
@@ -554,31 +554,31 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
     [EVAL] Set: {}
     [EVAL] not_in result: true (element not found)
 [ASSUME] Adding constraint: true
-[SEE] API call 'registerCustomer' ready for actual execution
+[SEE] API call 'registerOwner' ready for actual execution
 
-[ASSIGN] Evaluating: _result0 := registerCustomer(customerEmail, customerPassword, customerFullName, customerMobile)
+[ASSIGN] Evaluating: _result0 := registerOwner(ownerEmail, ownerPassword, ownerFullName, ownerMobile)
 [SEE] Mapping base name '_result' -> '_result0'
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
-    [EVAL] Found in sigma: "customer@example.com"
-  [EVAL] Var lookup: customerPassword
-    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword0'
-    [EVAL] Found in sigma: "CustomerPass1!"
-  [EVAL] Var lookup: customerFullName
-    [EVAL] Resolved base name 'customerFullName' -> 'customerFullName0'
-    [EVAL] Found in sigma: "Test Customer"
-  [EVAL] Var lookup: customerMobile
-    [EVAL] Resolved base name 'customerMobile' -> 'customerMobile0'
-    [EVAL] Found in sigma: "5550000002"
-[API_CALL] Executing API function: registerCustomer
-  [API_ARG] "customer@example.com"
-  [API_ARG] "CustomerPass1!"
-  [API_ARG] "Test Customer"
-  [API_ARG] "5550000002"
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail0'
+    [EVAL] Found in sigma: "owner@example.com"
+  [EVAL] Var lookup: ownerPassword
+    [EVAL] Resolved base name 'ownerPassword' -> 'ownerPassword0'
+    [EVAL] Found in sigma: "OwnerPass1!"
+  [EVAL] Var lookup: ownerFullName
+    [EVAL] Resolved base name 'ownerFullName' -> 'ownerFullName0'
+    [EVAL] Found in sigma: "Test Owner"
+  [EVAL] Var lookup: ownerMobile
+    [EVAL] Resolved base name 'ownerMobile' -> 'ownerMobile0'
+    [EVAL] Found in sigma: "5550000001"
+[API_CALL] Executing API function: registerOwner
+  [API_ARG] "owner@example.com"
+  [API_ARG] "OwnerPass1!"
+  [API_ARG] "Test Owner"
+  [API_ARG] "5550000001"
   [API_CALL] Getting function from factory...
-[Factory] Creating function: registerCustomer
+[Factory] Creating function: registerOwner
   [API_CALL] Executing function...
-[RegisterCustomerFunc] Registering customer: customer@example.com
+[RegisterOwnerFunc] Registering owner: owner@example.com
 [HttpClient] POST /api/auth/register -> 201
   [API_CALL] Function returned: 201
   [API_CALL] Storing result in variable: _result0
@@ -592,9 +592,9 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [Factory] Creating function: get_U
   [API_CALL] Executing function...
 [GetUFunc] Fetching U...
-  [API_CALL] Function returned: {customer@example.com -> "CustomerPass1!"}
+  [API_CALL] Function returned: {owner@example.com -> "OwnerPass1!"}
   [API_CALL] Storing result in variable: tmp_U_2
-[ASSIGN] Result: tmp_U_2 := {customer@example.com -> "CustomerPass1!"}
+[ASSIGN] Result: tmp_U_2 := {owner@example.com -> "OwnerPass1!"}
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_1 := get_Roles()
@@ -604,73 +604,73 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [Factory] Creating function: get_Roles
   [API_CALL] Executing function...
 [GetRolesFunc] Fetching Roles...
-  [API_CALL] Function returned: {customer@example.com -> "customer"}
+  [API_CALL] Function returned: {owner@example.com -> "restaurant_owner"}
   [API_CALL] Storing result in variable: tmp_Roles_1
-[ASSIGN] Result: tmp_Roles_1 := {customer@example.com -> "customer"}
+[ASSIGN] Result: tmp_Roles_1 := {owner@example.com -> "restaurant_owner"}
 
-[ASSERT] Evaluating: AND(=([](tmp_U_2, customerEmail), customerPassword), =([](tmp_Roles_1, customerEmail), CUSTOMER))
+[ASSERT] Evaluating: AND(=([](tmp_U_2, ownerEmail), ownerPassword), =([](tmp_Roles_1, ownerEmail), OWNER))
   [EVAL] FuncCall: AND with 2 args
     [EVAL] N-ary AND with 2 args
-    [EVAL] Arg[0]: =([](tmp_U_2, customerEmail), customerPassword)
+    [EVAL] Arg[0]: =([](tmp_U_2, ownerEmail), ownerPassword)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_U_2
-    [EVAL] Found in sigma: {customer@example.com -> "CustomerPass1!"}
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
-    [EVAL] Found in sigma: "customer@example.com"
-    [EVAL] Map expr evaluated: {customer@example.com -> "CustomerPass1!"}
-    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Found in sigma: {owner@example.com -> "OwnerPass1!"}
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail0'
+    [EVAL] Found in sigma: "owner@example.com"
+    [EVAL] Map expr evaluated: {owner@example.com -> "OwnerPass1!"}
+    [EVAL] Key expr evaluated: "owner@example.com"
     [EVAL] Key found in map, returning value
-  [EVAL] String: "CustomerPass1!"
-  [EVAL] Var lookup: customerPassword
-    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword0'
-    [EVAL] Found in sigma: "CustomerPass1!"
+  [EVAL] String: "OwnerPass1!"
+  [EVAL] Var lookup: ownerPassword
+    [EVAL] Resolved base name 'ownerPassword' -> 'ownerPassword0'
+    [EVAL] Found in sigma: "OwnerPass1!"
     [EVAL] Eq result: true
     [EVAL] Arg[0] result: true
-    [EVAL] Arg[1]: =([](tmp_Roles_1, customerEmail), CUSTOMER)
+    [EVAL] Arg[1]: =([](tmp_Roles_1, ownerEmail), OWNER)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_Roles_1
-    [EVAL] Found in sigma: {customer@example.com -> "customer"}
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
-    [EVAL] Found in sigma: "customer@example.com"
-    [EVAL] Map expr evaluated: {customer@example.com -> "customer"}
-    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Found in sigma: {owner@example.com -> "restaurant_owner"}
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail0'
+    [EVAL] Found in sigma: "owner@example.com"
+    [EVAL] Map expr evaluated: {owner@example.com -> "restaurant_owner"}
+    [EVAL] Key expr evaluated: "owner@example.com"
     [EVAL] Key found in map, returning value
-  [EVAL] String: "customer"
-  [EVAL] Var lookup: CUSTOMER
+  [EVAL] String: "restaurant_owner"
+  [EVAL] Var lookup: OWNER
     [EVAL] Not found in sigma, returning as-is
     [EVAL] Symbolic Eq, returning BinaryOpExpr(EQ)
-    [EVAL] Arg[1] result: (= "customer" CUSTOMER)
-    [EVAL] FuncCall result: AND(true, (= "customer" CUSTOMER))
-[ASSERT] Result: AND(true, (= "customer" CUSTOMER))
+    [EVAL] Arg[1] result: (= "restaurant_owner" OWNER)
+    [EVAL] FuncCall result: AND(true, (= "restaurant_owner" OWNER))
+[ASSERT] Result: AND(true, (= "restaurant_owner" OWNER))
 [ASSERT] Adding to path constraints (not fully concrete)
 
-[ASSIGN] Evaluating: customerEmail1 := "customer@example.com"
-[SEE] Mapping base name 'customerEmail' -> 'customerEmail1'
-  [EVAL] String: "customer@example.com"
-[ASSIGN] Result: customerEmail1 := "customer@example.com"
+[ASSIGN] Evaluating: ownerEmail1 := "owner@example.com"
+[SEE] Mapping base name 'ownerEmail' -> 'ownerEmail1'
+  [EVAL] String: "owner@example.com"
+[ASSIGN] Result: ownerEmail1 := "owner@example.com"
 
-[ASSIGN] Evaluating: customerPassword1 := "CustomerPass1!"
-[SEE] Mapping base name 'customerPassword' -> 'customerPassword1'
-  [EVAL] String: "CustomerPass1!"
-[ASSIGN] Result: customerPassword1 := "CustomerPass1!"
+[ASSIGN] Evaluating: ownerPassword1 := "OwnerPass1!"
+[SEE] Mapping base name 'ownerPassword' -> 'ownerPassword1'
+  [EVAL] String: "OwnerPass1!"
+[ASSIGN] Result: ownerPassword1 := "OwnerPass1!"
 
-[ASSIGN] Evaluating: customerFullName1 := "Test Customer"
-[SEE] Mapping base name 'customerFullName' -> 'customerFullName1'
-  [EVAL] String: "Test Customer"
-[ASSIGN] Result: customerFullName1 := "Test Customer"
+[ASSIGN] Evaluating: ownerFullName1 := "Test Owner"
+[SEE] Mapping base name 'ownerFullName' -> 'ownerFullName1'
+  [EVAL] String: "Test Owner"
+[ASSIGN] Result: ownerFullName1 := "Test Owner"
 
-[ASSIGN] Evaluating: customerMobile1 := "5550000002"
-[SEE] Mapping base name 'customerMobile' -> 'customerMobile1'
-  [EVAL] String: "5550000002"
-[ASSIGN] Result: customerMobile1 := "5550000002"
+[ASSIGN] Evaluating: ownerMobile1 := "5550000001"
+[SEE] Mapping base name 'ownerMobile' -> 'ownerMobile1'
+  [EVAL] String: "5550000001"
+[ASSIGN] Result: ownerMobile1 := "5550000001"
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_2 := get_Roles()
@@ -680,14 +680,14 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [Factory] Creating function: get_Roles
   [API_CALL] Executing function...
 [GetRolesFunc] Fetching Roles...
-  [API_CALL] Function returned: {customer@example.com -> "customer"}
+  [API_CALL] Function returned: {owner@example.com -> "restaurant_owner"}
   [API_CALL] Storing result in variable: tmp_Roles_2
-[ASSIGN] Result: tmp_Roles_2 := {customer@example.com -> "customer"}
+[ASSIGN] Result: tmp_Roles_2 := {owner@example.com -> "restaurant_owner"}
 
 [ASSIGN] Evaluating: Roles_old := tmp_Roles_2
   [EVAL] Var lookup: tmp_Roles_2
-    [EVAL] Found in sigma: {customer@example.com -> "customer"}
-[ASSIGN] Result: Roles_old := {customer@example.com -> "customer"}
+    [EVAL] Found in sigma: {owner@example.com -> "restaurant_owner"}
+[ASSIGN] Result: Roles_old := {owner@example.com -> "restaurant_owner"}
 [SEE] API call 'get_U' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_U_3 := get_U()
@@ -697,14 +697,14 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [Factory] Creating function: get_U
   [API_CALL] Executing function...
 [GetUFunc] Fetching U...
-  [API_CALL] Function returned: {customer@example.com -> "CustomerPass1!"}
+  [API_CALL] Function returned: {owner@example.com -> "OwnerPass1!"}
   [API_CALL] Storing result in variable: tmp_U_3
-[ASSIGN] Result: tmp_U_3 := {customer@example.com -> "CustomerPass1!"}
+[ASSIGN] Result: tmp_U_3 := {owner@example.com -> "OwnerPass1!"}
 
 [ASSIGN] Evaluating: U_old := tmp_U_3
   [EVAL] Var lookup: tmp_U_3
-    [EVAL] Found in sigma: {customer@example.com -> "CustomerPass1!"}
-[ASSIGN] Result: U_old := {customer@example.com -> "CustomerPass1!"}
+    [EVAL] Found in sigma: {owner@example.com -> "OwnerPass1!"}
+[ASSIGN] Result: U_old := {owner@example.com -> "OwnerPass1!"}
 [SEE] API call 'get_U' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_U_4 := get_U()
@@ -714,51 +714,51 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [Factory] Creating function: get_U
   [API_CALL] Executing function...
 [GetUFunc] Fetching U...
-  [API_CALL] Function returned: {customer@example.com -> "CustomerPass1!"}
+  [API_CALL] Function returned: {owner@example.com -> "OwnerPass1!"}
   [API_CALL] Storing result in variable: tmp_U_4
-[ASSIGN] Result: tmp_U_4 := {customer@example.com -> "CustomerPass1!"}
+[ASSIGN] Result: tmp_U_4 := {owner@example.com -> "OwnerPass1!"}
 
-[ASSUME] Evaluating: not_in(customerEmail, dom(tmp_U_4))
+[ASSUME] Evaluating: not_in(ownerEmail, dom(tmp_U_4))
   [EVAL] FuncCall: not_in with 2 args
     [EVAL] Set non-membership: not_in
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
-    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
+    [EVAL] Found in sigma: "owner@example.com"
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_U_4
-    [EVAL] Found in sigma: {customer@example.com -> "CustomerPass1!"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "CustomerPass1!"}
+    [EVAL] Found in sigma: {owner@example.com -> "OwnerPass1!"}
+    [EVAL] Map expr evaluated: {owner@example.com -> "OwnerPass1!"}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "customer@example.com"
-    [EVAL] Set: {"customer@example.com"}
+    [EVAL] Element: "owner@example.com"
+    [EVAL] Set: {"owner@example.com"}
     [EVAL] not_in result: false (element found)
 [ASSUME] Adding constraint: false
-[SEE] API call 'registerCustomer' ready for actual execution
+[SEE] API call 'registerOwner' ready for actual execution
 
-[ASSIGN] Evaluating: _result1 := registerCustomer(customerEmail, customerPassword, customerFullName, customerMobile)
+[ASSIGN] Evaluating: _result1 := registerOwner(ownerEmail, ownerPassword, ownerFullName, ownerMobile)
 [SEE] Mapping base name '_result' -> '_result1'
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
-    [EVAL] Found in sigma: "customer@example.com"
-  [EVAL] Var lookup: customerPassword
-    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword1'
-    [EVAL] Found in sigma: "CustomerPass1!"
-  [EVAL] Var lookup: customerFullName
-    [EVAL] Resolved base name 'customerFullName' -> 'customerFullName1'
-    [EVAL] Found in sigma: "Test Customer"
-  [EVAL] Var lookup: customerMobile
-    [EVAL] Resolved base name 'customerMobile' -> 'customerMobile1'
-    [EVAL] Found in sigma: "5550000002"
-[API_CALL] Executing API function: registerCustomer
-  [API_ARG] "customer@example.com"
-  [API_ARG] "CustomerPass1!"
-  [API_ARG] "Test Customer"
-  [API_ARG] "5550000002"
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
+    [EVAL] Found in sigma: "owner@example.com"
+  [EVAL] Var lookup: ownerPassword
+    [EVAL] Resolved base name 'ownerPassword' -> 'ownerPassword1'
+    [EVAL] Found in sigma: "OwnerPass1!"
+  [EVAL] Var lookup: ownerFullName
+    [EVAL] Resolved base name 'ownerFullName' -> 'ownerFullName1'
+    [EVAL] Found in sigma: "Test Owner"
+  [EVAL] Var lookup: ownerMobile
+    [EVAL] Resolved base name 'ownerMobile' -> 'ownerMobile1'
+    [EVAL] Found in sigma: "5550000001"
+[API_CALL] Executing API function: registerOwner
+  [API_ARG] "owner@example.com"
+  [API_ARG] "OwnerPass1!"
+  [API_ARG] "Test Owner"
+  [API_ARG] "5550000001"
   [API_CALL] Getting function from factory...
-[Factory] Creating function: registerCustomer
+[Factory] Creating function: registerOwner
   [API_CALL] Executing function...
-[RegisterCustomerFunc] Registering customer: customer@example.com
+[RegisterOwnerFunc] Registering owner: owner@example.com
 [HttpClient] POST /api/auth/register -> 400
   [API_CALL] Function returned: 400
   [API_CALL] Storing result in variable: _result1
@@ -772,9 +772,9 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [Factory] Creating function: get_U
   [API_CALL] Executing function...
 [GetUFunc] Fetching U...
-  [API_CALL] Function returned: {customer@example.com -> "CustomerPass1!"}
+  [API_CALL] Function returned: {owner@example.com -> "OwnerPass1!"}
   [API_CALL] Storing result in variable: tmp_U_5
-[ASSIGN] Result: tmp_U_5 := {customer@example.com -> "CustomerPass1!"}
+[ASSIGN] Result: tmp_U_5 := {owner@example.com -> "OwnerPass1!"}
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_3 := get_Roles()
@@ -784,61 +784,95 @@ Statement 28: assert(AND(=([](tmp_U_5, customerEmail), customerPassword), =([](t
 [Factory] Creating function: get_Roles
   [API_CALL] Executing function...
 [GetRolesFunc] Fetching Roles...
-  [API_CALL] Function returned: {customer@example.com -> "customer"}
+  [API_CALL] Function returned: {owner@example.com -> "restaurant_owner"}
   [API_CALL] Storing result in variable: tmp_Roles_3
-[ASSIGN] Result: tmp_Roles_3 := {customer@example.com -> "customer"}
+[ASSIGN] Result: tmp_Roles_3 := {owner@example.com -> "restaurant_owner"}
 
-[ASSERT] Evaluating: AND(=([](tmp_U_5, customerEmail), customerPassword), =([](tmp_Roles_3, customerEmail), CUSTOMER))
+[ASSERT] Evaluating: AND(=([](tmp_U_5, ownerEmail), ownerPassword), =([](tmp_Roles_3, ownerEmail), OWNER))
   [EVAL] FuncCall: AND with 2 args
     [EVAL] N-ary AND with 2 args
-    [EVAL] Arg[0]: =([](tmp_U_5, customerEmail), customerPassword)
+    [EVAL] Arg[0]: =([](tmp_U_5, ownerEmail), ownerPassword)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_U_5
-    [EVAL] Found in sigma: {customer@example.com -> "CustomerPass1!"}
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
-    [EVAL] Found in sigma: "customer@example.com"
-    [EVAL] Map expr evaluated: {customer@example.com -> "CustomerPass1!"}
-    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Found in sigma: {owner@example.com -> "OwnerPass1!"}
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
+    [EVAL] Found in sigma: "owner@example.com"
+    [EVAL] Map expr evaluated: {owner@example.com -> "OwnerPass1!"}
+    [EVAL] Key expr evaluated: "owner@example.com"
     [EVAL] Key found in map, returning value
-  [EVAL] String: "CustomerPass1!"
-  [EVAL] Var lookup: customerPassword
-    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword1'
-    [EVAL] Found in sigma: "CustomerPass1!"
+  [EVAL] String: "OwnerPass1!"
+  [EVAL] Var lookup: ownerPassword
+    [EVAL] Resolved base name 'ownerPassword' -> 'ownerPassword1'
+    [EVAL] Found in sigma: "OwnerPass1!"
     [EVAL] Eq result: true
     [EVAL] Arg[0] result: true
-    [EVAL] Arg[1]: =([](tmp_Roles_3, customerEmail), CUSTOMER)
+    [EVAL] Arg[1]: =([](tmp_Roles_3, ownerEmail), OWNER)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_Roles_3
-    [EVAL] Found in sigma: {customer@example.com -> "customer"}
-  [EVAL] Var lookup: customerEmail
-    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
-    [EVAL] Found in sigma: "customer@example.com"
-    [EVAL] Map expr evaluated: {customer@example.com -> "customer"}
-    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Found in sigma: {owner@example.com -> "restaurant_owner"}
+  [EVAL] Var lookup: ownerEmail
+    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
+    [EVAL] Found in sigma: "owner@example.com"
+    [EVAL] Map expr evaluated: {owner@example.com -> "restaurant_owner"}
+    [EVAL] Key expr evaluated: "owner@example.com"
     [EVAL] Key found in map, returning value
-  [EVAL] String: "customer"
-  [EVAL] Var lookup: CUSTOMER
+  [EVAL] String: "restaurant_owner"
+  [EVAL] Var lookup: OWNER
     [EVAL] Not found in sigma, returning as-is
     [EVAL] Symbolic Eq, returning BinaryOpExpr(EQ)
-    [EVAL] Arg[1] result: (= "customer" CUSTOMER)
-    [EVAL] FuncCall result: AND(true, (= "customer" CUSTOMER))
-[ASSERT] Result: AND(true, (= "customer" CUSTOMER))
+    [EVAL] Arg[1] result: (= "restaurant_owner" OWNER)
+    [EVAL] FuncCall result: AND(true, (= "restaurant_owner" OWNER))
+[ASSERT] Result: AND(true, (= "restaurant_owner" OWNER))
 [ASSERT] Adding to path constraints (not fully concrete)
 
-[SEE] Path Constraint: And(true, And(true, And(AND(true, (= "customer" CUSTOMER)), And(false, AND(true, (= "customer" CUSTOMER))))))
+[SEE] Path Constraint: And(true, And(true, And(AND(true, (= "restaurant_owner" OWNER)), And(false, AND(true, (= "restaurant_owner" OWNER))))))
 
->>> generateCTC: UNSAT DETECTED!
->>> Precondition cannot be satisfied with current database state.
->>> This test sequence requires prerequisite operations.
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
 
-[RESULT] UNSAT - Test preconditions cannot be satisfied
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+>>> generateCTC: After symex - Is abstract: 0, Has placeholders: 0
+>>> generateCTC: Program is now fully concrete
 
-⊘ Test 16: Register Agent → Login → Customer Places Order → Agent Assigned → Update Status (Depth=5) UNSAT: Preconditions not satisfiable
+[FINAL CTC]
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: ownerEmail0 := "owner@example.com"
+Statement 2: ownerPassword0 := "OwnerPass1!"
+Statement 3: ownerFullName0 := "Test Owner"
+Statement 4: ownerMobile0 := "5550000001"
+Statement 5: tmp_Roles_0 := get_Roles()
+Statement 6: Roles_old := tmp_Roles_0
+Statement 7: tmp_U_0 := get_U()
+Statement 8: U_old := tmp_U_0
+Statement 9: tmp_U_1 := get_U()
+Statement 10: assume(not_in(ownerEmail, dom(tmp_U_1)))
+Statement 11: _result0 := registerOwner(ownerEmail, ownerPassword, ownerFullName, ownerMobile)
+Statement 12: tmp_U_2 := get_U()
+Statement 13: tmp_Roles_1 := get_Roles()
+Statement 14: assert(AND(=([](tmp_U_2, ownerEmail), ownerPassword), =([](tmp_Roles_1, ownerEmail), OWNER)))
+Statement 15: ownerEmail1 := "owner@example.com"
+Statement 16: ownerPassword1 := "OwnerPass1!"
+Statement 17: ownerFullName1 := "Test Owner"
+Statement 18: ownerMobile1 := "5550000001"
+Statement 19: tmp_Roles_2 := get_Roles()
+Statement 20: Roles_old := tmp_Roles_2
+Statement 21: tmp_U_3 := get_U()
+Statement 22: U_old := tmp_U_3
+Statement 23: tmp_U_4 := get_U()
+Statement 24: assume(not_in(ownerEmail, dom(tmp_U_4)))
+Statement 25: _result1 := registerOwner(ownerEmail, ownerPassword, ownerFullName, ownerMobile)
+Statement 26: tmp_U_5 := get_U()
+Statement 27: tmp_Roles_3 := get_Roles()
+Statement 28: assert(AND(=([](tmp_U_5, ownerEmail), ownerPassword), =([](tmp_Roles_3, ownerEmail), OWNER)))
+=== End Program ===
+
+✓ Test 16: registerCustomerOk → registerCustomerOk (Depth=2, Expected UNSAT - Duplicate Registration) COMPLETE!
 

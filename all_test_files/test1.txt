@@ -1,7 +1,7 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
@@ -388,6 +388,11 @@ Statement 24: assert(=([](tmp_T_1, customerEmail), _result1))
 [ASSERT] Adding to path constraints (not fully concrete)
 
 [SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) CUSTOMER)), And(false, (= []({}, X4) -1)))))
+
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
 >>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
 
 >>> generateCTC: STEP 3 - Generating values with sigma lookup
@@ -631,14 +636,14 @@ Statement 24: assert(=([](tmp_T_1, customerEmail), _result1))
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzMsImV4cCI6MTc2OTI0MTI3M30.QacgaGbZMmn0yFYLb9Kmwt9dQRmgCCUsLDSMcgiJhkg"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"}
   [API_CALL] Storing result in variable: tmp_T_0
-[ASSIGN] Result: tmp_T_0 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzMsImV4cCI6MTc2OTI0MTI3M30.QacgaGbZMmn0yFYLb9Kmwt9dQRmgCCUsLDSMcgiJhkg"}
+[ASSIGN] Result: tmp_T_0 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"}
 
 [ASSIGN] Evaluating: T_old := tmp_T_0
   [EVAL] Var lookup: tmp_T_0
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzMsImV4cCI6MTc2OTI0MTI3M30.QacgaGbZMmn0yFYLb9Kmwt9dQRmgCCUsLDSMcgiJhkg"}
-[ASSIGN] Result: T_old := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzMsImV4cCI6MTc2OTI0MTI3M30.QacgaGbZMmn0yFYLb9Kmwt9dQRmgCCUsLDSMcgiJhkg"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"}
+[ASSIGN] Result: T_old := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"}
 [SEE] API call 'get_U' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_U_3 := get_U()
@@ -725,9 +730,9 @@ Statement 24: assert(=([](tmp_T_1, customerEmail), _result1))
 [LoginFunc] Logging in: customer@example.com
 [HttpClient] POST /api/auth/login -> 200
 [LoginFunc] Token received for: customer@example.com
-  [API_CALL] Function returned: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzQsImV4cCI6MTc2OTI0MTI3NH0.g8L1frGaWOkdSNCdFBe1x1oPy6TJcFOEbLIqWXmCoXA"
+  [API_CALL] Function returned: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"
   [API_CALL] Storing result in variable: _result1
-[ASSIGN] Result: _result1 := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzQsImV4cCI6MTc2OTI0MTI3NH0.g8L1frGaWOkdSNCdFBe1x1oPy6TJcFOEbLIqWXmCoXA"
+[ASSIGN] Result: _result1 := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"
 [SEE] API call 'get_T' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_T_1 := get_T()
@@ -737,9 +742,9 @@ Statement 24: assert(=([](tmp_T_1, customerEmail), _result1))
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzQsImV4cCI6MTc2OTI0MTI3NH0.g8L1frGaWOkdSNCdFBe1x1oPy6TJcFOEbLIqWXmCoXA"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"}
   [API_CALL] Storing result in variable: tmp_T_1
-[ASSIGN] Result: tmp_T_1 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzQsImV4cCI6MTc2OTI0MTI3NH0.g8L1frGaWOkdSNCdFBe1x1oPy6TJcFOEbLIqWXmCoXA"}
+[ASSIGN] Result: tmp_T_1 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"}
 
 [ASSERT] Evaluating: =([](tmp_T_1, customerEmail), _result1)
   [EVAL] FuncCall: = with 2 args
@@ -747,16 +752,16 @@ Statement 24: assert(=([](tmp_T_1, customerEmail), _result1))
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_T_1
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzQsImV4cCI6MTc2OTI0MTI3NH0.g8L1frGaWOkdSNCdFBe1x1oPy6TJcFOEbLIqWXmCoXA"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"}
   [EVAL] Var lookup: customerEmail
     [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
     [EVAL] Found in sigma: "customer@example.com"
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzQsImV4cCI6MTc2OTI0MTI3NH0.g8L1frGaWOkdSNCdFBe1x1oPy6TJcFOEbLIqWXmCoXA"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"}
     [EVAL] Key expr evaluated: "customer@example.com"
     [EVAL] Key found in map, returning value
-  [EVAL] String: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzQsImV4cCI6MTc2OTI0MTI3NH0.g8L1frGaWOkdSNCdFBe1x1oPy6TJcFOEbLIqWXmCoXA"
+  [EVAL] String: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"
   [EVAL] Var lookup: _result1
-    [EVAL] Found in sigma: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNDAzOWFjNzQ3NWEwNGZiODMyNjIiLCJpYXQiOjE3Njg2MzY0NzQsImV4cCI6MTc2OTI0MTI3NH0.g8L1frGaWOkdSNCdFBe1x1oPy6TJcFOEbLIqWXmCoXA"
+    [EVAL] Found in sigma: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYjdiYWUyMjRjMzMzMmRkMDhlMDgiLCJpYXQiOjE3Njk3MTU2NDIsImV4cCI6MTc3MDMyMDQ0Mn0.-Cw7W74lGUbdAJTEnV2VWrkRfrXHEztZvnH71CzIb9w"
     [EVAL] Eq result: true
 [ASSERT] Result: true
 [ASSERT] ✓ Assertion PASSED

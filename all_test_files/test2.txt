@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 02: Login Without Registration (Depth=1)
+TEST: Test 02: loginCustomerErr (Depth=1)
 MODE: Full Pipeline (With Backend)
 DEPTH: 1 API calls
 ========================================
@@ -223,5 +223,5 @@ Statement 5: _result0 := login(customerEmail, customerPassword)
 Statement 6: assert()
 === End Program ===
 
-✓ Test 02: Login Without Registration (Depth=1) COMPLETE!
+✓ Test 02: loginCustomerErr (Depth=1) COMPLETE!
 

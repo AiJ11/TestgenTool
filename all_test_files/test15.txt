@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 15: Register Owner → Login → Create Restaurant → Add 2 Menu Items (Depth=5)
+TEST: Test 15: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartRestaurantOk → placeOrderOk → updateOrderStatusOwnerOk x3 (Depth=13)
 MODE: Full Pipeline (With Backend)
 DEPTH: 13 API calls
 ========================================
@@ -2111,6 +2111,11 @@ Statement 140: assert()
 [ASSERT] Empty assertion, PASSED
 
 [SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) OWNER)), And(false, And((= []({}, X4) -1), And(false, And(false, And(true, And(AND((= []({}, X14) X15), (= []({}, X14) CUSTOMER)), And(false, And((= []({}, X18) -1), And(false, And(false, And(false, And(false, And(false, And(false, false)))))))))))))))))
+
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
 >>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
 
 >>> generateCTC: STEP 3 - Generating values with sigma lookup
@@ -2487,14 +2492,14 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_0
-[ASSIGN] Result: tmp_T_0 := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_0 := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 
 [ASSIGN] Evaluating: T_old := tmp_T_0
   [EVAL] Var lookup: tmp_T_0
-    [EVAL] Found in sigma: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-[ASSIGN] Result: T_old := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+[ASSIGN] Result: T_old := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_U' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_U_3 := get_U()
@@ -2581,9 +2586,9 @@ Statement 140: assert()
 [LoginFunc] Logging in: owner@example.com
 [HttpClient] POST /api/auth/login -> 200
 [LoginFunc] Token received for: owner@example.com
-  [API_CALL] Function returned: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"
+  [API_CALL] Function returned: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"
   [API_CALL] Storing result in variable: _result1
-[ASSIGN] Result: _result1 := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"
+[ASSIGN] Result: _result1 := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"
 [SEE] API call 'get_T' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_T_1 := get_T()
@@ -2593,9 +2598,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_1
-[ASSIGN] Result: tmp_T_1 := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_1 := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 
 [ASSERT] Evaluating: =([](tmp_T_1, ownerEmail), _result1)
   [EVAL] FuncCall: = with 2 args
@@ -2603,16 +2608,16 @@ Statement 140: assert()
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_T_1
-    [EVAL] Found in sigma: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [EVAL] Var lookup: ownerEmail
     [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail1'
     [EVAL] Found in sigma: "owner@example.com"
-    [EVAL] Map expr evaluated: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Map expr evaluated: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Key expr evaluated: "owner@example.com"
     [EVAL] Key found in map, returning value
-  [EVAL] String: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"
+  [EVAL] String: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"
   [EVAL] Var lookup: _result1
-    [EVAL] Found in sigma: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"
+    [EVAL] Found in sigma: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"
     [EVAL] Eq result: true
 [ASSERT] Result: true
 [ASSERT] ✓ Assertion PASSED
@@ -2679,9 +2684,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_2
-[ASSIGN] Result: tmp_T_2 := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_2 := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_2 := get_Roles()
@@ -2707,8 +2712,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_2
-    [EVAL] Found in sigma: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 1 keys
     [EVAL] Element: "owner@example.com"
     [EVAL] Set: {"owner@example.com"}
@@ -2784,10 +2789,10 @@ Statement 140: assert()
 }
 [HttpClient] POST /api/restaurants -> 201
 [CreateRestaurantFunc] Response status: 201
-[CreateRestaurantFunc] Restaurant created: 696b6ab2ac7475a04fb83513
-  [API_CALL] Function returned: "696b6ab2ac7475a04fb83513"
+[CreateRestaurantFunc] Restaurant created: 697bc690e224c3332dd09381
+  [API_CALL] Function returned: "697bc690e224c3332dd09381"
   [API_CALL] Storing result in variable: _result2
-[ASSIGN] Result: _result2 := "696b6ab2ac7475a04fb83513"
+[ASSIGN] Result: _result2 := "697bc690e224c3332dd09381"
 [SEE] API call 'get_R' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_R_1 := get_R()
@@ -2797,9 +2802,9 @@ Statement 140: assert()
 [Factory] Creating function: get_R
   [API_CALL] Executing function...
 [GetRFunc] Fetching R...
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+  [API_CALL] Function returned: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
   [API_CALL] Storing result in variable: tmp_R_1
-[ASSIGN] Result: tmp_R_1 := {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+[ASSIGN] Result: tmp_R_1 := {697bc690e224c3332dd09381 -> ""Test Restaurant""}
 [SEE] API call 'get_Owners' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Owners_1 := get_Owners()
@@ -2809,9 +2814,9 @@ Statement 140: assert()
 [Factory] Creating function: get_Owners
   [API_CALL] Executing function...
 [GetOwnersFunc] Fetching Owners...
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb83513 -> "owner@example.com"}
+  [API_CALL] Function returned: {697bc690e224c3332dd09381 -> "owner@example.com"}
   [API_CALL] Storing result in variable: tmp_Owners_1
-[ASSIGN] Result: tmp_Owners_1 := {696b6ab2ac7475a04fb83513 -> "owner@example.com"}
+[ASSIGN] Result: tmp_Owners_1 := {697bc690e224c3332dd09381 -> "owner@example.com"}
 
 [ASSERT] Evaluating: AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2), ownerEmail))
   [EVAL] FuncCall: AND with 2 args
@@ -2820,17 +2825,17 @@ Statement 140: assert()
   [EVAL] FuncCall: in with 2 args
     [EVAL] Set membership: in
   [EVAL] Var lookup: _result2
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb83513"
+    [EVAL] Found in sigma: "697bc690e224c3332dd09381"
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_R_1
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+    [EVAL] Found in sigma: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb83513"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83513"}
-    [EVAL] Element: "696b6ab2ac7475a04fb83513"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83513"}
+    [EVAL] Element: "697bc690e224c3332dd09381"
+    [EVAL] Set: {"697bc690e224c3332dd09381"}
+    [EVAL] Element: "697bc690e224c3332dd09381"
+    [EVAL] Set: {"697bc690e224c3332dd09381"}
     [EVAL] Element found in set: true
     [EVAL] Arg[0] result: true
     [EVAL] Arg[1]: =([](tmp_Owners_1, _result2), ownerEmail)
@@ -2839,11 +2844,11 @@ Statement 140: assert()
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_Owners_1
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb83513 -> "owner@example.com"}
+    [EVAL] Found in sigma: {697bc690e224c3332dd09381 -> "owner@example.com"}
   [EVAL] Var lookup: _result2
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb83513"
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb83513 -> "owner@example.com"}
-    [EVAL] Key expr evaluated: "696b6ab2ac7475a04fb83513"
+    [EVAL] Found in sigma: "697bc690e224c3332dd09381"
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd09381 -> "owner@example.com"}
+    [EVAL] Key expr evaluated: "697bc690e224c3332dd09381"
     [EVAL] Key found in map, returning value
   [EVAL] String: "owner@example.com"
   [EVAL] Var lookup: ownerEmail
@@ -2900,9 +2905,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_3
-[ASSIGN] Result: tmp_T_3 := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_3 := {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_3 := get_Roles()
@@ -2924,9 +2929,9 @@ Statement 140: assert()
 [Factory] Creating function: get_R
   [API_CALL] Executing function...
 [GetRFunc] Fetching R...
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+  [API_CALL] Function returned: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
   [API_CALL] Storing result in variable: tmp_R_2
-[ASSIGN] Result: tmp_R_2 := {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+[ASSIGN] Result: tmp_R_2 := {697bc690e224c3332dd09381 -> ""Test Restaurant""}
 
 [ASSUME] Evaluating: AND(in(ownerEmail, dom(tmp_T_3)), =([](tmp_Roles_3, ownerEmail), OWNER), in(restaurantId, dom(tmp_R_2)))
   [EVAL] FuncCall: AND with 3 args
@@ -2940,8 +2945,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_3
-    [EVAL] Found in sigma: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 1 keys
     [EVAL] Element: "owner@example.com"
     [EVAL] Set: {"owner@example.com"}
@@ -2975,20 +2980,20 @@ Statement 140: assert()
     [EVAL] Found placeholder __NEEDS_RESTAURANT_ID__, attempting runtime resolution
     [findKeyFromMapInSigma] Searching for prefix: tmp_R_
     [findKeyFromMapInSigma] tmp_R_0 is empty map
-    [findKeyFromMapInSigma] Found tmp_R_1 with 1 entries, key: 696b6ab2ac7475a04fb83513
-    [findKeyFromMapInSigma] Found tmp_R_2 with 1 entries, key: 696b6ab2ac7475a04fb83513
+    [findKeyFromMapInSigma] Found tmp_R_1 with 1 entries, key: 697bc690e224c3332dd09381
+    [findKeyFromMapInSigma] Found tmp_R_2 with 1 entries, key: 697bc690e224c3332dd09381
     [findKeyFromMapInSigma] tmp_R_3 is empty map
-    [EVAL] Resolved to: 696b6ab2ac7475a04fb83513
+    [EVAL] Resolved to: 697bc690e224c3332dd09381
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_R_2
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+    [EVAL] Found in sigma: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb83513"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83513"}
-    [EVAL] Element: "696b6ab2ac7475a04fb83513"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83513"}
+    [EVAL] Element: "697bc690e224c3332dd09381"
+    [EVAL] Set: {"697bc690e224c3332dd09381"}
+    [EVAL] Element: "697bc690e224c3332dd09381"
+    [EVAL] Set: {"697bc690e224c3332dd09381"}
     [EVAL] Element found in set: true
     [EVAL] Arg[2] result: true
     [EVAL] FuncCall result: AND(true, (= "restaurant_owner" OWNER), true)
@@ -3002,7 +3007,7 @@ Statement 140: assert()
     [EVAL] Found in sigma: "owner@example.com"
   [EVAL] Var lookup: restaurantId
     [EVAL] Resolved base name 'restaurantId' -> 'restaurantId3'
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb83513"
+    [EVAL] Found in sigma: "697bc690e224c3332dd09381"
   [EVAL] Var lookup: itemName
     [EVAL] Resolved base name 'itemName' -> 'itemName3'
     [EVAL] Found in sigma: "Delicious Dish"
@@ -3011,15 +3016,15 @@ Statement 140: assert()
     [EVAL] Found in sigma: 150
 [API_CALL] Executing API function: addMenuItem
   [API_ARG] "owner@example.com"
-  [API_ARG] "696b6ab2ac7475a04fb83513"
+  [API_ARG] "697bc690e224c3332dd09381"
   [API_ARG] "Delicious Dish"
   [API_ARG] 150
   [API_CALL] Getting function from factory...
 [Factory] Creating function: addMenuItem
   [API_CALL] Executing function...
-[AddMenuItemFunc] owner@example.com adding menu item: Delicious Dish to restaurant 696b6ab2ac7475a04fb83513
+[AddMenuItemFunc] owner@example.com adding menu item: Delicious Dish to restaurant 697bc690e224c3332dd09381
 [HttpClient] POST /api/menu -> 201
-[AddMenuItemFunc] Menu item created: 696b6ab2ac7475a04fb8351f
+[AddMenuItemFunc] Menu item created: 697bc690e224c3332dd0938d
   [API_CALL] Function returned: 201
   [API_CALL] Storing result in variable: _result3
 [ASSIGN] Result: _result3 := 201
@@ -3032,10 +3037,10 @@ Statement 140: assert()
 [Factory] Creating function: get_M
   [API_CALL] Executing function...
 [GetMFunc] Fetching M...
-[GetMFunc] Menu item: 696b6ab2ac7475a04fb8351f -> restaurant: 696b6ab2ac7475a04fb83513
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb8351f -> "696b6ab2ac7475a04fb83513"}
+[GetMFunc] Menu item: 697bc690e224c3332dd0938d -> restaurant: 697bc690e224c3332dd09381
+  [API_CALL] Function returned: {697bc690e224c3332dd0938d -> "697bc690e224c3332dd09381"}
   [API_CALL] Storing result in variable: tmp_M_1
-[ASSIGN] Result: tmp_M_1 := {696b6ab2ac7475a04fb8351f -> "696b6ab2ac7475a04fb83513"}
+[ASSIGN] Result: tmp_M_1 := {697bc690e224c3332dd0938d -> "697bc690e224c3332dd09381"}
 
 [ASSERT] Evaluating: in(_result3, dom(tmp_M_1))
   [EVAL] FuncCall: in with 2 args
@@ -3045,13 +3050,13 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_M_1
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb8351f -> "696b6ab2ac7475a04fb83513"}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb8351f -> "696b6ab2ac7475a04fb83513"}
+    [EVAL] Found in sigma: {697bc690e224c3332dd0938d -> "697bc690e224c3332dd09381"}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd0938d -> "697bc690e224c3332dd09381"}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb8351f"
-    [EVAL] Set: {"696b6ab2ac7475a04fb8351f"}
+    [EVAL] Element: "697bc690e224c3332dd0938d"
+    [EVAL] Set: {"697bc690e224c3332dd0938d"}
     [EVAL] Element: 201
-    [EVAL] Set: {"696b6ab2ac7475a04fb8351f"}
+    [EVAL] Set: {"697bc690e224c3332dd0938d"}
     [EVAL] Element not found in set: false
 [ASSERT] Result: false
 [ASSERT] ✗ Assertion FAILED
@@ -3254,14 +3259,14 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_4
-[ASSIGN] Result: tmp_T_4 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_4 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 
 [ASSIGN] Evaluating: T_old := tmp_T_4
   [EVAL] Var lookup: tmp_T_4
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-[ASSIGN] Result: T_old := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+[ASSIGN] Result: T_old := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_U' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_U_8 := get_U()
@@ -3349,9 +3354,9 @@ Statement 140: assert()
 [LoginFunc] Logging in: customer@example.com
 [HttpClient] POST /api/auth/login -> 200
 [LoginFunc] Token received for: customer@example.com
-  [API_CALL] Function returned: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc"
+  [API_CALL] Function returned: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc"
   [API_CALL] Storing result in variable: _result5
-[ASSIGN] Result: _result5 := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc"
+[ASSIGN] Result: _result5 := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc"
 [SEE] API call 'get_T' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_T_5 := get_T()
@@ -3361,9 +3366,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_5
-[ASSIGN] Result: tmp_T_5 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_5 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 
 [ASSERT] Evaluating: =([](tmp_T_5, customerEmail), _result5)
   [EVAL] FuncCall: = with 2 args
@@ -3371,16 +3376,16 @@ Statement 140: assert()
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_T_5
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [EVAL] Var lookup: customerEmail
     [EVAL] Resolved base name 'customerEmail' -> 'customerEmail5'
     [EVAL] Found in sigma: "customer@example.com"
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Key expr evaluated: "customer@example.com"
     [EVAL] Key found in map, returning value
-  [EVAL] String: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc"
+  [EVAL] String: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc"
   [EVAL] Var lookup: _result5
-    [EVAL] Found in sigma: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc"
+    [EVAL] Found in sigma: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc"
     [EVAL] Eq result: true
 [ASSERT] Result: true
 [ASSERT] ✓ Assertion PASSED
@@ -3398,9 +3403,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_6
-[ASSIGN] Result: tmp_T_6 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_6 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 
 [ASSUME] Evaluating: in(customerEmail, dom(tmp_T_6))
   [EVAL] FuncCall: in with 2 args
@@ -3411,8 +3416,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_6
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 2 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Element: "owner@example.com"
@@ -3459,9 +3464,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_7
-[ASSIGN] Result: tmp_T_7 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_7 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_R' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_R_3 := get_R()
@@ -3471,9 +3476,9 @@ Statement 140: assert()
 [Factory] Creating function: get_R
   [API_CALL] Executing function...
 [GetRFunc] Fetching R...
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+  [API_CALL] Function returned: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
   [API_CALL] Storing result in variable: tmp_R_3
-[ASSIGN] Result: tmp_R_3 := {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+[ASSIGN] Result: tmp_R_3 := {697bc690e224c3332dd09381 -> ""Test Restaurant""}
 
 [ASSUME] Evaluating: AND(in(customerEmail, dom(tmp_T_7)), in(restaurantId, dom(tmp_R_3)))
   [EVAL] FuncCall: AND with 2 args
@@ -3487,8 +3492,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_7
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 2 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Element: "owner@example.com"
@@ -3505,20 +3510,20 @@ Statement 140: assert()
     [EVAL] Found placeholder __NEEDS_RESTAURANT_ID__, attempting runtime resolution
     [findKeyFromMapInSigma] Searching for prefix: tmp_R_
     [findKeyFromMapInSigma] tmp_R_0 is empty map
-    [findKeyFromMapInSigma] Found tmp_R_1 with 1 entries, key: 696b6ab2ac7475a04fb83513
-    [findKeyFromMapInSigma] Found tmp_R_2 with 1 entries, key: 696b6ab2ac7475a04fb83513
-    [findKeyFromMapInSigma] Found tmp_R_3 with 1 entries, key: 696b6ab2ac7475a04fb83513
-    [EVAL] Resolved to: 696b6ab2ac7475a04fb83513
+    [findKeyFromMapInSigma] Found tmp_R_1 with 1 entries, key: 697bc690e224c3332dd09381
+    [findKeyFromMapInSigma] Found tmp_R_2 with 1 entries, key: 697bc690e224c3332dd09381
+    [findKeyFromMapInSigma] Found tmp_R_3 with 1 entries, key: 697bc690e224c3332dd09381
+    [EVAL] Resolved to: 697bc690e224c3332dd09381
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_R_3
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb83513 -> ""Test Restaurant""}
+    [EVAL] Found in sigma: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd09381 -> ""Test Restaurant""}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb83513"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83513"}
-    [EVAL] Element: "696b6ab2ac7475a04fb83513"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83513"}
+    [EVAL] Element: "697bc690e224c3332dd09381"
+    [EVAL] Set: {"697bc690e224c3332dd09381"}
+    [EVAL] Element: "697bc690e224c3332dd09381"
+    [EVAL] Set: {"697bc690e224c3332dd09381"}
     [EVAL] Element found in set: true
     [EVAL] Arg[1] result: true
     [EVAL] FuncCall result: AND(...) = true
@@ -3532,14 +3537,14 @@ Statement 140: assert()
     [EVAL] Found in sigma: "customer@example.com"
   [EVAL] Var lookup: restaurantId
     [EVAL] Resolved base name 'restaurantId' -> 'restaurantId7'
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb83513"
+    [EVAL] Found in sigma: "697bc690e224c3332dd09381"
 [API_CALL] Executing API function: viewMenu
   [API_ARG] "customer@example.com"
-  [API_ARG] "696b6ab2ac7475a04fb83513"
+  [API_ARG] "697bc690e224c3332dd09381"
   [API_CALL] Getting function from factory...
 [Factory] Creating function: viewMenu
   [API_CALL] Executing function...
-[ViewMenuFunc] customer@example.com viewing menu for restaurant: 696b6ab2ac7475a04fb83513
+[ViewMenuFunc] customer@example.com viewing menu for restaurant: 697bc690e224c3332dd09381
 [ViewMenuFunc] Found 1 menu items
   [API_CALL] Function returned: 200
   [API_CALL] Storing result in variable: _result7
@@ -3587,9 +3592,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_8
-[ASSIGN] Result: tmp_T_8 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_8 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_M' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_M_2 := get_M()
@@ -3599,10 +3604,10 @@ Statement 140: assert()
 [Factory] Creating function: get_M
   [API_CALL] Executing function...
 [GetMFunc] Fetching M...
-[GetMFunc] Menu item: 696b6ab2ac7475a04fb8351f -> restaurant: 696b6ab2ac7475a04fb83513
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb8351f -> "696b6ab2ac7475a04fb83513"}
+[GetMFunc] Menu item: 697bc690e224c3332dd0938d -> restaurant: 697bc690e224c3332dd09381
+  [API_CALL] Function returned: {697bc690e224c3332dd0938d -> "697bc690e224c3332dd09381"}
   [API_CALL] Storing result in variable: tmp_M_2
-[ASSIGN] Result: tmp_M_2 := {696b6ab2ac7475a04fb8351f -> "696b6ab2ac7475a04fb83513"}
+[ASSIGN] Result: tmp_M_2 := {697bc690e224c3332dd0938d -> "697bc690e224c3332dd09381"}
 
 [ASSUME] Evaluating: AND(in(customerEmail, dom(tmp_T_8)), in(menuItemId, dom(tmp_M_2)))
   [EVAL] FuncCall: AND with 2 args
@@ -3616,8 +3621,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_8
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 2 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Element: "owner@example.com"
@@ -3634,19 +3639,19 @@ Statement 140: assert()
     [EVAL] Found placeholder __NEEDS_MENUITEM_ID__, attempting runtime resolution
     [findKeyFromMapInSigma] Searching for prefix: tmp_M_
     [findKeyFromMapInSigma] tmp_M_0 is empty map
-    [findKeyFromMapInSigma] Found tmp_M_1 with 1 entries, key: 696b6ab2ac7475a04fb8351f
-    [findKeyFromMapInSigma] Found tmp_M_2 with 1 entries, key: 696b6ab2ac7475a04fb8351f
-    [EVAL] Resolved to: 696b6ab2ac7475a04fb8351f
+    [findKeyFromMapInSigma] Found tmp_M_1 with 1 entries, key: 697bc690e224c3332dd0938d
+    [findKeyFromMapInSigma] Found tmp_M_2 with 1 entries, key: 697bc690e224c3332dd0938d
+    [EVAL] Resolved to: 697bc690e224c3332dd0938d
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_M_2
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb8351f -> "696b6ab2ac7475a04fb83513"}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb8351f -> "696b6ab2ac7475a04fb83513"}
+    [EVAL] Found in sigma: {697bc690e224c3332dd0938d -> "697bc690e224c3332dd09381"}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd0938d -> "697bc690e224c3332dd09381"}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb8351f"
-    [EVAL] Set: {"696b6ab2ac7475a04fb8351f"}
-    [EVAL] Element: "696b6ab2ac7475a04fb8351f"
-    [EVAL] Set: {"696b6ab2ac7475a04fb8351f"}
+    [EVAL] Element: "697bc690e224c3332dd0938d"
+    [EVAL] Set: {"697bc690e224c3332dd0938d"}
+    [EVAL] Element: "697bc690e224c3332dd0938d"
+    [EVAL] Set: {"697bc690e224c3332dd0938d"}
     [EVAL] Element found in set: true
     [EVAL] Arg[1] result: true
     [EVAL] FuncCall result: AND(...) = true
@@ -3660,18 +3665,18 @@ Statement 140: assert()
     [EVAL] Found in sigma: "customer@example.com"
   [EVAL] Var lookup: menuItemId
     [EVAL] Resolved base name 'menuItemId' -> 'menuItemId8'
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb8351f"
+    [EVAL] Found in sigma: "697bc690e224c3332dd0938d"
   [EVAL] Var lookup: quantity
     [EVAL] Resolved base name 'quantity' -> 'quantity8'
     [EVAL] Found in sigma: 2
 [API_CALL] Executing API function: addToCart
   [API_ARG] "customer@example.com"
-  [API_ARG] "696b6ab2ac7475a04fb8351f"
+  [API_ARG] "697bc690e224c3332dd0938d"
   [API_ARG] 2
   [API_CALL] Getting function from factory...
 [Factory] Creating function: addToCart
   [API_CALL] Executing function...
-[AddToCartFunc] customer@example.com adding item 696b6ab2ac7475a04fb8351f (qty: 2)
+[AddToCartFunc] customer@example.com adding item 697bc690e224c3332dd0938d (qty: 2)
 [HttpClient] POST /api/cart -> 200
 [AddToCartFunc] Item added to cart
   [API_CALL] Function returned: 200
@@ -3686,9 +3691,9 @@ Statement 140: assert()
 [Factory] Creating function: get_C
   [API_CALL] Executing function...
 [GetCFunc] Fetching C...
-  [API_CALL] Function returned: {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+  [API_CALL] Function returned: {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
   [API_CALL] Storing result in variable: tmp_C_1
-[ASSIGN] Result: tmp_C_1 := {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+[ASSIGN] Result: tmp_C_1 := {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
 
 [ASSERT] Evaluating: in(customerEmail, dom(tmp_C_1))
   [EVAL] FuncCall: in with 2 args
@@ -3699,8 +3704,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_C_1
-    [EVAL] Found in sigma: {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+    [EVAL] Found in sigma: {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
     [EVAL] Domain has 1 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Set: {"customer@example.com"}
@@ -3733,14 +3738,14 @@ Statement 140: assert()
 [Factory] Creating function: get_C
   [API_CALL] Executing function...
 [GetCFunc] Fetching C...
-  [API_CALL] Function returned: {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+  [API_CALL] Function returned: {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
   [API_CALL] Storing result in variable: tmp_C_2
-[ASSIGN] Result: tmp_C_2 := {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+[ASSIGN] Result: tmp_C_2 := {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
 
 [ASSIGN] Evaluating: C_old := tmp_C_2
   [EVAL] Var lookup: tmp_C_2
-    [EVAL] Found in sigma: {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
-[ASSIGN] Result: C_old := {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+    [EVAL] Found in sigma: {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
+[ASSIGN] Result: C_old := {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
 [SEE] API call 'get_O' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_O_0 := get_O()
@@ -3767,9 +3772,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_9
-[ASSIGN] Result: tmp_T_9 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_9 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_C' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_C_3 := get_C()
@@ -3779,9 +3784,9 @@ Statement 140: assert()
 [Factory] Creating function: get_C
   [API_CALL] Executing function...
 [GetCFunc] Fetching C...
-  [API_CALL] Function returned: {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+  [API_CALL] Function returned: {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
   [API_CALL] Storing result in variable: tmp_C_3
-[ASSIGN] Result: tmp_C_3 := {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+[ASSIGN] Result: tmp_C_3 := {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
 
 [ASSUME] Evaluating: AND(in(customerEmail, dom(tmp_T_9)), in(customerEmail, dom(tmp_C_3)))
   [EVAL] FuncCall: AND with 2 args
@@ -3795,8 +3800,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_9
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 2 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Element: "owner@example.com"
@@ -3814,8 +3819,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_C_3
-    [EVAL] Found in sigma: {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurantId":"696b6ab2ac7475a04fb83513","totalAmount":300}"}
+    [EVAL] Found in sigma: {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurantId":"697bc690e224c3332dd09381","totalAmount":300}"}
     [EVAL] Domain has 1 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Set: {"customer@example.com"}
@@ -3847,10 +3852,10 @@ Statement 140: assert()
   [API_CALL] Executing function...
 [PlaceOrderFunc] customer@example.com placing order...
 [HttpClient] POST /api/orders -> 201
-[PlaceOrderFunc] Order placed: 696b6ab2ac7475a04fb83557
-  [API_CALL] Function returned: "696b6ab2ac7475a04fb83557"
+[PlaceOrderFunc] Order placed: 697bc690e224c3332dd093c5
+  [API_CALL] Function returned: "697bc690e224c3332dd093c5"
   [API_CALL] Storing result in variable: _result9
-[ASSIGN] Result: _result9 := "696b6ab2ac7475a04fb83557"
+[ASSIGN] Result: _result9 := "697bc690e224c3332dd093c5"
 [SEE] API call 'get_O' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_O_1 := get_O()
@@ -3860,9 +3865,9 @@ Statement 140: assert()
 [Factory] Creating function: get_O
   [API_CALL] Executing function...
 [GetOFunc] Fetching O...
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"placed","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+  [API_CALL] Function returned: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"placed","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
   [API_CALL] Storing result in variable: tmp_O_1
-[ASSIGN] Result: tmp_O_1 := {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"placed","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+[ASSIGN] Result: tmp_O_1 := {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"placed","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
 [SEE] API call 'get_C' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_C_4 := get_C()
@@ -3883,17 +3888,17 @@ Statement 140: assert()
   [EVAL] FuncCall: in with 2 args
     [EVAL] Set membership: in
   [EVAL] Var lookup: _result9
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb83557"
+    [EVAL] Found in sigma: "697bc690e224c3332dd093c5"
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_O_1
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"placed","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"placed","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+    [EVAL] Found in sigma: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"placed","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"placed","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb83557"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83557"}
-    [EVAL] Element: "696b6ab2ac7475a04fb83557"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83557"}
+    [EVAL] Element: "697bc690e224c3332dd093c5"
+    [EVAL] Set: {"697bc690e224c3332dd093c5"}
+    [EVAL] Element: "697bc690e224c3332dd093c5"
+    [EVAL] Set: {"697bc690e224c3332dd093c5"}
     [EVAL] Element found in set: true
     [EVAL] Arg[0] result: true
     [EVAL] Arg[1]: not_in(customerEmail, dom(tmp_C_4))
@@ -3938,9 +3943,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_10
-[ASSIGN] Result: tmp_T_10 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_10 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_6 := get_Roles()
@@ -3962,9 +3967,9 @@ Statement 140: assert()
 [Factory] Creating function: get_O
   [API_CALL] Executing function...
 [GetOFunc] Fetching O...
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"placed","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+  [API_CALL] Function returned: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"placed","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
   [API_CALL] Storing result in variable: tmp_O_2
-[ASSIGN] Result: tmp_O_2 := {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"placed","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+[ASSIGN] Result: tmp_O_2 := {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"placed","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
 
 [ASSUME] Evaluating: AND(in(ownerEmail, dom(tmp_T_10)), =([](tmp_Roles_6, ownerEmail), OWNER), in(orderId, dom(tmp_O_2)))
   [EVAL] FuncCall: AND with 3 args
@@ -3978,8 +3983,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_10
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 2 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Element: "owner@example.com"
@@ -4014,21 +4019,21 @@ Statement 140: assert()
     [EVAL] Found placeholder __NEEDS_ORDER_ID__, attempting runtime resolution
     [findKeyFromMapInSigma] Searching for prefix: tmp_O_
     [findKeyFromMapInSigma] tmp_O_0 is empty map
-    [findKeyFromMapInSigma] Found tmp_O_1 with 1 entries, key: 696b6ab2ac7475a04fb83557
-    [findKeyFromMapInSigma] Found tmp_O_2 with 1 entries, key: 696b6ab2ac7475a04fb83557
+    [findKeyFromMapInSigma] Found tmp_O_1 with 1 entries, key: 697bc690e224c3332dd093c5
+    [findKeyFromMapInSigma] Found tmp_O_2 with 1 entries, key: 697bc690e224c3332dd093c5
     [findKeyFromMapInSigma] tmp_O_3 is empty map
     [findKeyFromMapInSigma] tmp_O_4 is empty map
-    [EVAL] Resolved to: 696b6ab2ac7475a04fb83557
+    [EVAL] Resolved to: 697bc690e224c3332dd093c5
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_O_2
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"placed","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"placed","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+    [EVAL] Found in sigma: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"placed","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"placed","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb83557"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83557"}
-    [EVAL] Element: "696b6ab2ac7475a04fb83557"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83557"}
+    [EVAL] Element: "697bc690e224c3332dd093c5"
+    [EVAL] Set: {"697bc690e224c3332dd093c5"}
+    [EVAL] Element: "697bc690e224c3332dd093c5"
+    [EVAL] Set: {"697bc690e224c3332dd093c5"}
     [EVAL] Element found in set: true
     [EVAL] Arg[2] result: true
     [EVAL] FuncCall result: AND(true, (= "restaurant_owner" OWNER), true)
@@ -4042,18 +4047,18 @@ Statement 140: assert()
     [EVAL] Found in sigma: "owner@example.com"
   [EVAL] Var lookup: orderId
     [EVAL] Resolved base name 'orderId' -> 'orderId10'
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb83557"
+    [EVAL] Found in sigma: "697bc690e224c3332dd093c5"
   [EVAL] Var lookup: orderStatus
     [EVAL] Resolved base name 'orderStatus' -> 'orderStatus10'
     [EVAL] Found in sigma: "accepted"
 [API_CALL] Executing API function: updateOrderStatusOwner
   [API_ARG] "owner@example.com"
-  [API_ARG] "696b6ab2ac7475a04fb83557"
+  [API_ARG] "697bc690e224c3332dd093c5"
   [API_ARG] "accepted"
   [API_CALL] Getting function from factory...
 [Factory] Creating function: updateOrderStatusOwner
   [API_CALL] Executing function...
-[UpdateOrderStatusOwnerFunc] owner@example.com updating order 696b6ab2ac7475a04fb83557 to accepted
+[UpdateOrderStatusOwnerFunc] owner@example.com updating order 697bc690e224c3332dd093c5 to accepted
 [UpdateOrderStatusOwnerFunc] Order status updated
   [API_CALL] Function returned: 200
   [API_CALL] Storing result in variable: _result10
@@ -4084,9 +4089,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_11
-[ASSIGN] Result: tmp_T_11 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_11 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_7 := get_Roles()
@@ -4108,9 +4113,9 @@ Statement 140: assert()
 [Factory] Creating function: get_O
   [API_CALL] Executing function...
 [GetOFunc] Fetching O...
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"accepted","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+  [API_CALL] Function returned: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"accepted","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
   [API_CALL] Storing result in variable: tmp_O_3
-[ASSIGN] Result: tmp_O_3 := {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"accepted","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+[ASSIGN] Result: tmp_O_3 := {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"accepted","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
 
 [ASSUME] Evaluating: AND(in(ownerEmail, dom(tmp_T_11)), =([](tmp_Roles_7, ownerEmail), OWNER), in(orderId, dom(tmp_O_3)))
   [EVAL] FuncCall: AND with 3 args
@@ -4124,8 +4129,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_11
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 2 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Element: "owner@example.com"
@@ -4160,21 +4165,21 @@ Statement 140: assert()
     [EVAL] Found placeholder __NEEDS_ORDER_ID__, attempting runtime resolution
     [findKeyFromMapInSigma] Searching for prefix: tmp_O_
     [findKeyFromMapInSigma] tmp_O_0 is empty map
-    [findKeyFromMapInSigma] Found tmp_O_1 with 1 entries, key: 696b6ab2ac7475a04fb83557
-    [findKeyFromMapInSigma] Found tmp_O_2 with 1 entries, key: 696b6ab2ac7475a04fb83557
-    [findKeyFromMapInSigma] Found tmp_O_3 with 1 entries, key: 696b6ab2ac7475a04fb83557
+    [findKeyFromMapInSigma] Found tmp_O_1 with 1 entries, key: 697bc690e224c3332dd093c5
+    [findKeyFromMapInSigma] Found tmp_O_2 with 1 entries, key: 697bc690e224c3332dd093c5
+    [findKeyFromMapInSigma] Found tmp_O_3 with 1 entries, key: 697bc690e224c3332dd093c5
     [findKeyFromMapInSigma] tmp_O_4 is empty map
-    [EVAL] Resolved to: 696b6ab2ac7475a04fb83557
+    [EVAL] Resolved to: 697bc690e224c3332dd093c5
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_O_3
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"accepted","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"accepted","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+    [EVAL] Found in sigma: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"accepted","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"accepted","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb83557"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83557"}
-    [EVAL] Element: "696b6ab2ac7475a04fb83557"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83557"}
+    [EVAL] Element: "697bc690e224c3332dd093c5"
+    [EVAL] Set: {"697bc690e224c3332dd093c5"}
+    [EVAL] Element: "697bc690e224c3332dd093c5"
+    [EVAL] Set: {"697bc690e224c3332dd093c5"}
     [EVAL] Element found in set: true
     [EVAL] Arg[2] result: true
     [EVAL] FuncCall result: AND(true, (= "restaurant_owner" OWNER), true)
@@ -4188,18 +4193,18 @@ Statement 140: assert()
     [EVAL] Found in sigma: "owner@example.com"
   [EVAL] Var lookup: orderId
     [EVAL] Resolved base name 'orderId' -> 'orderId11'
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb83557"
+    [EVAL] Found in sigma: "697bc690e224c3332dd093c5"
   [EVAL] Var lookup: orderStatus
     [EVAL] Resolved base name 'orderStatus' -> 'orderStatus11'
     [EVAL] Found in sigma: "preparing"
 [API_CALL] Executing API function: updateOrderStatusOwner
   [API_ARG] "owner@example.com"
-  [API_ARG] "696b6ab2ac7475a04fb83557"
+  [API_ARG] "697bc690e224c3332dd093c5"
   [API_ARG] "preparing"
   [API_CALL] Getting function from factory...
 [Factory] Creating function: updateOrderStatusOwner
   [API_CALL] Executing function...
-[UpdateOrderStatusOwnerFunc] owner@example.com updating order 696b6ab2ac7475a04fb83557 to preparing
+[UpdateOrderStatusOwnerFunc] owner@example.com updating order 697bc690e224c3332dd093c5 to preparing
 [UpdateOrderStatusOwnerFunc] Order status updated
   [API_CALL] Function returned: 200
   [API_CALL] Storing result in variable: _result11
@@ -4230,9 +4235,9 @@ Statement 140: assert()
 [Factory] Creating function: get_T
   [API_CALL] Executing function...
 [GetTFunc] Fetching T...
-  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
   [API_CALL] Storing result in variable: tmp_T_12
-[ASSIGN] Result: tmp_T_12 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+[ASSIGN] Result: tmp_T_12 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
 [SEE] API call 'get_Roles' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_Roles_8 := get_Roles()
@@ -4254,9 +4259,9 @@ Statement 140: assert()
 [Factory] Creating function: get_O
   [API_CALL] Executing function...
 [GetOFunc] Fetching O...
-  [API_CALL] Function returned: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"preparing","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+  [API_CALL] Function returned: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"preparing","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
   [API_CALL] Storing result in variable: tmp_O_4
-[ASSIGN] Result: tmp_O_4 := {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"preparing","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+[ASSIGN] Result: tmp_O_4 := {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"preparing","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
 
 [ASSUME] Evaluating: AND(in(ownerEmail, dom(tmp_T_12)), =([](tmp_Roles_8, ownerEmail), OWNER), in(orderId, dom(tmp_O_4)))
   [EVAL] FuncCall: AND with 3 args
@@ -4270,8 +4275,8 @@ Statement 140: assert()
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_T_12
-    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
-    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MjciLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.9oPrko-wRcPVb1tnXoTu5LtKTk44KLpCxwdIBT0OBcc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTZiNmFiMmFjNzQ3NWEwNGZiODM1MDMiLCJpYXQiOjE3Njg2NDczNDYsImV4cCI6MTc2OTI1MjE0Nn0.Py9dIN5zXHCp6QMCpTjHX4RaBpWA0rv4vlNb0OHL75U"}
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzOTUiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.rVmrv4D8JW122kiYGB4Nx5wIx7sMyYDwUfTvf3JrJRc", owner@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiYzY5MGUyMjRjMzMzMmRkMDkzNzEiLCJpYXQiOjE3Njk3MTk0NDAsImV4cCI6MTc3MDMyNDI0MH0.2rFm-t01WPmmHr_KRyYxJOiaE-Sa0xt2Tvs9I_-bfbY"}
     [EVAL] Domain has 2 keys
     [EVAL] Element: "customer@example.com"
     [EVAL] Element: "owner@example.com"
@@ -4306,21 +4311,21 @@ Statement 140: assert()
     [EVAL] Found placeholder __NEEDS_ORDER_ID__, attempting runtime resolution
     [findKeyFromMapInSigma] Searching for prefix: tmp_O_
     [findKeyFromMapInSigma] tmp_O_0 is empty map
-    [findKeyFromMapInSigma] Found tmp_O_1 with 1 entries, key: 696b6ab2ac7475a04fb83557
-    [findKeyFromMapInSigma] Found tmp_O_2 with 1 entries, key: 696b6ab2ac7475a04fb83557
-    [findKeyFromMapInSigma] Found tmp_O_3 with 1 entries, key: 696b6ab2ac7475a04fb83557
-    [findKeyFromMapInSigma] Found tmp_O_4 with 1 entries, key: 696b6ab2ac7475a04fb83557
-    [EVAL] Resolved to: 696b6ab2ac7475a04fb83557
+    [findKeyFromMapInSigma] Found tmp_O_1 with 1 entries, key: 697bc690e224c3332dd093c5
+    [findKeyFromMapInSigma] Found tmp_O_2 with 1 entries, key: 697bc690e224c3332dd093c5
+    [findKeyFromMapInSigma] Found tmp_O_3 with 1 entries, key: 697bc690e224c3332dd093c5
+    [findKeyFromMapInSigma] Found tmp_O_4 with 1 entries, key: 697bc690e224c3332dd093c5
+    [EVAL] Resolved to: 697bc690e224c3332dd093c5
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
   [EVAL] Var lookup: tmp_O_4
-    [EVAL] Found in sigma: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"preparing","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
-    [EVAL] Map expr evaluated: {696b6ab2ac7475a04fb83557 -> "{"items":[{"menuItem":"696b6ab2ac7475a04fb8351f","price":150,"quantity":2}],"restaurant":"696b6ab2ac7475a04fb83513","status":"preparing","totalAmount":300,"user":"696b6ab2ac7475a04fb83527"}"}
+    [EVAL] Found in sigma: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"preparing","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
+    [EVAL] Map expr evaluated: {697bc690e224c3332dd093c5 -> "{"items":[{"menuItem":"697bc690e224c3332dd0938d","price":150,"quantity":2}],"restaurant":"697bc690e224c3332dd09381","status":"preparing","totalAmount":300,"user":"697bc690e224c3332dd09395"}"}
     [EVAL] Domain has 1 keys
-    [EVAL] Element: "696b6ab2ac7475a04fb83557"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83557"}
-    [EVAL] Element: "696b6ab2ac7475a04fb83557"
-    [EVAL] Set: {"696b6ab2ac7475a04fb83557"}
+    [EVAL] Element: "697bc690e224c3332dd093c5"
+    [EVAL] Set: {"697bc690e224c3332dd093c5"}
+    [EVAL] Element: "697bc690e224c3332dd093c5"
+    [EVAL] Set: {"697bc690e224c3332dd093c5"}
     [EVAL] Element found in set: true
     [EVAL] Arg[2] result: true
     [EVAL] FuncCall result: AND(true, (= "restaurant_owner" OWNER), true)
@@ -4334,18 +4339,18 @@ Statement 140: assert()
     [EVAL] Found in sigma: "owner@example.com"
   [EVAL] Var lookup: orderId
     [EVAL] Resolved base name 'orderId' -> 'orderId12'
-    [EVAL] Found in sigma: "696b6ab2ac7475a04fb83557"
+    [EVAL] Found in sigma: "697bc690e224c3332dd093c5"
   [EVAL] Var lookup: orderStatus
     [EVAL] Resolved base name 'orderStatus' -> 'orderStatus12'
     [EVAL] Found in sigma: "ready"
 [API_CALL] Executing API function: updateOrderStatusOwner
   [API_ARG] "owner@example.com"
-  [API_ARG] "696b6ab2ac7475a04fb83557"
+  [API_ARG] "697bc690e224c3332dd093c5"
   [API_ARG] "ready"
   [API_CALL] Getting function from factory...
 [Factory] Creating function: updateOrderStatusOwner
   [API_CALL] Executing function...
-[UpdateOrderStatusOwnerFunc] owner@example.com updating order 696b6ab2ac7475a04fb83557 to ready
+[UpdateOrderStatusOwnerFunc] owner@example.com updating order 697bc690e224c3332dd093c5 to ready
 [UpdateOrderStatusOwnerFunc] Order status updated
   [API_CALL] Function returned: 200
   [API_CALL] Storing result in variable: _result12
@@ -4360,23 +4365,23 @@ Statement 140: assert()
 
 >>> Resolving placeholders in program AST
     [findKeyFromMapInSigma] Searching for prefix: tmp_R_
-    [findKeyFromMapInSigma] Found tmp_R_3 with 1 entries, returning key: 696b6ab2ac7475a04fb83513
-    [AST RESOLVED] restaurantId3 = "696b6ab2ac7475a04fb83513"
+    [findKeyFromMapInSigma] Found tmp_R_3 with 1 entries, returning key: 697bc690e224c3332dd09381
+    [AST RESOLVED] restaurantId3 = "697bc690e224c3332dd09381"
     [findKeyFromMapInSigma] Searching for prefix: tmp_R_
-    [findKeyFromMapInSigma] Found tmp_R_3 with 1 entries, returning key: 696b6ab2ac7475a04fb83513
-    [AST RESOLVED] restaurantId7 = "696b6ab2ac7475a04fb83513"
+    [findKeyFromMapInSigma] Found tmp_R_3 with 1 entries, returning key: 697bc690e224c3332dd09381
+    [AST RESOLVED] restaurantId7 = "697bc690e224c3332dd09381"
     [findKeyFromMapInSigma] Searching for prefix: tmp_M_
-    [findKeyFromMapInSigma] Found tmp_M_2 with 1 entries, returning key: 696b6ab2ac7475a04fb8351f
-    [AST RESOLVED] menuItemId8 = "696b6ab2ac7475a04fb8351f"
+    [findKeyFromMapInSigma] Found tmp_M_2 with 1 entries, returning key: 697bc690e224c3332dd0938d
+    [AST RESOLVED] menuItemId8 = "697bc690e224c3332dd0938d"
     [findKeyFromMapInSigma] Searching for prefix: tmp_O_
-    [findKeyFromMapInSigma] Found tmp_O_4 with 1 entries, returning key: 696b6ab2ac7475a04fb83557
-    [AST RESOLVED] orderId10 = "696b6ab2ac7475a04fb83557"
+    [findKeyFromMapInSigma] Found tmp_O_4 with 1 entries, returning key: 697bc690e224c3332dd093c5
+    [AST RESOLVED] orderId10 = "697bc690e224c3332dd093c5"
     [findKeyFromMapInSigma] Searching for prefix: tmp_O_
-    [findKeyFromMapInSigma] Found tmp_O_4 with 1 entries, returning key: 696b6ab2ac7475a04fb83557
-    [AST RESOLVED] orderId11 = "696b6ab2ac7475a04fb83557"
+    [findKeyFromMapInSigma] Found tmp_O_4 with 1 entries, returning key: 697bc690e224c3332dd093c5
+    [AST RESOLVED] orderId11 = "697bc690e224c3332dd093c5"
     [findKeyFromMapInSigma] Searching for prefix: tmp_O_
-    [findKeyFromMapInSigma] Found tmp_O_4 with 1 entries, returning key: 696b6ab2ac7475a04fb83557
-    [AST RESOLVED] orderId12 = "696b6ab2ac7475a04fb83557"
+    [findKeyFromMapInSigma] Found tmp_O_4 with 1 entries, returning key: 697bc690e224c3332dd093c5
+    [AST RESOLVED] orderId12 = "697bc690e224c3332dd093c5"
 >>> generateCTC: All placeholders resolved, program is fully concrete
 
 [FINAL CTC]
@@ -4422,7 +4427,7 @@ Statement 37: tmp_R_1 := get_R()
 Statement 38: tmp_Owners_1 := get_Owners()
 Statement 39: assert(AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2), ownerEmail)))
 Statement 40: ownerEmail3 := "owner@example.com"
-Statement 41: restaurantId3 := "696b6ab2ac7475a04fb83513"
+Statement 41: restaurantId3 := "697bc690e224c3332dd09381"
 Statement 42: itemName3 := "Delicious Dish"
 Statement 43: itemPrice3 := 150
 Statement 44: tmp_M_0 := get_M()
@@ -4464,14 +4469,14 @@ Statement 79: assume(in(customerEmail, dom(tmp_T_6)))
 Statement 80: _result6 := browseRestaurants(customerEmail)
 Statement 81: assert()
 Statement 82: customerEmail7 := "customer@example.com"
-Statement 83: restaurantId7 := "696b6ab2ac7475a04fb83513"
+Statement 83: restaurantId7 := "697bc690e224c3332dd09381"
 Statement 84: tmp_T_7 := get_T()
 Statement 85: tmp_R_3 := get_R()
 Statement 86: assume(AND(in(customerEmail, dom(tmp_T_7)), in(restaurantId, dom(tmp_R_3))))
 Statement 87: _result7 := viewMenu(customerEmail, restaurantId)
 Statement 88: assert()
 Statement 89: customerEmail8 := "customer@example.com"
-Statement 90: menuItemId8 := "696b6ab2ac7475a04fb8351f"
+Statement 90: menuItemId8 := "697bc690e224c3332dd0938d"
 Statement 91: quantity8 := 2
 Statement 92: tmp_C_0 := get_C()
 Statement 93: C_old := tmp_C_0
@@ -4496,7 +4501,7 @@ Statement 111: tmp_O_1 := get_O()
 Statement 112: tmp_C_4 := get_C()
 Statement 113: assert(AND(in(_result9, dom(tmp_O_1)), not_in(customerEmail, dom(tmp_C_4))))
 Statement 114: ownerEmail10 := "owner@example.com"
-Statement 115: orderId10 := "696b6ab2ac7475a04fb83557"
+Statement 115: orderId10 := "697bc690e224c3332dd093c5"
 Statement 116: orderStatus10 := "accepted"
 Statement 117: tmp_T_10 := get_T()
 Statement 118: tmp_Roles_6 := get_Roles()
@@ -4505,7 +4510,7 @@ Statement 120: assume(AND(in(ownerEmail, dom(tmp_T_10)), =([](tmp_Roles_6, owner
 Statement 121: _result10 := updateOrderStatusOwner(ownerEmail, orderId, orderStatus)
 Statement 122: assert()
 Statement 123: ownerEmail11 := "owner@example.com"
-Statement 124: orderId11 := "696b6ab2ac7475a04fb83557"
+Statement 124: orderId11 := "697bc690e224c3332dd093c5"
 Statement 125: orderStatus11 := "preparing"
 Statement 126: tmp_T_11 := get_T()
 Statement 127: tmp_Roles_7 := get_Roles()
@@ -4514,7 +4519,7 @@ Statement 129: assume(AND(in(ownerEmail, dom(tmp_T_11)), =([](tmp_Roles_7, owner
 Statement 130: _result11 := updateOrderStatusOwner(ownerEmail, orderId, orderStatus)
 Statement 131: assert()
 Statement 132: ownerEmail12 := "owner@example.com"
-Statement 133: orderId12 := "696b6ab2ac7475a04fb83557"
+Statement 133: orderId12 := "697bc690e224c3332dd093c5"
 Statement 134: orderStatus12 := "ready"
 Statement 135: tmp_T_12 := get_T()
 Statement 136: tmp_Roles_8 := get_Roles()
@@ -4524,5 +4529,5 @@ Statement 139: _result12 := updateOrderStatusOwner(ownerEmail, orderId, orderSta
 Statement 140: assert()
 === End Program ===
 
-✓ Test 15: Register Owner → Login → Create Restaurant → Add 2 Menu Items (Depth=5) COMPLETE!
+✓ Test 15: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartRestaurantOk → placeOrderOk → updateOrderStatusOwnerOk x3 (Depth=13) COMPLETE!
 

@@ -59,7 +59,7 @@ static const std::map<std::string, std::set<std::string>> operationProducesState
     {"addMenuItemOk", {"M"}},
 
     // Customer operations
-    {"addToCartOk", {"C"}},
+    {"addToCartRestaurantOk", {"C"}},
     {"placeOrderOk", {"O"}}, // Creates order, clears cart
 
     // Review operations
@@ -73,6 +73,9 @@ static const std::map<std::string, std::set<std::string>> operationProducesState
     // Read-only operations (produce no new state)
     {"browseRestaurantsOk", {}},
     {"viewMenuOk", {}},
+
+    // Error operations (produce no state - they should fail)
+    {"createRestaurantCustomerErr", {}},
 
     // ========================================
     // E-COMMERCE APP OPERATIONS
@@ -156,7 +159,7 @@ static const std::map<std::string, std::set<std::string>> operationRequiresState
     {"addMenuItemOk", {"R"}},
 
     // Cart operations require menu items to exist
-    // {"addToCartOk", {"M"}},  // Commented - handled by e-commerce below
+    {"addToCartRestaurantOk", {"M"}},
 
     // Order operations require cart to have items
     {"placeOrderOk", {"C"}},
@@ -166,7 +169,8 @@ static const std::map<std::string, std::set<std::string>> operationRequiresState
 
     // Agent assignment requires order to exist
     {"assignOrderOk", {"O"}},
-
+    // Customer trying to create restaurant (requires login but will fail role check)
+    {"createRestaurantCustomerErr", {"U", "T"}}, // Needs user registered and logged in
     // Status update requires assignment
     {"updateOrderStatusAgentOk", {"Assignments"}},
     {"updateOrderStatusOwnerOk", {"O"}},

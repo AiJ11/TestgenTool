@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 06: Register Agent → Login (Depth=2)
+TEST: Test 06: registerOwnerOk → loginOwnerOk → createRestaurantOk → placeOrderOk (Depth=4, Expected UNSAT)
 MODE: Full Pipeline (With Backend)
 DEPTH: 4 API calls
 ========================================
@@ -828,11 +828,17 @@ Statement 53: assert(AND(in(_result3, dom(tmp_O_1)), not_in(customerEmail, dom(t
 
 [SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) OWNER)), And(false, And((= []({}, X4) -1), And(false, false))))))
 
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✗ Operation 'placeOrderOk' requires state 'C' but no prior operation produces it.
+[DEPENDENCY-CHECK] Sequence is TRULY UNSAT.
+
 >>> generateCTC: UNSAT DETECTED!
 >>> Precondition cannot be satisfied with current database state.
 >>> This test sequence requires prerequisite operations.
 
 [RESULT] UNSAT - Test preconditions cannot be satisfied
 
-⊘ Test 06: Register Agent → Login (Depth=2) UNSAT: Preconditions not satisfiable
+⊘ Test 06: registerOwnerOk → loginOwnerOk → createRestaurantOk → placeOrderOk (Depth=4, Expected UNSAT) UNSAT: Preconditions not satisfiable
 

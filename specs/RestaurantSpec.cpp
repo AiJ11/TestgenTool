@@ -340,7 +340,7 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         auto post = make_unique<FuncCall>("in", std::move(inArgs3));
 
         blocks.push_back(make_unique<API>(
-            std::move(pre), std::move(call), Response(std::move(post)), "addToCartOk"
+            std::move(pre), std::move(call), Response(std::move(post)), "addToCartRestaurantOk"
         ));
     }
 
@@ -615,6 +615,49 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         blocks.push_back(make_unique<API>(
             std::move(pre), std::move(call), Response(std::move(post)), "createRestaurantOk"
         ));
+    }
+
+    /* ---------- createRestaurantCustomerErr ---------- */
+    // Tests that a CUSTOMER cannot create a restaurant (requires OWNER role)
+    {
+        // PRE: customerEmail in dom(T) AND Roles[customerEmail] = OWNER
+        // NOTE: This precondition will be UNSAT because customer has role CUSTOMER, not OWNER
+        vector<unique_ptr<Expr>> preArgs;
+
+        // customerEmail in dom(T) - customer is logged in
+        vector<unique_ptr<Expr>> inArgs;
+        inArgs.push_back(make_unique<Var>("customerEmail"));
+        vector<unique_ptr<Expr>> domArgs;
+        domArgs.push_back(make_unique<Var>("T"));
+        inArgs.push_back(make_unique<FuncCall>("dom", std::move(domArgs)));
+        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs)));
+
+        // Roles[customerEmail] = OWNER (will be FALSE - customer has CUSTOMER role!)
+        vector<unique_ptr<Expr>> eqArgs;
+        vector<unique_ptr<Expr>> indexArgs;
+        indexArgs.push_back(make_unique<Var>("Roles"));
+        indexArgs.push_back(make_unique<Var>("customerEmail"));
+        eqArgs.push_back(make_unique<FuncCall>("[]", std::move(indexArgs)));
+        eqArgs.push_back(make_unique<Var>("OWNER"));
+        preArgs.push_back(make_unique<FuncCall>("=", std::move(eqArgs)));
+
+        auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
+
+        // CALL: createRestaurant(customerEmail, restaurantName, restaurantAddress, restaurantContact)
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("customerEmail"));
+        callArgs.push_back(make_unique<Var>("restaurantName"));
+        callArgs.push_back(make_unique<Var>("restaurantAddress"));
+        callArgs.push_back(make_unique<Var>("restaurantContact"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("createRestaurant", std::move(callArgs)),
+            Response(nullptr));
+
+        // POST: true (should never reach here - precondition will fail)
+        auto post = make_unique<Num>(1);
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "createRestaurantCustomerErr"));
     }
 
     /* ---------- addMenuItemOk ---------- */

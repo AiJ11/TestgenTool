@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 03: Browse Restaurants (Depth=1)
+TEST: Test 03: registerCustomerOk → loginWrongPasswordErr (Depth=2)
 MODE: Full Pipeline (With Backend)
 DEPTH: 2 API calls
 ========================================
@@ -342,6 +342,11 @@ Statement 21: assert()
 [ASSERT] Empty assertion, PASSED
 
 [SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) CUSTOMER)), false)))
+
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
 >>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
 
 >>> generateCTC: STEP 3 - Generating values with sigma lookup
@@ -698,5 +703,5 @@ Statement 20: _result1 := login(customerEmail, wrongPassword)
 Statement 21: assert()
 === End Program ===
 
-✓ Test 03: Browse Restaurants (Depth=1) COMPLETE!
+✓ Test 03: registerCustomerOk → loginWrongPasswordErr (Depth=2) COMPLETE!
 

@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 19: Customer Tries Owner Action (Depth=3)
+TEST: Test 19: registerCustomerOk → loginCustomerOk → createRestaurantCustomerErr (Depth=3, Expected UNSAT - Customer Can't Create Restaurant)
 MODE: Full Pipeline (With Backend)
 DEPTH: 3 API calls
 ========================================
@@ -44,21 +44,15 @@ Statement 21: assume(AND(in(customerEmail, dom(tmp_U_3)), =([](tmp_U_4, customer
 Statement 22: _result1 := login(customerEmail, customerPassword)
 Statement 23: tmp_T_1 := get_T()
 Statement 24: assert(=([](tmp_T_1, customerEmail), _result1))
-Statement 25: ownerEmail2 := input()
+Statement 25: customerEmail2 := input()
 Statement 26: restaurantName2 := input()
 Statement 27: restaurantAddress2 := input()
 Statement 28: restaurantContact2 := input()
-Statement 29: tmp_Owners_0 := get_Owners()
-Statement 30: Owners_old := tmp_Owners_0
-Statement 31: tmp_R_0 := get_R()
-Statement 32: R_old := tmp_R_0
-Statement 33: tmp_T_2 := get_T()
-Statement 34: tmp_Roles_2 := get_Roles()
-Statement 35: assume(AND(in(ownerEmail, dom(tmp_T_2)), =([](tmp_Roles_2, ownerEmail), OWNER)))
-Statement 36: _result2 := createRestaurant(ownerEmail, restaurantName, restaurantAddress, restaurantContact)
-Statement 37: tmp_R_1 := get_R()
-Statement 38: tmp_Owners_1 := get_Owners()
-Statement 39: assert(AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2), ownerEmail)))
+Statement 29: tmp_T_2 := get_T()
+Statement 30: tmp_Roles_2 := get_Roles()
+Statement 31: assume(AND(in(customerEmail, dom(tmp_T_2)), =([](tmp_Roles_2, customerEmail), OWNER)))
+Statement 32: _result2 := createRestaurant(customerEmail, restaurantName, restaurantAddress, restaurantContact)
+Statement 33: assert()
 === End Program ===
 
 ========================================
@@ -402,11 +396,11 @@ Statement 39: assert(AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2
 [ASSERT] Result: (= []({}, X4) -1)
 [ASSERT] Adding to path constraints (not fully concrete)
 
-[ASSIGN] Evaluating: ownerEmail2 := input()
-[SEE] Mapping base name 'ownerEmail' -> 'ownerEmail2'
+[ASSIGN] Evaluating: customerEmail2 := input()
+[SEE] Mapping base name 'customerEmail' -> 'customerEmail2'
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X6
-[ASSIGN] Result: ownerEmail2 := X6
+[ASSIGN] Result: customerEmail2 := X6
 
 [ASSIGN] Evaluating: restaurantName2 := input()
 [SEE] Mapping base name 'restaurantName' -> 'restaurantName2'
@@ -425,40 +419,6 @@ Statement 39: assert(AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2
   [EVAL] FuncCall: input with 0 args
     [EVAL] input() returns new symbolic variable: X9
 [ASSIGN] Result: restaurantContact2 := X9
-[SEE] API call 'get_Owners' ready for actual execution
-
-[ASSIGN] Evaluating: tmp_Owners_0 := get_Owners()
-[SEE] Mapping base name 'tmp_Owners_' -> 'tmp_Owners_0'
-[API_CALL] Executing API function: get_Owners
-  [API_CALL] Getting function from factory...
-[Factory] Creating function: get_Owners
-  [API_CALL] Executing function...
-[GetOwnersFunc] Fetching Owners...
-  [API_CALL] Function returned: {}
-  [API_CALL] Storing result in variable: tmp_Owners_0
-[ASSIGN] Result: tmp_Owners_0 := {}
-
-[ASSIGN] Evaluating: Owners_old := tmp_Owners_0
-  [EVAL] Var lookup: tmp_Owners_0
-    [EVAL] Found in sigma: {}
-[ASSIGN] Result: Owners_old := {}
-[SEE] API call 'get_R' ready for actual execution
-
-[ASSIGN] Evaluating: tmp_R_0 := get_R()
-[SEE] Mapping base name 'tmp_R_' -> 'tmp_R_0'
-[API_CALL] Executing API function: get_R
-  [API_CALL] Getting function from factory...
-[Factory] Creating function: get_R
-  [API_CALL] Executing function...
-[GetRFunc] Fetching R...
-  [API_CALL] Function returned: {}
-  [API_CALL] Storing result in variable: tmp_R_0
-[ASSIGN] Result: tmp_R_0 := {}
-
-[ASSIGN] Evaluating: R_old := tmp_R_0
-  [EVAL] Var lookup: tmp_R_0
-    [EVAL] Found in sigma: {}
-[ASSIGN] Result: R_old := {}
 [SEE] API call 'get_T' ready for actual execution
 
 [ASSIGN] Evaluating: tmp_T_2 := get_T()
@@ -483,16 +443,16 @@ Statement 39: assert(AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2
   [API_CALL] Function returned: {}
   [API_CALL] Storing result in variable: tmp_Roles_2
 [ASSIGN] Result: tmp_Roles_2 := {}
-[SEE] Interruption at statement 35
+[SEE] Interruption at statement 31
 
-[ASSUME] Evaluating: AND(in(ownerEmail, dom(tmp_T_2)), =([](tmp_Roles_2, ownerEmail), OWNER))
+[ASSUME] Evaluating: AND(in(customerEmail, dom(tmp_T_2)), =([](tmp_Roles_2, customerEmail), OWNER))
   [EVAL] FuncCall: AND with 2 args
     [EVAL] N-ary AND with 2 args
-    [EVAL] Arg[0]: in(ownerEmail, dom(tmp_T_2))
+    [EVAL] Arg[0]: in(customerEmail, dom(tmp_T_2))
   [EVAL] FuncCall: in with 2 args
     [EVAL] Set membership: in
-  [EVAL] Var lookup: ownerEmail
-    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail2'
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail2'
     [EVAL] Found in sigma: X6
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
@@ -505,15 +465,15 @@ Statement 39: assert(AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2
     [EVAL] Set: {}
     [EVAL] Element not found in set: false
     [EVAL] Arg[0] result: false
-    [EVAL] Arg[1]: =([](tmp_Roles_2, ownerEmail), OWNER)
+    [EVAL] Arg[1]: =([](tmp_Roles_2, customerEmail), OWNER)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
   [EVAL] Var lookup: tmp_Roles_2
     [EVAL] Found in sigma: {}
-  [EVAL] Var lookup: ownerEmail
-    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail2'
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail2'
     [EVAL] Found in sigma: X6
     [EVAL] Map expr evaluated: {}
     [EVAL] Key expr evaluated: X6
@@ -525,12 +485,12 @@ Statement 39: assert(AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2
     [EVAL] FuncCall result: AND(...) = false (short-circuit)
 [ASSUME] Adding constraint: false
 [SEE] API call 'createRestaurant' with symbolic arguments - interruption point
-[SEE] Interruption at statement 36
+[SEE] Interruption at statement 32
 
-[ASSIGN] Evaluating: _result2 := createRestaurant(ownerEmail, restaurantName, restaurantAddress, restaurantContact)
+[ASSIGN] Evaluating: _result2 := createRestaurant(customerEmail, restaurantName, restaurantAddress, restaurantContact)
 [SEE] Mapping base name '_result' -> '_result2'
-  [EVAL] Var lookup: ownerEmail
-    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail2'
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail2'
     [EVAL] Found in sigma: X6
   [EVAL] Var lookup: restaurantName
     [EVAL] Resolved base name 'restaurantName' -> 'restaurantName2'
@@ -547,79 +507,573 @@ Statement 39: assert(AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2
   [API_ARG 2] X8 (symbolic: 1)
   [API_ARG 3] X9 (symbolic: 1)
 [ASSIGN] Result: _result2 := -1 (symbolic placeholder)
-[SEE] API call 'get_R' ready for actual execution
 
-[ASSIGN] Evaluating: tmp_R_1 := get_R()
-[SEE] Mapping base name 'tmp_R_' -> 'tmp_R_1'
-[API_CALL] Executing API function: get_R
+[ASSERT] Empty assertion, PASSED
+
+[SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) CUSTOMER)), And(false, And((= []({}, X4) -1), false)))))
+
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+>>> generateCTC: After symex - Is abstract: 1, Has placeholders: 0
+
+>>> generateCTC: STEP 3 - Generating values with sigma lookup
+    [Found existing] _ -> _
+    [Found existing] tmp_Roles_ -> tmp_Roles_0
+    [Found existing] Roles_old -> Roles_old
+    [Found existing] tmp_U_ -> tmp_U_0
+    [Found existing] U_old -> U_old
+    [Found existing] _result -> _result0
+    [Found existing] tmp_T_ -> tmp_T_0
+    [Found existing] T_old -> T_old
+    customerEmail0 = "customer@example.com"
+    customerPassword0 = "CustomerPass1!"
+    customerFullName0 = "Test Customer"
+    customerMobile0 = "5550000002"
+    customerEmail1 = (reusing customerEmail) "customer@example.com"
+    customerPassword1 = (reusing customerPassword) "CustomerPass1!"
+    customerEmail2 = (reusing customerEmail) "customer@example.com"
+    restaurantName2 = "Test Restaurant"
+    restaurantAddress2 = "123 Restaurant Street"
+    restaurantContact2 = "restaurant@test.com"
+
+>>> generateCTC: STEP 4 - Resolving placeholders from sigma
+
+>>> generateCTC: STEP 5 - Recursing with 10 concrete values
+
+========================================
+>>> generateCTC: Starting iteration
+========================================
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 10
+>>> generateCTC: Is abstract: 1
+>>> generateCTC: Has placeholders: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+
+>>> generateCTC: STEP 2 - Running symbolic execution
+[SEE] API call 'reset' ready for actual execution
+
+[ASSIGN] Evaluating: _ := reset()
+[API_CALL] Executing API function: reset
   [API_CALL] Getting function from factory...
-[Factory] Creating function: get_R
+[Factory] Creating function: reset
   [API_CALL] Executing function...
-[GetRFunc] Fetching R...
-  [API_CALL] Function returned: {}
-  [API_CALL] Storing result in variable: tmp_R_1
-[ASSIGN] Result: tmp_R_1 := {}
-[SEE] API call 'get_Owners' ready for actual execution
+[ResetFunc] Clearing all collections...
+[HttpClient] POST /api/test/reset -> 200
+  [API_CALL] Function returned: 200
+  [API_CALL] Storing result in variable: _
+[ASSIGN] Result: _ := 200
 
-[ASSIGN] Evaluating: tmp_Owners_1 := get_Owners()
-[SEE] Mapping base name 'tmp_Owners_' -> 'tmp_Owners_1'
-[API_CALL] Executing API function: get_Owners
+[ASSIGN] Evaluating: customerEmail0 := "customer@example.com"
+[SEE] Mapping base name 'customerEmail' -> 'customerEmail0'
+  [EVAL] String: "customer@example.com"
+[ASSIGN] Result: customerEmail0 := "customer@example.com"
+
+[ASSIGN] Evaluating: customerPassword0 := "CustomerPass1!"
+[SEE] Mapping base name 'customerPassword' -> 'customerPassword0'
+  [EVAL] String: "CustomerPass1!"
+[ASSIGN] Result: customerPassword0 := "CustomerPass1!"
+
+[ASSIGN] Evaluating: customerFullName0 := "Test Customer"
+[SEE] Mapping base name 'customerFullName' -> 'customerFullName0'
+  [EVAL] String: "Test Customer"
+[ASSIGN] Result: customerFullName0 := "Test Customer"
+
+[ASSIGN] Evaluating: customerMobile0 := "5550000002"
+[SEE] Mapping base name 'customerMobile' -> 'customerMobile0'
+  [EVAL] String: "5550000002"
+[ASSIGN] Result: customerMobile0 := "5550000002"
+[SEE] API call 'get_Roles' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_Roles_0 := get_Roles()
+[SEE] Mapping base name 'tmp_Roles_' -> 'tmp_Roles_0'
+[API_CALL] Executing API function: get_Roles
   [API_CALL] Getting function from factory...
-[Factory] Creating function: get_Owners
+[Factory] Creating function: get_Roles
   [API_CALL] Executing function...
-[GetOwnersFunc] Fetching Owners...
+[GetRolesFunc] Fetching Roles...
   [API_CALL] Function returned: {}
-  [API_CALL] Storing result in variable: tmp_Owners_1
-[ASSIGN] Result: tmp_Owners_1 := {}
-[SEE] Interruption at statement 39
+  [API_CALL] Storing result in variable: tmp_Roles_0
+[ASSIGN] Result: tmp_Roles_0 := {}
 
-[ASSERT] Evaluating: AND(in(_result2, dom(tmp_R_1)), =([](tmp_Owners_1, _result2), ownerEmail))
-  [EVAL] FuncCall: AND with 2 args
-    [EVAL] N-ary AND with 2 args
-    [EVAL] Arg[0]: in(_result2, dom(tmp_R_1))
-  [EVAL] FuncCall: in with 2 args
-    [EVAL] Set membership: in
-  [EVAL] Var lookup: _result2
-    [EVAL] Found in sigma: -1
+[ASSIGN] Evaluating: Roles_old := tmp_Roles_0
+  [EVAL] Var lookup: tmp_Roles_0
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: Roles_old := {}
+[SEE] API call 'get_U' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_U_0 := get_U()
+[SEE] Mapping base name 'tmp_U_' -> 'tmp_U_0'
+[API_CALL] Executing API function: get_U
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_U
+  [API_CALL] Executing function...
+[GetUFunc] Fetching U...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_U_0
+[ASSIGN] Result: tmp_U_0 := {}
+
+[ASSIGN] Evaluating: U_old := tmp_U_0
+  [EVAL] Var lookup: tmp_U_0
+    [EVAL] Found in sigma: {}
+[ASSIGN] Result: U_old := {}
+[SEE] API call 'get_U' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_U_1 := get_U()
+[SEE] Mapping base name 'tmp_U_' -> 'tmp_U_1'
+[API_CALL] Executing API function: get_U
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_U
+  [API_CALL] Executing function...
+[GetUFunc] Fetching U...
+  [API_CALL] Function returned: {}
+  [API_CALL] Storing result in variable: tmp_U_1
+[ASSIGN] Result: tmp_U_1 := {}
+
+[ASSUME] Evaluating: not_in(customerEmail, dom(tmp_U_1))
+  [EVAL] FuncCall: not_in with 2 args
+    [EVAL] Set non-membership: not_in
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+    [EVAL] Found in sigma: "customer@example.com"
   [EVAL] FuncCall: dom with 1 args
     [EVAL] Map domain: dom
-  [EVAL] Var lookup: tmp_R_1
+  [EVAL] Var lookup: tmp_U_1
     [EVAL] Found in sigma: {}
     [EVAL] Map expr evaluated: {}
     [EVAL] Domain has 0 keys
     [EVAL] Set: {}
-    [EVAL] Element: -1
-    [EVAL] Set: {}
-    [EVAL] Element not found in set: false
-    [EVAL] Arg[0] result: false
-    [EVAL] Arg[1]: =([](tmp_Owners_1, _result2), ownerEmail)
+    [EVAL] not_in result: true (element not found)
+[ASSUME] Adding constraint: true
+[SEE] API call 'registerCustomer' ready for actual execution
+
+[ASSIGN] Evaluating: _result0 := registerCustomer(customerEmail, customerPassword, customerFullName, customerMobile)
+[SEE] Mapping base name '_result' -> '_result0'
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] Var lookup: customerPassword
+    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword0'
+    [EVAL] Found in sigma: "CustomerPass1!"
+  [EVAL] Var lookup: customerFullName
+    [EVAL] Resolved base name 'customerFullName' -> 'customerFullName0'
+    [EVAL] Found in sigma: "Test Customer"
+  [EVAL] Var lookup: customerMobile
+    [EVAL] Resolved base name 'customerMobile' -> 'customerMobile0'
+    [EVAL] Found in sigma: "5550000002"
+[API_CALL] Executing API function: registerCustomer
+  [API_ARG] "customer@example.com"
+  [API_ARG] "CustomerPass1!"
+  [API_ARG] "Test Customer"
+  [API_ARG] "5550000002"
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: registerCustomer
+  [API_CALL] Executing function...
+[RegisterCustomerFunc] Registering customer: customer@example.com
+[HttpClient] POST /api/auth/register -> 201
+  [API_CALL] Function returned: 201
+  [API_CALL] Storing result in variable: _result0
+[ASSIGN] Result: _result0 := 201
+[SEE] API call 'get_U' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_U_2 := get_U()
+[SEE] Mapping base name 'tmp_U_' -> 'tmp_U_2'
+[API_CALL] Executing API function: get_U
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_U
+  [API_CALL] Executing function...
+[GetUFunc] Fetching U...
+  [API_CALL] Function returned: {customer@example.com -> "CustomerPass1!"}
+  [API_CALL] Storing result in variable: tmp_U_2
+[ASSIGN] Result: tmp_U_2 := {customer@example.com -> "CustomerPass1!"}
+[SEE] API call 'get_Roles' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_Roles_1 := get_Roles()
+[SEE] Mapping base name 'tmp_Roles_' -> 'tmp_Roles_1'
+[API_CALL] Executing API function: get_Roles
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_Roles
+  [API_CALL] Executing function...
+[GetRolesFunc] Fetching Roles...
+  [API_CALL] Function returned: {customer@example.com -> "customer"}
+  [API_CALL] Storing result in variable: tmp_Roles_1
+[ASSIGN] Result: tmp_Roles_1 := {customer@example.com -> "customer"}
+
+[ASSERT] Evaluating: AND(=([](tmp_U_2, customerEmail), customerPassword), =([](tmp_Roles_1, customerEmail), CUSTOMER))
+  [EVAL] FuncCall: AND with 2 args
+    [EVAL] N-ary AND with 2 args
+    [EVAL] Arg[0]: =([](tmp_U_2, customerEmail), customerPassword)
   [EVAL] FuncCall: = with 2 args
     [EVAL] Equality: Eq
   [EVAL] FuncCall: [] with 2 args
     [EVAL] Map access: []
-  [EVAL] Var lookup: tmp_Owners_1
-    [EVAL] Found in sigma: {}
-  [EVAL] Var lookup: _result2
-    [EVAL] Found in sigma: -1
-    [EVAL] Map expr evaluated: {}
-    [EVAL] Key expr evaluated: -1
-    [EVAL] Key not found in map
-  [EVAL] Var lookup: ownerEmail
-    [EVAL] Resolved base name 'ownerEmail' -> 'ownerEmail2'
-    [EVAL] Found in sigma: X6
+  [EVAL] Var lookup: tmp_U_2
+    [EVAL] Found in sigma: {customer@example.com -> "CustomerPass1!"}
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+    [EVAL] Found in sigma: "customer@example.com"
+    [EVAL] Map expr evaluated: {customer@example.com -> "CustomerPass1!"}
+    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Key found in map, returning value
+  [EVAL] String: "CustomerPass1!"
+  [EVAL] Var lookup: customerPassword
+    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword0'
+    [EVAL] Found in sigma: "CustomerPass1!"
+    [EVAL] Eq result: true
+    [EVAL] Arg[0] result: true
+    [EVAL] Arg[1]: =([](tmp_Roles_1, customerEmail), CUSTOMER)
+  [EVAL] FuncCall: = with 2 args
+    [EVAL] Equality: Eq
+  [EVAL] FuncCall: [] with 2 args
+    [EVAL] Map access: []
+  [EVAL] Var lookup: tmp_Roles_1
+    [EVAL] Found in sigma: {customer@example.com -> "customer"}
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail0'
+    [EVAL] Found in sigma: "customer@example.com"
+    [EVAL] Map expr evaluated: {customer@example.com -> "customer"}
+    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Key found in map, returning value
+  [EVAL] String: "customer"
+  [EVAL] Var lookup: CUSTOMER
+    [EVAL] Not found in sigma, returning as-is
     [EVAL] Symbolic Eq, returning BinaryOpExpr(EQ)
-    [EVAL] Arg[1] result: (= []({}, -1) X6)
-    [EVAL] FuncCall result: AND(...) = false (short-circuit)
-[ASSERT] Result: false
-[ASSERT] ✗ Assertion FAILED
+    [EVAL] Arg[1] result: (= "customer" CUSTOMER)
+    [EVAL] FuncCall result: AND(true, (= "customer" CUSTOMER))
+[ASSERT] Result: AND(true, (= "customer" CUSTOMER))
+[ASSERT] Adding to path constraints (not fully concrete)
 
-[SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) CUSTOMER)), And(false, And((= []({}, X4) -1), false)))))
+[ASSIGN] Evaluating: customerEmail1 := "customer@example.com"
+[SEE] Mapping base name 'customerEmail' -> 'customerEmail1'
+  [EVAL] String: "customer@example.com"
+[ASSIGN] Result: customerEmail1 := "customer@example.com"
 
->>> generateCTC: UNSAT DETECTED!
->>> Precondition cannot be satisfied with current database state.
->>> This test sequence requires prerequisite operations.
+[ASSIGN] Evaluating: customerPassword1 := "CustomerPass1!"
+[SEE] Mapping base name 'customerPassword' -> 'customerPassword1'
+  [EVAL] String: "CustomerPass1!"
+[ASSIGN] Result: customerPassword1 := "CustomerPass1!"
+[SEE] API call 'get_T' ready for actual execution
 
-[RESULT] UNSAT - Test preconditions cannot be satisfied
+[ASSIGN] Evaluating: tmp_T_0 := get_T()
+[SEE] Mapping base name 'tmp_T_' -> 'tmp_T_0'
+[API_CALL] Executing API function: get_T
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_T
+  [API_CALL] Executing function...
+[GetTFunc] Fetching T...
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+  [API_CALL] Storing result in variable: tmp_T_0
+[ASSIGN] Result: tmp_T_0 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
 
-⊘ Test 19: Customer Tries Owner Action (Depth=3) UNSAT: Preconditions not satisfiable
+[ASSIGN] Evaluating: T_old := tmp_T_0
+  [EVAL] Var lookup: tmp_T_0
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+[ASSIGN] Result: T_old := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+[SEE] API call 'get_U' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_U_3 := get_U()
+[SEE] Mapping base name 'tmp_U_' -> 'tmp_U_3'
+[API_CALL] Executing API function: get_U
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_U
+  [API_CALL] Executing function...
+[GetUFunc] Fetching U...
+  [API_CALL] Function returned: {customer@example.com -> "CustomerPass1!"}
+  [API_CALL] Storing result in variable: tmp_U_3
+[ASSIGN] Result: tmp_U_3 := {customer@example.com -> "CustomerPass1!"}
+[SEE] API call 'get_U' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_U_4 := get_U()
+[SEE] Mapping base name 'tmp_U_' -> 'tmp_U_4'
+[API_CALL] Executing API function: get_U
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_U
+  [API_CALL] Executing function...
+[GetUFunc] Fetching U...
+  [API_CALL] Function returned: {customer@example.com -> "CustomerPass1!"}
+  [API_CALL] Storing result in variable: tmp_U_4
+[ASSIGN] Result: tmp_U_4 := {customer@example.com -> "CustomerPass1!"}
+
+[ASSUME] Evaluating: AND(in(customerEmail, dom(tmp_U_3)), =([](tmp_U_4, customerEmail), customerPassword))
+  [EVAL] FuncCall: AND with 2 args
+    [EVAL] N-ary AND with 2 args
+    [EVAL] Arg[0]: in(customerEmail, dom(tmp_U_3))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
+    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_U_3
+    [EVAL] Found in sigma: {customer@example.com -> "CustomerPass1!"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "CustomerPass1!"}
+    [EVAL] Domain has 1 keys
+    [EVAL] Element: "customer@example.com"
+    [EVAL] Set: {"customer@example.com"}
+    [EVAL] Element: "customer@example.com"
+    [EVAL] Set: {"customer@example.com"}
+    [EVAL] Element found in set: true
+    [EVAL] Arg[0] result: true
+    [EVAL] Arg[1]: =([](tmp_U_4, customerEmail), customerPassword)
+  [EVAL] FuncCall: = with 2 args
+    [EVAL] Equality: Eq
+  [EVAL] FuncCall: [] with 2 args
+    [EVAL] Map access: []
+  [EVAL] Var lookup: tmp_U_4
+    [EVAL] Found in sigma: {customer@example.com -> "CustomerPass1!"}
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
+    [EVAL] Found in sigma: "customer@example.com"
+    [EVAL] Map expr evaluated: {customer@example.com -> "CustomerPass1!"}
+    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Key found in map, returning value
+  [EVAL] String: "CustomerPass1!"
+  [EVAL] Var lookup: customerPassword
+    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword1'
+    [EVAL] Found in sigma: "CustomerPass1!"
+    [EVAL] Eq result: true
+    [EVAL] Arg[1] result: true
+    [EVAL] FuncCall result: AND(...) = true
+[ASSUME] Adding constraint: true
+[SEE] API call 'login' ready for actual execution
+
+[ASSIGN] Evaluating: _result1 := login(customerEmail, customerPassword)
+[SEE] Mapping base name '_result' -> '_result1'
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
+    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] Var lookup: customerPassword
+    [EVAL] Resolved base name 'customerPassword' -> 'customerPassword1'
+    [EVAL] Found in sigma: "CustomerPass1!"
+[API_CALL] Executing API function: login
+  [API_ARG] "customer@example.com"
+  [API_ARG] "CustomerPass1!"
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: login
+  [API_CALL] Executing function...
+[LoginFunc] Logging in: customer@example.com
+[HttpClient] POST /api/auth/login -> 200
+[LoginFunc] Token received for: customer@example.com
+  [API_CALL] Function returned: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"
+  [API_CALL] Storing result in variable: _result1
+[ASSIGN] Result: _result1 := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"
+[SEE] API call 'get_T' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_T_1 := get_T()
+[SEE] Mapping base name 'tmp_T_' -> 'tmp_T_1'
+[API_CALL] Executing API function: get_T
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_T
+  [API_CALL] Executing function...
+[GetTFunc] Fetching T...
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+  [API_CALL] Storing result in variable: tmp_T_1
+[ASSIGN] Result: tmp_T_1 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+
+[ASSERT] Evaluating: =([](tmp_T_1, customerEmail), _result1)
+  [EVAL] FuncCall: = with 2 args
+    [EVAL] Equality: Eq
+  [EVAL] FuncCall: [] with 2 args
+    [EVAL] Map access: []
+  [EVAL] Var lookup: tmp_T_1
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail1'
+    [EVAL] Found in sigma: "customer@example.com"
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Key found in map, returning value
+  [EVAL] String: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"
+  [EVAL] Var lookup: _result1
+    [EVAL] Found in sigma: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"
+    [EVAL] Eq result: true
+[ASSERT] Result: true
+[ASSERT] ✓ Assertion PASSED
+
+[ASSIGN] Evaluating: customerEmail2 := "customer@example.com"
+[SEE] Mapping base name 'customerEmail' -> 'customerEmail2'
+  [EVAL] String: "customer@example.com"
+[ASSIGN] Result: customerEmail2 := "customer@example.com"
+
+[ASSIGN] Evaluating: restaurantName2 := "Test Restaurant"
+[SEE] Mapping base name 'restaurantName' -> 'restaurantName2'
+  [EVAL] String: "Test Restaurant"
+[ASSIGN] Result: restaurantName2 := "Test Restaurant"
+
+[ASSIGN] Evaluating: restaurantAddress2 := "123 Restaurant Street"
+[SEE] Mapping base name 'restaurantAddress' -> 'restaurantAddress2'
+  [EVAL] String: "123 Restaurant Street"
+[ASSIGN] Result: restaurantAddress2 := "123 Restaurant Street"
+
+[ASSIGN] Evaluating: restaurantContact2 := "restaurant@test.com"
+[SEE] Mapping base name 'restaurantContact' -> 'restaurantContact2'
+  [EVAL] String: "restaurant@test.com"
+[ASSIGN] Result: restaurantContact2 := "restaurant@test.com"
+[SEE] API call 'get_T' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_T_2 := get_T()
+[SEE] Mapping base name 'tmp_T_' -> 'tmp_T_2'
+[API_CALL] Executing API function: get_T
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_T
+  [API_CALL] Executing function...
+[GetTFunc] Fetching T...
+  [API_CALL] Function returned: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+  [API_CALL] Storing result in variable: tmp_T_2
+[ASSIGN] Result: tmp_T_2 := {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+[SEE] API call 'get_Roles' ready for actual execution
+
+[ASSIGN] Evaluating: tmp_Roles_2 := get_Roles()
+[SEE] Mapping base name 'tmp_Roles_' -> 'tmp_Roles_2'
+[API_CALL] Executing API function: get_Roles
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: get_Roles
+  [API_CALL] Executing function...
+[GetRolesFunc] Fetching Roles...
+  [API_CALL] Function returned: {customer@example.com -> "customer"}
+  [API_CALL] Storing result in variable: tmp_Roles_2
+[ASSIGN] Result: tmp_Roles_2 := {customer@example.com -> "customer"}
+
+[ASSUME] Evaluating: AND(in(customerEmail, dom(tmp_T_2)), =([](tmp_Roles_2, customerEmail), OWNER))
+  [EVAL] FuncCall: AND with 2 args
+    [EVAL] N-ary AND with 2 args
+    [EVAL] Arg[0]: in(customerEmail, dom(tmp_T_2))
+  [EVAL] FuncCall: in with 2 args
+    [EVAL] Set membership: in
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail2'
+    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] FuncCall: dom with 1 args
+    [EVAL] Map domain: dom
+  [EVAL] Var lookup: tmp_T_2
+    [EVAL] Found in sigma: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+    [EVAL] Map expr evaluated: {customer@example.com -> "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdiY2EwNGUyMjRjMzMzMmRkMDk0YzAiLCJpYXQiOjE3Njk3MjAzMjQsImV4cCI6MTc3MDMyNTEyNH0._zKNt1Abl4TfHHa9HBKKrbv4XgQUf0UEH0ZlGN0MiPE"}
+    [EVAL] Domain has 1 keys
+    [EVAL] Element: "customer@example.com"
+    [EVAL] Set: {"customer@example.com"}
+    [EVAL] Element: "customer@example.com"
+    [EVAL] Set: {"customer@example.com"}
+    [EVAL] Element found in set: true
+    [EVAL] Arg[0] result: true
+    [EVAL] Arg[1]: =([](tmp_Roles_2, customerEmail), OWNER)
+  [EVAL] FuncCall: = with 2 args
+    [EVAL] Equality: Eq
+  [EVAL] FuncCall: [] with 2 args
+    [EVAL] Map access: []
+  [EVAL] Var lookup: tmp_Roles_2
+    [EVAL] Found in sigma: {customer@example.com -> "customer"}
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail2'
+    [EVAL] Found in sigma: "customer@example.com"
+    [EVAL] Map expr evaluated: {customer@example.com -> "customer"}
+    [EVAL] Key expr evaluated: "customer@example.com"
+    [EVAL] Key found in map, returning value
+  [EVAL] String: "customer"
+  [EVAL] Var lookup: OWNER
+    [EVAL] Not found in sigma, returning as-is
+    [EVAL] Symbolic Eq, returning BinaryOpExpr(EQ)
+    [EVAL] Arg[1] result: (= "customer" OWNER)
+    [EVAL] FuncCall result: AND(true, (= "customer" OWNER))
+[ASSUME] Adding constraint: AND(true, (= "customer" OWNER))
+[SEE] API call 'createRestaurant' ready for actual execution
+
+[ASSIGN] Evaluating: _result2 := createRestaurant(customerEmail, restaurantName, restaurantAddress, restaurantContact)
+[SEE] Mapping base name '_result' -> '_result2'
+  [EVAL] Var lookup: customerEmail
+    [EVAL] Resolved base name 'customerEmail' -> 'customerEmail2'
+    [EVAL] Found in sigma: "customer@example.com"
+  [EVAL] Var lookup: restaurantName
+    [EVAL] Resolved base name 'restaurantName' -> 'restaurantName2'
+    [EVAL] Found in sigma: "Test Restaurant"
+  [EVAL] Var lookup: restaurantAddress
+    [EVAL] Resolved base name 'restaurantAddress' -> 'restaurantAddress2'
+    [EVAL] Found in sigma: "123 Restaurant Street"
+  [EVAL] Var lookup: restaurantContact
+    [EVAL] Resolved base name 'restaurantContact' -> 'restaurantContact2'
+    [EVAL] Found in sigma: "restaurant@test.com"
+[API_CALL] Executing API function: createRestaurant
+  [API_ARG] "customer@example.com"
+  [API_ARG] "Test Restaurant"
+  [API_ARG] "123 Restaurant Street"
+  [API_ARG] "restaurant@test.com"
+  [API_CALL] Getting function from factory...
+[Factory] Creating function: createRestaurant
+  [API_CALL] Executing function...
+[CreateRestaurantFunc] customer@example.com creating restaurant: Test Restaurant
+[CreateRestaurantFunc] Request body: {
+  "address": {
+    "city": "TestCity",
+    "state": "TestState",
+    "street": "123 Restaurant Street",
+    "zipCode": "12345"
+  },
+  "contact": {
+    "email": "restaurant@test.com",
+    "phone": "1234567890"
+  },
+  "cuisineTypes": [
+    "Indian",
+    "Continental"
+  ],
+  "hours": {
+    "closing": "22:00",
+    "opening": "09:00"
+  },
+  "name": "Test Restaurant"
+}
+[HttpClient] POST /api/restaurants -> 403
+[CreateRestaurantFunc] Response status: 403
+[CreateRestaurantFunc] Error response: {"message":"Access denied. Insufficient permissions."}
+  [API_CALL] Function returned: 403
+  [API_CALL] Storing result in variable: _result2
+[ASSIGN] Result: _result2 := 403
+
+[ASSERT] Empty assertion, PASSED
+
+[SEE] Path Constraint: And(true, And(true, And(AND(true, (= "customer" CUSTOMER)), And(true, AND(true, (= "customer" OWNER))))))
+>>> generateCTC: After symex - Is abstract: 0, Has placeholders: 0
+>>> generateCTC: Program is now fully concrete
+
+[FINAL CTC]
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: customerEmail0 := "customer@example.com"
+Statement 2: customerPassword0 := "CustomerPass1!"
+Statement 3: customerFullName0 := "Test Customer"
+Statement 4: customerMobile0 := "5550000002"
+Statement 5: tmp_Roles_0 := get_Roles()
+Statement 6: Roles_old := tmp_Roles_0
+Statement 7: tmp_U_0 := get_U()
+Statement 8: U_old := tmp_U_0
+Statement 9: tmp_U_1 := get_U()
+Statement 10: assume(not_in(customerEmail, dom(tmp_U_1)))
+Statement 11: _result0 := registerCustomer(customerEmail, customerPassword, customerFullName, customerMobile)
+Statement 12: tmp_U_2 := get_U()
+Statement 13: tmp_Roles_1 := get_Roles()
+Statement 14: assert(AND(=([](tmp_U_2, customerEmail), customerPassword), =([](tmp_Roles_1, customerEmail), CUSTOMER)))
+Statement 15: customerEmail1 := "customer@example.com"
+Statement 16: customerPassword1 := "CustomerPass1!"
+Statement 17: tmp_T_0 := get_T()
+Statement 18: T_old := tmp_T_0
+Statement 19: tmp_U_3 := get_U()
+Statement 20: tmp_U_4 := get_U()
+Statement 21: assume(AND(in(customerEmail, dom(tmp_U_3)), =([](tmp_U_4, customerEmail), customerPassword)))
+Statement 22: _result1 := login(customerEmail, customerPassword)
+Statement 23: tmp_T_1 := get_T()
+Statement 24: assert(=([](tmp_T_1, customerEmail), _result1))
+Statement 25: customerEmail2 := "customer@example.com"
+Statement 26: restaurantName2 := "Test Restaurant"
+Statement 27: restaurantAddress2 := "123 Restaurant Street"
+Statement 28: restaurantContact2 := "restaurant@test.com"
+Statement 29: tmp_T_2 := get_T()
+Statement 30: tmp_Roles_2 := get_Roles()
+Statement 31: assume(AND(in(customerEmail, dom(tmp_T_2)), =([](tmp_Roles_2, customerEmail), OWNER)))
+Statement 32: _result2 := createRestaurant(customerEmail, restaurantName, restaurantAddress, restaurantContact)
+Statement 33: assert()
+=== End Program ===
+
+✓ Test 19: registerCustomerOk → loginCustomerOk → createRestaurantCustomerErr (Depth=3, Expected UNSAT - Customer Can't Create Restaurant) COMPLETE!
 

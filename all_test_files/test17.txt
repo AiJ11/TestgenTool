@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 17: Owner: Register → Login → Create Restaurant → owner tries to place order (Depth=6)
+TEST: Test 17: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartRestaurantOk → placeOrderOk → registerAgentOk → loginAgentOk → updateOrderStatusAgentOk (Depth=13, Expected UNSAT)
 MODE: Full Pipeline (With Backend)
 DEPTH: 13 API calls
 ========================================
@@ -2200,11 +2200,17 @@ Statement 147: assert()
 
 [SEE] Path Constraint: And(true, And(true, And(AND((= []({}, X0) X1), (= []({}, X0) OWNER)), And(false, And((= []({}, X4) -1), And(false, And(false, And(true, And(AND((= []({}, X14) X15), (= []({}, X14) CUSTOMER)), And(false, And((= []({}, X18) -1), And(false, And(false, And(false, And(false, And(true, And(AND((= []({}, X29) X30), (= []({}, X29) AGENT)), And(false, And((= []({}, X33) -1), false)))))))))))))))))))
 
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✗ Operation 'updateOrderStatusAgentOk' requires state 'Assignments' but no prior operation produces it.
+[DEPENDENCY-CHECK] Sequence is TRULY UNSAT.
+
 >>> generateCTC: UNSAT DETECTED!
 >>> Precondition cannot be satisfied with current database state.
 >>> This test sequence requires prerequisite operations.
 
 [RESULT] UNSAT - Test preconditions cannot be satisfied
 
-⊘ Test 17: Owner: Register → Login → Create Restaurant → owner tries to place order (Depth=6) UNSAT: Preconditions not satisfiable
+⊘ Test 17: registerOwnerOk → loginOwnerOk → createRestaurantOk → addMenuItemOk → registerCustomerOk → loginCustomerOk → browseRestaurantsOk → viewMenuOk → addToCartRestaurantOk → placeOrderOk → registerAgentOk → loginAgentOk → updateOrderStatusAgentOk (Depth=13, Expected UNSAT) UNSAT: Preconditions not satisfiable
 

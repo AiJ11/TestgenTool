@@ -1,14 +1,14 @@
 
 ╔════════════════════════════════════════╗
 ║  TESTGEN - RESTAURANT TEST SUITE      ║
-║  Total Tests: 25                       ║
+║  Total Tests: 26                       ║
 ╚════════════════════════════════════════╝
 
 
 === DEPTH TESTS ===
 
 ========================================
-TEST: Test 04: Login (Depth=1)
+TEST: Test 04: loginCustomerOk (Depth=1, Expected UNSAT)
 MODE: Full Pipeline (With Backend)
 DEPTH: 1 API calls
 ========================================
@@ -199,11 +199,17 @@ Statement 10: assert(=([](tmp_T_1, customerEmail), _result0))
 
 [SEE] Path Constraint: And(true, And(false, (= []({}, X0) -1)))
 
+[UNSAT-CHECK] Path constraint contains FALSE - checking dependencies...
+
+[DEPENDENCY-CHECK] Analyzing sequence for true UNSAT...
+[DEPENDENCY-CHECK] ✗ Operation 'loginCustomerOk' requires state 'U' but no prior operation produces it.
+[DEPENDENCY-CHECK] Sequence is TRULY UNSAT.
+
 >>> generateCTC: UNSAT DETECTED!
 >>> Precondition cannot be satisfied with current database state.
 >>> This test sequence requires prerequisite operations.
 
 [RESULT] UNSAT - Test preconditions cannot be satisfied
 
-⊘ Test 04: Login (Depth=1) UNSAT: Preconditions not satisfiable
+⊘ Test 04: loginCustomerOk (Depth=1, Expected UNSAT) UNSAT: Preconditions not satisfiable
 
