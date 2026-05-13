@@ -1,0 +1,66 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — ECOMMERCE BACKEND
+========================================================================
+
+Bug ID       : [ECOM BUG EB1]
+Title        : Bug EB1: POST /api/auth/register returns HTTP 200 instead of 201
+Location     : controllers/authController.js:32
+Mutation     : res.status(201) → res.status(200)
+Test Depth   : 1 API call
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: registerBuyerOk
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION (checked as ASSERT in CTC)
+------------------------------------------------------------------------
+  U'[buyerEmail]=buyerPassword AND Roles'[buyerEmail]=BUYER AND _result=201
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  RegisterBuyerFunc.execute() returns make_unique<Num>(resp.statusCode).
+  With bug: backend returns 200 → factory returns Num(200).
+  Spec postcondition asserts _result == 201. 200 ≠ 201 → ASSERTION FAILS.
+
+  Key failing assertion:
+    =(_result0, 201) → false [backend returned 200 instead of 201]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [RegisterBuyerFunc] Registering buyer: buyer@example.com
+  [HttpClient] POST /api/auth/register -> 200
+  [ASSIGN] Result: _result0 := 200
+  [ASSERT] Evaluating: AND(=([](tmp_U_2, buyerEmail), buyerPassword),
+                           =([](tmp_Roles_1, buyerEmail), BUYER),
+                           =(_result0, 201))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+ABSTRACT TEST CASE (CTC Statements — relevant excerpt)
+------------------------------------------------------------------------
+  Statement 0:  _ := reset()
+  Statement 1:  buyerEmail0 := "buyer@example.com"
+  Statement 2:  buyerPassword0 := "BuyerPass123!"
+  Statement 3:  buyerFullName0 := "Test Buyer"
+  Statement 7:  tmp_U_1 := get_U()
+  Statement 8:  assume(not_in(buyerEmail, dom(tmp_U_1)))
+  Statement 9:  _result0 := registerBuyer(buyerEmail, buyerPassword, buyerFullName)
+  Statement 10: tmp_U_2 := get_U()
+  Statement 11: tmp_Roles_1 := get_Roles()
+  Statement 12: assert(AND(=([](tmp_U_2, buyerEmail), buyerPassword),
+                           =([](tmp_Roles_1, buyerEmail), BUYER),
+                           =(_result0, 201)))   ← FAILS: _result0=200
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug EB1 DETECTED. Mutation Score: 1/1 for this bug.
+  Detection depth: 1 (shallowest possible — single API call).
+
+========================================================================

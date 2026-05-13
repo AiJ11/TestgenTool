@@ -1,0 +1,81 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — ECOMMERCE BACKEND
+========================================================================
+
+Bug ID       : [ECOM BUG EB4]
+Title        : Bug EB4: Order totalAmount ignores item quantity in calculation
+Location     : controllers/orderController.js:23
+Mutation     : const itemTotal = item.product.price * item.quantity
+               →
+               const itemTotal = item.product.price  (quantity factor dropped)
+Test Depth   : 8 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: registerSellerOk
+  Step  2: loginSellerOk
+  Step  3: createProductOk
+  Step  4: registerBuyerOk
+  Step  5: loginBuyerOk
+  Step  6: addToCartOk
+  Step  7: createOrderOk
+  Step  8: checkOrderTotalOk    ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR checkOrderTotalOk
+------------------------------------------------------------------------
+  _result = 1
+
+  (Verifier endpoint GET /api/test/check_order_total/:orderId recomputes
+   expected = sum(items[].price * items[].quantity) using stored order data,
+   then compares with order.totalAmount. Returns {result:1} if correct,
+   HTTP 400 if wrong.)
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With EB4 bug: totalAmount = sum(items[].price) ignoring quantity.
+  Example: product price=99, quantity=2 in cart:
+    Correct totalAmount = 99 * 2 = 198
+    Buggy totalAmount   = 99 * 1 = 99  (quantity dropped)
+  check_order_total endpoint detects the discrepancy → returns HTTP 400.
+  CheckOrderTotalFunc receives statusCode 400 → returns Num(400).
+  Spec asserts _result == 1. 400 ≠ 1 → ASSERTION FAILS.
+
+  Key failing assertion:
+    =(_result7, 1) → false [verifier endpoint returned 400: totalAmount WRONG]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [CheckOrderTotalFunc] Checking order totalAmount for orderId: <orderId>
+  [CheckOrderTotalFunc] Response status: 400
+  [CheckOrderTotalFunc] body: {"result":0,"message":"totalAmount is WRONG",
+    "expected":198,"actual":99,
+    "items":[{"price":99,"quantity":2,"lineTotal":198}]}
+  [ASSERT] Evaluating: =(_result7, 1)
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+  (In the simultaneous all-bugs run, EB2 cascade also fires at step 3.
+   The checkOrderTotal verifier endpoint independently confirms EB4.)
+
+------------------------------------------------------------------------
+BACKEND VERIFICATION ENDPOINT (added to testRoutes.js)
+------------------------------------------------------------------------
+  GET /api/test/check_order_total/:orderId
+    → Fetches order from DB
+    → Recomputes expected = order.items.reduce((s,i) => s + i.price*i.quantity, 0)
+    → Compares with order.totalAmount
+    → Returns {result:1} if correct, HTTP 400 + details if wrong
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug EB4 DETECTED. Detection depth: 8.
+  Strategy: arithmetic bugs require a server-side verification helper that
+  recomputes the correct value and compares with the stored value.
+
+========================================================================

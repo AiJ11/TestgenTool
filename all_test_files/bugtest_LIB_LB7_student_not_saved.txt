@@ -1,0 +1,62 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — LIBRARY BACKEND
+========================================================================
+
+Bug ID       : [LIB BUG LB7]
+Title        : Bug LB7: Student not saved — saveStudent returns without persisting
+Location     : service/StudentService.java:40
+Mutation     : return studentDAO.saveStudent(student)
+               →
+               return student;  [studentDAO.saveStudent never called]
+Test Depth   : 1 API call
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: saveStudentOk     ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR saveStudentOk
+------------------------------------------------------------------------
+  in(_result, dom(S'))
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With LB7 bug: saveStudent() returns the incoming student object without
+  calling studentDAO.saveStudent(). The controller had already called
+  student.setId(0), so the returned student has id=0 (auto-increment was
+  never triggered by a DB INSERT).
+  SaveStudentFunc receives the response, parses id=0, stores "0" in S_cache,
+  and returns String("0").
+  The spec asserts in("0", dom(S')). S' = get_S() fetches live DB state.
+  No student with id=0 exists in the DB → "0" NOT in S' → ASSERTION FAILS.
+
+  Key failing assertion:
+    in(_result0, dom(tmp_S_1)) → false [id=0 returned, not persisted in DB]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [SaveStudentFunc] Creating student: Test Student 5
+  [SaveStudentFunc] Using /student/save?userId=5
+  [HttpClient] POST /student/save?userId=5 -> 200
+  [SaveStudentFunc] Created student with id: 0   ← id=0, NOT saved to DB
+  [ASSIGN] Result: _result0 := "0"
+  [GetSFunc] Fetching S (Students)...
+  [GetSFunc] (empty — no student with id=0 in DB)
+  [ASSERT] Evaluating: in(_result0, dom(tmp_S_1))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug LB7 DETECTED. Detection depth: 1.
+  Strategy: save-without-persist bugs are caught by postconditions that
+  check in(_result, dom(S')). The unsaved entity gets id=0 from the
+  uninitialized object, which doesn't exist in the live DB. get_S()
+  confirms the absence → assertion fails immediately.
+
+========================================================================

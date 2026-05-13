@@ -277,6 +277,27 @@ public:
     unique_ptr<Expr> execute() override;
 };
 
+// ========== EB4 DETECTION: Verify order totalAmount = sum(price * quantity) ==========
+class CheckOrderTotalFunc : public EcommerceAPIFunction {
+public:
+    CheckOrderTotalFunc(EcommerceFunctionFactory* factory, vector<Expr*> args);
+    unique_ptr<Expr> execute() override;
+};
+
+// ========== EB6 DETECTION: Add to cart with quantity = current stock (boundary test) ==========
+class AddToCartMaxStockFunc : public EcommerceAPIFunction {
+public:
+    AddToCartMaxStockFunc(EcommerceFunctionFactory* factory, vector<Expr*> args);
+    unique_ptr<Expr> execute() override;
+};
+
+// ========== EB8 DETECTION: Buyer attempts to delete seller's product ==========
+class DeleteProductByBuyerFunc : public EcommerceAPIFunction {
+public:
+    DeleteProductByBuyerFunc(EcommerceFunctionFactory* factory, vector<Expr*> args);
+    unique_ptr<Expr> execute() override;
+};
+
 /* ============================================================
  * EcommerceFunctionFactory
  * ============================================================ */

@@ -1,0 +1,66 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — LIBRARY BACKEND
+========================================================================
+
+Bug ID       : [LIB BUG LB2]
+Title        : Bug LB2: Book not deleted — deleteBookByCode skips DB removal
+Location     : service/BookService.java:43
+Mutation     : return this.bookDAO.deleteById(book_code)
+               →
+               return book;  [deleteById never called]
+Test Depth   : 2 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: saveBookOk
+  Step  2: deleteBookOk       ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR deleteBookOk
+------------------------------------------------------------------------
+  not_in(bookCode, dom(B'))
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With LB2 bug: deleteBookByCode() finds the book (no exception thrown),
+  returns the book object (HTTP 200), but never calls bookDAO.deleteById().
+  The book remains in the PostgreSQL database.
+  DeleteBookFunc sees resp.statusCode==200, erases bookCode from B_cache.
+  BUT the spec evaluates B' via get_B() which fetches live DB state.
+  The DB still contains the book → bookCode IS in B' → not_in FAILS.
+
+  Note: In the simultaneous all-bugs run, LB8 (saveBook returns new Book()
+  with code=0) fires first at step 1. The cascade from LB8 means the
+  bookCode=0 case dominates. LB2 is independently detectable when run
+  with only LB2 active.
+
+  Key failing assertion:
+    not_in(bookCode, dom(tmp_B_2)) → false [book still in B' after delete]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [SaveBookFunc] Creating book: Test Book 2
+  [HttpClient] POST /books/save -> 200
+  [SaveBookFunc] Created book with code: <bookCode>
+  [ASSIGN] Result: _result0 := "<bookCode>"
+  [DeleteBookFunc] Deleting book: <bookCode>
+  [HttpClient] DELETE /books/deleteBook/<bookCode> -> 200
+  [GetBFunc] Fetching B (Books)...
+  [GetBFunc] <bookCode> -> <bookData>   ← book STILL in DB
+  [ASSERT] Evaluating: not_in(bookCode, dom(tmp_B_2))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug LB2 DETECTED. Detection depth: 2.
+  Strategy: missing side-effect bugs are detected by spec postconditions
+  that check the state that SHOULD have changed. get_B() fetches live
+  DB state; the un-deleted book is caught directly.
+
+========================================================================

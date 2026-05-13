@@ -1,0 +1,84 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — ECOMMERCE BACKEND
+========================================================================
+
+Bug ID       : [ECOM BUG EB6]
+Title        : Bug EB6: Cart rejects orders for exact available stock quantity
+Location     : controllers/cartController.js:13
+Mutation     : if (quantity > product.quantity)  [correct: rejects OVER-stock]
+               →
+               if (quantity >= product.quantity) [bug: rejects AT-STOCK too]
+Test Depth   : 6 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: registerSellerOk
+  Step  2: loginSellerOk
+  Step  3: createProductOk
+  Step  4: registerBuyerOk
+  Step  5: loginBuyerOk
+  Step  6: addToCartMaxStockOk  ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR addToCartMaxStockOk
+------------------------------------------------------------------------
+  _result = 200
+
+  (AddToCartMaxStockFunc fetches current product stock from /api/test/get_Stock,
+   then calls POST /api/cart with quantity = exact_stock_amount.
+   Correct backend (>): exact-stock add is allowed → HTTP 200.
+   Buggy backend (>=): exact-stock triggers "Insufficient stock" → HTTP 400.)
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With EB6 bug: the guard `quantity >= product.quantity` treats an order
+  of exactly the available stock as "insufficient", returning HTTP 400.
+  This is a boundary condition error — the off-by-one in the comparison
+  operator excludes the valid boundary case (quantity == stock).
+
+  AddToCartMaxStockFunc:
+    1. Fetches product stock from GET /api/test/get_Stock → stock = N
+    2. Calls POST /api/cart with { productId, quantity: N }
+    3. Bug: N >= N → true → returns 400 ("Insufficient stock")
+    4. Returns Num(400)
+  Spec asserts _result == 200. 400 ≠ 200 → ASSERTION FAILS.
+
+  Key failing assertion:
+    =(_result5, 200) → false [backend returned 400: exact-stock quantity rejected]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [AddToCartMaxStockFunc] Buyer: buyer@example.com adding max stock qty of product: <productId>
+  [AddToCartMaxStockFunc] Current stock for <productId>: 2
+  [HttpClient] POST /api/cart with quantity=2
+  [AddToCartMaxStockFunc] PUT quantity=2 -> status: 400
+  [ASSIGN] Result: _result5 := 400
+  [ASSERT] Evaluating: =(_result5, 200)
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+  (In the simultaneous all-bugs run, EB2 cascade also fires at step 3.
+   The addToCartMaxStockOk check independently confirms EB6.)
+
+------------------------------------------------------------------------
+FACTORY FUNCTION (added to ecommercefunctionfactory.cc)
+------------------------------------------------------------------------
+  AddToCartMaxStockFunc::execute():
+    1. getCurrentToken(buyerEmail)
+    2. GET /api/test/get_Stock → fetch stockQty for productId
+    3. POST /api/cart { productId, quantity: stockQty }
+    4. return Num(resp.statusCode)
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug EB6 DETECTED. Detection depth: 6.
+  Strategy: boundary condition bugs require a dedicated test that sends
+  the exact boundary value. The factory function fetches current stock
+  and submits exactly that quantity, triggering the off-by-one error.
+
+========================================================================

@@ -1,0 +1,69 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — LIBRARY BACKEND
+========================================================================
+
+Bug ID       : [LIB BUG LB6]
+Title        : Bug LB6: updateBook deletes book instead of updating it
+Location     : service/BookService.java:57-60
+Mutation     : return bookDAO.updateBook(book)
+               →
+               bookDAO.deleteById(book.getBookCode()); return b; [wrong operation]
+Test Depth   : 2 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: saveBookOk
+  Step  2: updateBookOk       ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR updateBookOk
+------------------------------------------------------------------------
+  bookCode in dom(B')
+
+  (Correct backend: updateBook updates fields, book still exists in B'.
+   Buggy backend: deleteById is called, book is REMOVED from B'.)
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With LB6 bug: updateBook() deletes the book via bookDAO.deleteById()
+  before returning the old book object. The PUT /books/updateBook endpoint
+  returns HTTP 200 with the book data, but the underlying record has been
+  deleted from the database.
+  The spec postcondition for updateBookOk asserts bookCode in dom(B').
+  B' = get_B() fetches live DB state. The book is gone → bookCode NOT in
+  B' → in() FAILS → ASSERTION FAILS.
+
+  Note: In the simultaneous all-bugs run, LB8 (saveBook not saved)
+  cascades and fires at step 1. LB6 is independently detectable when
+  run with only LB6 active.
+
+  Key failing assertion (independent run):
+    in(bookCode, dom(tmp_B_2)) → false [book deleted by update, not in B']
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [SaveBookFunc] Creating book: Test Book 5
+  [HttpClient] POST /books/save -> 200
+  [SaveBookFunc] Created book with code: <bookCode>
+  [UpdateBookFunc] Updating book: <bookCode>
+  [HttpClient] PUT /books/updateBook -> 200
+  [GetBFunc] Fetching B (Books)...
+  [GetBFunc] (empty) ← book was DELETED by updateBook
+  [ASSERT] Evaluating: in(bookCode, dom(tmp_B_2))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug LB6 DETECTED. Detection depth: 2.
+  Strategy: wrong operation bugs (delete instead of update) are caught
+  by postconditions that assert the entity still EXISTS after the
+  operation. in(bookCode, dom(B')) fails when deleteById destroys the
+  record that updateBook should have modified.
+
+========================================================================

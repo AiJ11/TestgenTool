@@ -1,0 +1,247 @@
+================================================================================
+TESTGEN — MUTATION BUG DETECTION SUMMARY REPORT
+Restaurant Backend API | http://localhost:5002
+================================================================================
+
+STUDY SETUP
+-----------
+8 mutation bugs were injected into the restaurant backend.
+TestGen was run in FULL_PIPELINE mode against the buggy backend.
+The tool generates Abstract Test Cases (ATCs) from formal specs, executes
+them symbolically via the SEE, solves constraints with Z3, and runs the
+resulting Concrete Test Cases (CTCs) against the live backend.
+Bug detection = a spec postcondition ASSERT fails during CTC execution.
+
+DETECTION RESULTS
+-----------------
+
+  Bug  | Location              | Bug Type              | Detected | Depth
+  -----|----------------------|----------------------|----------|------
+  B1   | routes/auth.js:73     | Wrong HTTP status    |  YES ✓   |   1
+  B2   | routes/restaurants.js | Wrong HTTP status    |  YES ✓   |   3
+  B3   | routes/menu.js:41     | Wrong HTTP status    |  YES ✓   |   4
+  B4   | routes/orders.js:41   | Arithmetic error     |  YES ✓   |  11
+  B5   | routes/orders.js:82   | Missing side-effect  |  YES ✓   |  10
+  B6   | routes/cart.js:129    | Boundary condition   |  YES ✓   |  10
+  B7   | routes/reviews.js:40  | Wrong conditional    |  YES ✓   |  18
+  B8   | models/Cart.js:43     | Arithmetic error     |  YES ✓   |  10
+
+  Mutation Score: 8 / 8 bugs detected (100%)
+
+================================================================================
+DETECTED BUGS — DETAILED ANALYSIS
+================================================================================
+
+[B1] routes/auth.js:73 — POST /api/auth/register returns 200 instead of 201
+---------------------------------------------------------------------------------
+  Mutation     : res.status(201) → res.status(200)
+  Test sequence: registerCustomerOk (depth=1)
+  Spec assert  : =(_result0, 201)
+  How detected : Spec postcondition for registerCustomerOk/registerOwnerOk
+                 enhanced to include _result==201 (in addition to state checks).
+                 Backend returns 200 → factory returns Num(200) → 200≠201 → FAILS.
+  Key evidence :
+    [HttpClient] POST /api/auth/register -> 200
+    [ASSERT] AND(..., =(_result0, 201)) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_B1_register_status_201.txt
+
+[B2] routes/restaurants.js:31 — POST /api/restaurants returns 200 instead of 201
+---------------------------------------------------------------------------------
+  Mutation     : res.status(201) → res.status(200)
+  Test sequence: registerOwnerOk → loginOwnerOk → createRestaurantOk (depth=3)
+  Spec assert  : AND(in(_result2, dom(R')), Owners'[_result2]=ownerEmail)
+  How detected : Factory checks ==201; returns Num(200) on bug.
+                 200 is not a valid restaurantId → not in R' → ASSERTION FAILS.
+  Key evidence :
+    [HttpClient] POST /api/restaurants -> 200
+    [ASSERT] AND(in(_result2, dom(R')), ...) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_B2_create_restaurant_status_201.txt
+
+[B3] routes/menu.js:41 — POST /api/menu returns 200 instead of 201
+---------------------------------------------------------------------------------
+  Mutation     : res.status(201) → res.status(200)
+  Test sequence: → createRestaurantOk → addMenuItemOk (depth=4)
+  Spec assert  : in(_result3, dom(M'))
+  How detected : Same mechanism as B2. 200 is not a menuItemId → ASSERTION FAILS.
+  Key evidence :
+    [HttpClient] POST /api/menu -> 200
+    [ASSERT] in(_result3, dom(M')) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_B3_add_menu_item_status_201.txt
+
+[B4] routes/orders.js:41 — finalAmount missing deliveryFee
+---------------------------------------------------------------------------------
+  Mutation     : totalAmount + deliveryFee + tax → totalAmount + tax
+  Test sequence: Full 10-step order workflow + checkOrderAmountOk (depth=11)
+  Spec assert  : =(_result10, 1)
+  How detected : New spec block checkOrderAmountOk calls GET /api/test/check_order_amount/:orderId.
+                 Backend computes expected = totalAmount + deliveryFee + tax and
+                 compares with stored finalAmount. With B4: expected=208, actual=158.
+                 Endpoint returns 400. Factory returns Num(400). 400≠1 → ASSERTION FAILS.
+  Key evidence :
+    [CheckOrderAmountFunc] Response status: 400
+    body: {"result":0,"message":"finalAmount is WRONG","expected":208,"actual":158,
+           "totalAmount":150,"deliveryFee":50,"tax":8}
+    [ASSERT] =(_result10, 1) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_B4_order_amount_delivery_fee.txt
+
+[B5] routes/orders.js:82 — Cart not cleared after placing order
+---------------------------------------------------------------------------------
+  Mutation     : Cart.findOneAndDelete({user}) → [commented out]
+  Test sequence: Full 10-step workflow ending with placeOrderOk (depth=10)
+  Spec assert  : AND(in(_result9, dom(O')), not_in(customerEmail, dom(C')))
+  How detected : After placeOrderOk, spec asserts customerEmail not_in dom(C').
+                 Backend no longer deletes cart → get_C() fetches live state →
+                 cart still present → ASSERTION FAILS.
+  Key evidence :
+    [HttpClient] POST /api/orders -> 201
+    [PlaceOrderFunc] Order placed: <orderId>
+    [ASSERT] AND(..., not_in(customerEmail, dom(C'))) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_B5_cart_not_cleared_after_order.txt
+
+[B6] routes/cart.js:129 — quantity=0 boundary condition
+---------------------------------------------------------------------------------
+  Mutation     : quantity <= 0 → quantity < 0  (allows zero through express guard)
+  Test sequence: 9-step setup + addToCartQuantityZeroErr (depth=10)
+  Spec assert  : =(_result9, 400)
+  How detected : New spec block addToCartQuantityZeroErr calls PUT /api/cart/:itemId
+                 with quantity=0. CORRECT backend: guard (<=0) returns 400.
+                 BUGGY backend: guard (<0) lets 0 through → reaches mongoose
+                 (schema min:1) → validation fails → returns 500.
+                 500≠400 → ASSERTION FAILS (guard bypass proven by 500 vs 400).
+  Key evidence :
+    [AddToCartQuantityZeroFunc] PUT quantity=0 -> status: 500
+    [ASSERT] =(_result9, 400) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_B6_cart_quantity_zero_boundary.txt
+
+[B7] routes/reviews.js:40 — Review guard inverted
+---------------------------------------------------------------------------------
+  Mutation     : status !== 'delivered' → status !== 'cancelled'
+  Test sequence: Full 18-step delivery flow ending with leaveReviewOk (depth=18)
+  Spec assert  : in(_result17, dom(Rev'))
+  How detected : Order progressed to 'delivered'. With B7, POST /api/reviews returns
+                 400 for delivered orders. Factory returns Num(400). Spec asserts
+                 _result in dom(Rev'). 400 not a reviewId → ASSERTION FAILS.
+  Key evidence :
+    [HttpClient] POST /api/reviews -> 400
+    [ASSERT] in(_result17, dom(Rev')) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_B7_review_guard_inverted.txt
+
+[B8] models/Cart.js:43 — Cart totalAmount ignores item quantity
+---------------------------------------------------------------------------------
+  Mutation     : total + (item.price * item.quantity) → total + item.price
+  Test sequence: 9-step addToCart setup + checkCartTotalOk (depth=10)
+  Spec assert  : =(_result9, 1)
+  How detected : New spec block checkCartTotalOk calls GET /api/test/check_cart_total/:email.
+                 Backend computes expected = sum(item.price * item.quantity) and
+                 compares with stored totalAmount. With B8: 1 item, price=150, qty=2.
+                 Expected=300, actual=150. Returns 400. Num(400)≠1 → ASSERTION FAILS.
+  Key evidence :
+    [CheckCartTotalFunc] Response status: 400
+    body: {"result":0,"message":"Cart total is WRONG","expected":300,"actual":150,
+           "items":[{"price":150,"quantity":2,"lineTotal":300}]}
+    [ASSERT] =(_result9, 1) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_B8_cart_total_ignores_quantity.txt
+
+================================================================================
+HOW TESTGEN DETECTS BUGS — MECHANISM
+================================================================================
+
+  1. SPEC → ATC (Abstract Test Case)
+     Formal spec with preconditions and postconditions compiled into a program
+     with assume() and assert() statements.
+
+  2. ATC → RewriteGlobalsVisitor → TEST-API ATC
+     Global map ops (U[k]=v) rewritten to get/set test-API calls that interact
+     with live backend state.
+
+  3. TEST-API ATC → SEE (Symbolic Execution Engine)
+     First iteration: symbolic variables (X0,X1,...) for all inputs.
+     Z3 finds concrete values satisfying all assume() constraints.
+
+  4. Concrete values → Backend execution
+     Second iteration with Z3-assigned values calls the actual backend.
+     assert() evaluated against real responses. ASSERT FAILED = BUG DETECTED.
+
+  5. CTC (Concrete Test Case) generated showing full sequence with HTTP calls.
+
+================================================================================
+DETECTION STRATEGY PER BUG TYPE
+================================================================================
+
+  Status code bugs (B1, B2, B3):
+    → Add _result == ExpectedCode to spec postcondition.
+    → Factory returns resp.statusCode; spec fails if code is wrong.
+
+  Arithmetic / calculation bugs (B4, B8):
+    → Add a verification helper endpoint to testRoutes.js (check_order_amount,
+      check_cart_total). Endpoint does the correct math and returns 1 or 400.
+    → New spec block calls the verifier; postcondition asserts _result == 1.
+
+  Missing side-effect bugs (B5):
+    → Spec postcondition checks the state that SHOULD have changed.
+    → get_C() fetches live backend state; missing delete is caught directly.
+
+  Boundary condition bugs (B6):
+    → New spec block sends the boundary value (quantity=0) to the update endpoint.
+    → Postcondition asserts _result == 400 (rejection expected).
+    → Bug bypasses guard → DB error (500) or success (200), both ≠ 400 → CAUGHT.
+
+  Wrong conditional guard bugs (B7):
+    → Test sequence exercises the full state machine to reach the guarded state.
+    → Postcondition on the guarded action asserts _result in dom(correctStateMap).
+    → Bug causes wrong HTTP response → assertion fails.
+
+================================================================================
+CODE CHANGES MADE TO TESTGEN TOOL
+================================================================================
+
+  specs/RestaurantSpec.cpp
+    • registerCustomerOk: added _result == 201 to postcondition (B1)
+    • registerOwnerOk: added _result == 201 to postcondition (B1)
+    • Added checkOrderAmountOk spec block (B4)
+    • Added checkCartTotalOk spec block (B8)
+    • Added addToCartQuantityZeroErr spec block (B6)
+
+  see/restaurantfunctionfactory.hh / .cc
+    • CheckOrderAmountFunc: calls GET /api/test/check_order_amount/:orderId
+    • CheckCartTotalFunc: calls GET /api/test/check_cart_total/:email
+    • AddToCartQuantityZeroFunc: calls PUT /api/cart/:menuItemId with quantity=0
+
+  algo.cpp — removethedashexpr()
+    • Added Num, String, BoolConst handling (fix for numeric literals in postconditions)
+
+  test_libapplication.cpp
+    • BugTests namespace: 8 targeted test functions (bugB1_–bugB8_)
+    • B4: sequence ends with checkOrderAmountOk (depth=11)
+    • B6: sequence ends with addToCartQuantityZeroErr (depth=10)
+    • B8: sequence ends with checkCartTotalOk (depth=10)
+
+  routes/testRoutes.js (backend)
+    • GET /api/test/check_order_amount/:orderId — verifies finalAmount arithmetic
+    • GET /api/test/check_cart_total/:email — verifies cart totalAmount arithmetic
+
+================================================================================
+FILES PRODUCED (all_test_files/)
+================================================================================
+
+  bugtest_B1_register_status_201.txt         ← B1 DETECTED (depth 1)
+  bugtest_B2_create_restaurant_status_201.txt ← B2 DETECTED (depth 3)
+  bugtest_B3_add_menu_item_status_201.txt    ← B3 DETECTED (depth 4)
+  bugtest_B4_order_amount_delivery_fee.txt   ← B4 DETECTED (depth 11)
+  bugtest_B5_cart_not_cleared_after_order.txt ← B5 DETECTED (depth 10)
+  bugtest_B6_cart_quantity_zero_boundary.txt ← B6 DETECTED (depth 10)
+  bugtest_B7_review_guard_inverted.txt       ← B7 DETECTED (depth 18)
+  bugtest_B8_cart_total_ignores_quantity.txt ← B8 DETECTED (depth 10)
+  bugtest_SUMMARY_ALL8_BUGS.txt              ← This summary file
+
+  Mutation Score: 8 / 8 (100%)
+
+================================================================================

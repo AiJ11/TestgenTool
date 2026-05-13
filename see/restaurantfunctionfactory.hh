@@ -252,6 +252,27 @@ public:
     unique_ptr<Expr> execute() override;
 };
 
+// ========== B4 DETECTION: Check order finalAmount correctness ==========
+class CheckOrderAmountFunc : public APIFunction {
+public:
+    CheckOrderAmountFunc(RestaurantFunctionFactory* factory, vector<Expr*> args);
+    unique_ptr<Expr> execute() override;
+};
+
+// ========== B8 DETECTION: Check cart totalAmount correctness ==========
+class CheckCartTotalFunc : public APIFunction {
+public:
+    CheckCartTotalFunc(RestaurantFunctionFactory* factory, vector<Expr*> args);
+    unique_ptr<Expr> execute() override;
+};
+
+// ========== B6 DETECTION: Add to cart with quantity=0 (boundary test) ==========
+class AddToCartQuantityZeroFunc : public APIFunction {
+public:
+    AddToCartQuantityZeroFunc(RestaurantFunctionFactory* factory, vector<Expr*> args);
+    unique_ptr<Expr> execute() override;
+};
+
 /* ============================================================
  * RestaurantFunctionFactory
  * ============================================================ */

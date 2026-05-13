@@ -1,0 +1,38 @@
+======================================================================
+TESTGEN MUTATION TESTING — ONE-BUG-AT-A-TIME ISOLATION RESULTS
+======================================================================
+
+RESTAURANT BACKEND — 8/8 detected
+--------------------------------------------------
+  RB1    DETECTED ✓   [Wrong status code]      Registration returns HTTP 200 instead of 201
+  RB2    DETECTED ✓   [Missing side-effect]    Restaurant record not removed after delete call
+  RB3    DETECTED ✓   [Wrong status code]      Menu item creation returns HTTP 200 instead of 201
+  RB4    DETECTED ✓   [Wrong calculation]      Order total missing delivery fee (price+tax only)
+  RB5    DETECTED ✓   [Missing side-effect]    Cart not cleared after order placed
+  RB6    DETECTED ✓   [Wrong conditional]      Review guard checks 'cancelled' instead of 'delivered'
+  RB7    DETECTED ✓   [Wrong calculation]      Cart total ignores quantity (price only, not price×qty)
+  RB8    DETECTED ✓   [Wrong guard]            Cart quantity allows 0 (should reject quantity <= 0)
+
+ECOMMERCE BACKEND — 8/8 detected
+--------------------------------------------------
+  EB1    DETECTED ✓   [Wrong status code]      Register returns HTTP 200 instead of 201
+  EB2    DETECTED ✓   [Save without persist]   Product created but not saved to DB (id=null returned)
+  EB3    DETECTED ✓   [Wrong status code]      Create order returns HTTP 200 instead of 201
+  EB4    DETECTED ✓   [Wrong calculation]      Order total ignores quantity (price only, not price×qty)
+  EB5    DETECTED ✓   [Missing side-effect]    Cart not cleared after order placed
+  EB6    DETECTED ✓   [Wrong guard]            Add to cart rejects order when qty == stock (should allow)
+  EB7    DETECTED ✓   [Wrong conditional]      Review guard inverted: blocks reviews when order exists
+  EB8    DETECTED ✓   [Auth bypass]            Any user can delete any product (seller check removed)
+
+LIBRARY BACKEND — 8/8 detected
+--------------------------------------------------
+  LB8    DETECTED ✓   [Save without persist]   addBook returns new Book() without saving to DB (bookCode=0, not in B')
+  LB2    DETECTED ✓   [Missing side-effect]    deleteBook returns without calling deleteById (book stays in DB)
+  LB6    DETECTED ✓   [Wrong operation]        updateBook calls deleteById instead of updateBook (book deleted on update)
+  LB7    DETECTED ✓   [Save without persist]   saveStudent returns input student without saving to DB (id=0)
+  LB5    DETECTED ✓   [Missing side-effect]    deleteStudent calls getStudentById instead of deleteStudentById
+  LB4    DETECTED ✓   [Missing side-effect]    returnBook calls findBookStudentById instead of deleteBookStudentById
+  LB1    DETECTED ✓   [Missing side-effect]    Request not deleted from DB after loan accepted
+  LB3    DETECTED ✓   [Wrong conditional]      Overlap check inverted: throws error for valid non-overlapping requests
+
+OVERALL MUTATION SCORE: 24/24 (100.0%)

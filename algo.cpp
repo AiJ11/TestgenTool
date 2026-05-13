@@ -109,6 +109,18 @@ unique_ptr<Expr> removethedashexpr(
         return make_unique<FuncCall>(func->name, move(args));
     }
 
+    if (auto num = dynamic_cast<Num*>(expr.get())) {
+        return make_unique<Num>(num->value);
+    }
+
+    if (auto str = dynamic_cast<String*>(expr.get())) {
+        return make_unique<String>(str->value);
+    }
+
+    if (auto bc = dynamic_cast<BoolConst*>(expr.get())) {
+        return make_unique<BoolConst>(bc->value);
+    }
+
     return nullptr;
 }
 

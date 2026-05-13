@@ -1,0 +1,65 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — LIBRARY BACKEND
+========================================================================
+
+Bug ID       : [LIB BUG LB8]
+Title        : Bug LB8: Book not saved — addBook returns empty Book without persisting
+Location     : service/BookService.java:33
+Mutation     : return this.bookDAO.saveBook(book)
+               →
+               return new Book();  [bookDAO.saveBook never called]
+Test Depth   : 1 API call
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: saveBookOk        ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR saveBookOk
+------------------------------------------------------------------------
+  in(_result, dom(B'))
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With LB8 bug: addBook() returns a newly constructed Book() object without
+  calling bookDAO.saveBook(). A default Book has bookCode=0 (uninitialized
+  primitive). The controller set book.setBookCode(0) already, so the
+  returned Book object has bookCode=0.
+  SaveBookFunc receives the response (HTTP 200), parses bookCode=0, stores
+  "0" in B_cache, and returns String("0").
+  The spec asserts in("0", dom(B')). B' = get_B() fetches live DB state.
+  No book with bookCode=0 exists in the DB → "0" NOT in B' → ASSERTION FAILS.
+
+  Key failing assertion:
+    in(_result0, dom(tmp_B_1)) → false [bookCode=0 returned, not persisted in DB]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [SaveBookFunc] Creating book: Test Book 6
+  [HttpClient] POST /books/save -> 200
+  [SaveBookFunc] Created book with code: 0   ← bookCode=0, NOT saved to DB
+  [ASSIGN] Result: _result0 := "0"
+  [GetBFunc] Fetching B (Books)...
+  [GetBFunc] (empty — no book with bookCode=0 in DB)
+  [ASSERT] Evaluating: in(_result0, dom(tmp_B_1))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug LB8 DETECTED. Detection depth: 1.
+  Strategy: save-without-persist bugs are caught by postconditions that
+  check in(_result, dom(B')). The new Book() has bookCode=0, which doesn't
+  exist in the live DB. get_B() confirms the absence → assertion fails
+  at depth=1 (minimal test sequence needed).
+  This bug also CASCADES into all other tests requiring a valid book,
+  because downstream steps receive bookCode=0 which no subsequent
+  operation can find, causing a chain of assertion failures. This is the
+  same cascade pattern as EB2 in the ecommerce study.
+
+========================================================================

@@ -1633,6 +1633,133 @@ unique_ptr<Function> RestaurantFunctionFactory::getFunction(string fname, vector
         return make_unique<UpdateOrderStatusOwnerFunc>(this, args);
     if (fname == "updateOrderStatusAgent")
         return make_unique<UpdateOrderStatusAgentFunc>(this, args);
+    if (fname == "checkOrderAmount")
+        return make_unique<CheckOrderAmountFunc>(this, args);
+    if (fname == "checkCartTotal")
+        return make_unique<CheckCartTotalFunc>(this, args);
+    if (fname == "addToCartQuantityZero")
+        return make_unique<AddToCartQuantityZeroFunc>(this, args);
 
     throw runtime_error("Unknown function: " + fname);
+}
+
+// ========== CHECK ORDER AMOUNT (B4 detection) ==========
+CheckOrderAmountFunc::CheckOrderAmountFunc(RestaurantFunctionFactory *factory, vector<Expr *> args)
+    : APIFunction(factory, args) {}
+
+unique_ptr<Expr> CheckOrderAmountFunc::execute()
+{
+    if (arguments.size() < 1)
+        throw runtime_error("checkOrderAmount requires 1 argument (orderId)");
+
+    string orderId = extractString(arguments[0]);
+
+    cout << "[CheckOrderAmountFunc] Verifying finalAmount for order: " << orderId << endl;
+
+    try
+    {
+        HttpResponse resp = factory->getHttpClient()->get("/api/test/check_order_amount/" + orderId);
+
+        cout << "[CheckOrderAmountFunc] Response status: " << resp.statusCode << " body: " << resp.body << endl;
+
+        if (resp.statusCode == 200)
+        {
+            // finalAmount is correct
+            return make_unique<Num>(1);
+        }
+        // finalAmount is wrong (400) or order not found (404)
+        return make_unique<Num>(resp.statusCode);
+    }
+    catch (const exception &e)
+    {
+        cerr << "[CheckOrderAmountFunc] Error: " << e.what() << endl;
+        return make_unique<Num>(500);
+    }
+}
+
+// ========== CHECK CART TOTAL (B8 detection) ==========
+CheckCartTotalFunc::CheckCartTotalFunc(RestaurantFunctionFactory *factory, vector<Expr *> args)
+    : APIFunction(factory, args) {}
+
+unique_ptr<Expr> CheckCartTotalFunc::execute()
+{
+    if (arguments.size() < 1)
+        throw runtime_error("checkCartTotal requires 1 argument (customerEmail)");
+
+    string email = extractString(arguments[0]);
+
+    cout << "[CheckCartTotalFunc] Verifying cart totalAmount for: " << email << endl;
+
+    try
+    {
+        HttpResponse resp = factory->getHttpClient()->get("/api/test/check_cart_total/" + email);
+
+        cout << "[CheckCartTotalFunc] Response status: " << resp.statusCode << " body: " << resp.body << endl;
+
+        if (resp.statusCode == 200)
+        {
+            // totalAmount is correct
+            return make_unique<Num>(1);
+        }
+        // totalAmount is wrong (400) or not found (404)
+        return make_unique<Num>(resp.statusCode);
+    }
+    catch (const exception &e)
+    {
+        cerr << "[CheckCartTotalFunc] Error: " << e.what() << endl;
+        return make_unique<Num>(500);
+    }
+}
+
+// ========== ADD TO CART WITH QUANTITY=0 (B6 detection) ==========
+AddToCartQuantityZeroFunc::AddToCartQuantityZeroFunc(RestaurantFunctionFactory *factory, vector<Expr *> args)
+    : APIFunction(factory, args) {}
+
+unique_ptr<Expr> AddToCartQuantityZeroFunc::execute()
+{
+    if (arguments.size() < 2)
+        throw runtime_error("addToCartQuantityZero requires 2 arguments (customerEmail, menuItemId)");
+
+    string email = extractString(arguments[0]);
+    string menuItemId = extractString(arguments[1]);
+
+    cout << "[AddToCartQuantityZeroFunc] " << email << " attempting PUT /api/cart/:itemId with quantity=0" << endl;
+
+    try
+    {
+        string token = getCurrentToken(email);
+
+        if (token.empty())
+        {
+            cerr << "[AddToCartQuantityZeroFunc] No token for " << email << endl;
+            return make_unique<Num>(401);
+        }
+
+        // First add item normally so the cart item exists (quantity=1)
+        json addBody = {{"menuItemId", menuItemId}, {"quantity", 1}};
+        HttpResponse addResp = factory->getHttpClient()->post("/api/cart", addBody, {{"Authorization", "Bearer " + token}});
+
+        if (addResp.statusCode != 200)
+        {
+            cerr << "[AddToCartQuantityZeroFunc] Could not add item first: " << addResp.statusCode << endl;
+            return make_unique<Num>(addResp.statusCode);
+        }
+
+        // Now attempt to update that item's quantity to 0 via PUT /api/cart/:itemId
+        json updateBody = {{"quantity", 0}};
+        HttpResponse resp = factory->getHttpClient()->put(
+            "/api/cart/" + menuItemId,
+            updateBody,
+            {{"Authorization", "Bearer " + token}});
+
+        cout << "[AddToCartQuantityZeroFunc] PUT quantity=0 -> status: " << resp.statusCode << endl;
+
+        // Return the status code — spec asserts _result == 400
+        return make_unique<Num>(resp.statusCode);
+    }
+    catch (const exception &e)
+    {
+        cerr << "[AddToCartQuantityZeroFunc] Error: " << e.what() << endl;
+        return make_unique<Num>(500);
+    }
 }

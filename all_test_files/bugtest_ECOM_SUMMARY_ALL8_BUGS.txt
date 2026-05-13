@@ -1,0 +1,253 @@
+================================================================================
+TESTGEN — MUTATION BUG DETECTION SUMMARY REPORT
+E-Commerce Backend API | http://localhost:3000
+================================================================================
+
+STUDY SETUP
+-----------
+8 mutation bugs were injected into the ecommerce backend.
+TestGen was run in FULL_PIPELINE mode against the buggy backend.
+The tool generates Abstract Test Cases (ATCs) from formal specs, executes
+them symbolically via the SEE, solves constraints with Z3, and runs the
+resulting Concrete Test Cases (CTCs) against the live backend.
+Bug detection = a spec postcondition ASSERT fails during CTC execution.
+
+DETECTION RESULTS
+-----------------
+
+  Bug  | Location                        | Bug Type              | Detected | Depth
+  -----|--------------------------------|----------------------|----------|------
+  EB1  | controllers/authController.js:32   | Wrong HTTP status    |  YES ✓   |   1
+  EB2  | controllers/productController.js:21| Wrong HTTP status    |  YES ✓   |   3
+  EB3  | controllers/orderController.js:53  | Wrong HTTP status    |  YES ✓   |   7
+  EB4  | controllers/orderController.js:23  | Arithmetic error     |  YES ✓   |   8
+  EB5  | controllers/orderController.js:50  | Missing side-effect  |  YES ✓   |   7
+  EB6  | controllers/cartController.js:13   | Boundary condition   |  YES ✓   |   6
+  EB7  | controllers/reviewController.js:15 | Wrong conditional    |  YES ✓   |   8
+  EB8  | controllers/productController.js:59| Auth bypass          |  YES ✓   |   6
+
+  Mutation Score: 8 / 8 bugs detected (100%)
+
+================================================================================
+DETECTED BUGS — DETAILED ANALYSIS
+================================================================================
+
+[EB1] controllers/authController.js:32 — POST /api/auth/register returns 200 instead of 201
+---------------------------------------------------------------------------------------------
+  Mutation     : res.status(201) → res.status(200)
+  Test sequence: registerBuyerOk (depth=1)
+  Spec assert  : =(_result0, 201)
+  How detected : Spec postcondition for registerBuyerOk enhanced to include
+                 _result==201 (in addition to state checks U', Roles').
+                 Backend returns 200 → factory returns Num(200) → 200≠201 → FAILS.
+  Key evidence :
+    [HttpClient] POST /api/auth/register -> 200
+    [ASSERT] AND(..., =(_result0, 201)) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_ECOM_EB1_register_status_201.txt
+
+[EB2] controllers/productController.js:21 — POST /api/products returns 200 instead of 201
+---------------------------------------------------------------------------------------------
+  Mutation     : res.status(201) → res.status(200)
+  Test sequence: registerSellerOk → loginSellerOk → createProductOk (depth=3)
+  Spec assert  : AND(in(_result2, dom(P')), Sellers'[_result2]=sellerEmail)
+  How detected : Factory checks ==201; returns String("") on bug.
+                 "" is not a valid productId → not in P' → ASSERTION FAILS.
+  Key evidence :
+    [HttpClient] POST /api/products -> 200
+    [CreateProductFunc] Error response: {product body returned but ignored}
+    [ASSIGN] Result: _result2 := ""
+    [ASSERT] AND(in(_result2, dom(tmp_P_1)), ...) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_ECOM_EB2_create_product_status_201.txt
+
+[EB3] controllers/orderController.js:53 — POST /api/orders returns 200 instead of 201
+---------------------------------------------------------------------------------------------
+  Mutation     : res.status(201) → res.status(200)
+  Test sequence: → addToCartOk → createOrderOk (depth=7)
+  Spec assert  : AND(in(_result6, dom(O')), OrderStatus'[_result6]=PENDING, not_in(buyer, dom(C')))
+  How detected : Factory checks ==201; returns String("") on bug.
+                 "" not in O' → ASSERTION FAILS. (EB2 cascade also fires at step 3.)
+  Key evidence :
+    [HttpClient] POST /api/orders -> 200
+    [ASSERT] AND(in(_result6, dom(tmp_O_1)), ...) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_ECOM_EB3_create_order_status_201.txt
+
+[EB4] controllers/orderController.js:23 — Order totalAmount ignores item quantity
+---------------------------------------------------------------------------------------------
+  Mutation     : const itemTotal = item.product.price * item.quantity
+                 → const itemTotal = item.product.price
+  Test sequence: Full 7-step order workflow + checkOrderTotalOk (depth=8)
+  Spec assert  : =(_result7, 1)
+  How detected : New spec block checkOrderTotalOk calls GET /api/test/check_order_total/:orderId.
+                 Backend recomputes expected = sum(items[].price * items[].quantity) from stored
+                 order data and compares with totalAmount. With EB4: expected=198, actual=99.
+                 Endpoint returns 400. Factory returns Num(400). 400≠1 → ASSERTION FAILS.
+  Key evidence :
+    [CheckOrderTotalFunc] Response status: 400
+    body: {"result":0,"message":"totalAmount is WRONG","expected":198,"actual":99,
+           "items":[{"price":99,"quantity":2,"lineTotal":198}]}
+    [ASSERT] =(_result7, 1) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_ECOM_EB4_order_total_ignores_quantity.txt
+
+[EB5] controllers/orderController.js:50 — Cart not cleared after placing order
+---------------------------------------------------------------------------------------------
+  Mutation     : await Cart.findOneAndDelete({buyer}) → [commented out]
+  Test sequence: Full 7-step workflow ending with createOrderOk (depth=7)
+  Spec assert  : AND(in(_result6, dom(O')), not_in(buyerEmail, dom(C')))
+  How detected : After createOrderOk, spec asserts buyerEmail not_in dom(C').
+                 Backend no longer deletes cart → get_C() fetches live state →
+                 cart still present → ASSERTION FAILS.
+  Key evidence :
+    [HttpClient] POST /api/orders -> 201
+    [CreateOrderFunc] Order placed: <orderId>
+    [GetCFunc] buyer@example.com -> <cartId>  ← cart still exists!
+    [ASSERT] AND(..., not_in(buyerEmail, dom(tmp_C_4))) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_ECOM_EB5_cart_not_cleared_after_order.txt
+
+[EB6] controllers/cartController.js:13 — Boundary condition in stock check
+---------------------------------------------------------------------------------------------
+  Mutation     : quantity > product.quantity → quantity >= product.quantity
+  Test sequence: 5-step setup + addToCartMaxStockOk (depth=6)
+  Spec assert  : =(_result5, 200)
+  How detected : New spec block addToCartMaxStockOk: factory fetches stock from
+                 /api/test/get_Stock and sends POST /api/cart with quantity=stock.
+                 CORRECT backend (>): exact-stock add allowed → 200.
+                 BUGGY backend (>=): exact-stock rejected → 400.
+                 400≠200 → ASSERTION FAILS.
+  Key evidence :
+    [AddToCartMaxStockFunc] Current stock for <productId>: 2
+    [HttpClient] POST /api/cart with quantity=2 -> status: 400
+    [ASSERT] =(_result5, 200) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_ECOM_EB6_cart_boundary_condition.txt
+
+[EB7] controllers/reviewController.js:15 — Review guard inverted
+---------------------------------------------------------------------------------------------
+  Mutation     : if (!order) return 400  →  if (order) return 400
+  Test sequence: Full 8-step flow ending with createReviewOk (depth=8)
+  Spec assert  : in(_result7, dom(Rev'))
+  How detected : With EB7, POST /api/reviews returns 400 for valid-order purchases.
+                 Factory returns String("") on non-201. Spec asserts _result in dom(Rev').
+                 "" not a reviewId → ASSERTION FAILS.
+  Key evidence :
+    [HttpClient] POST /api/reviews -> 400
+    [CreateReviewFunc] Error: "You can only review products you have purchased"
+    [ASSERT] in(_result7, dom(tmp_Rev_1)) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_ECOM_EB7_review_guard_inverted.txt
+
+[EB8] controllers/productController.js:59 — Product delete missing seller auth check
+---------------------------------------------------------------------------------------------
+  Mutation     : findOneAndDelete({ _id, seller: req.user._id })
+                 → findOneAndDelete({ _id })
+  Test sequence: 5-step setup + deleteProductByBuyerErr (depth=6)
+  Spec assert  : =(_result5, 404)
+  How detected : New spec block deleteProductByBuyerErr uses buyer's token to
+                 call DELETE /api/products/:productId on a seller-owned product.
+                 CORRECT: { _id, seller } query fails for buyer → 404.
+                 BUG: { _id } only → product found and deleted → 200.
+                 200≠404 → ASSERTION FAILS.
+  Key evidence :
+    [DeleteProductByBuyerFunc] Buyer attempting to delete product: <productId>
+    [HttpClient] DELETE /api/products/<productId> [buyer token] -> 200
+    [ASSERT] =(_result5, 404) → false
+    [ASSERT] ✗ Assertion FAILED
+  Output file  : bugtest_ECOM_EB8_delete_product_auth_bypass.txt
+
+================================================================================
+HOW TESTGEN DETECTS BUGS — MECHANISM
+================================================================================
+
+  1. SPEC → ATC (Abstract Test Case)
+     Formal spec with preconditions and postconditions compiled into a program
+     with assume() and assert() statements.
+
+  2. ATC → RewriteGlobalsVisitor → TEST-API ATC
+     Global map ops (U[k]=v) rewritten to get/set test-API calls that interact
+     with live backend state.
+
+  3. TEST-API ATC → SEE (Symbolic Execution Engine)
+     First iteration: symbolic variables (X0,X1,...) for all inputs.
+     Z3 finds concrete values satisfying all assume() constraints.
+
+  4. Concrete values → Backend execution
+     Second iteration with Z3-assigned values calls the actual backend.
+     assert() evaluated against real responses. ASSERT FAILED = BUG DETECTED.
+
+  5. CTC (Concrete Test Case) generated showing full sequence with HTTP calls.
+
+================================================================================
+DETECTION STRATEGY PER BUG TYPE
+================================================================================
+
+  Status code bugs (EB1, EB2, EB3):
+    → Add _result == ExpectedCode to spec postcondition (EB1).
+    → Factory returns "" on non-201; spec checks _result in dom(map) (EB2, EB3).
+    → Either way: wrong status → wrong factory return → assertion fails.
+
+  Arithmetic / calculation bugs (EB4):
+    → Add a verification helper endpoint to testRoutes.js (check_order_total).
+    → Endpoint recomputes correct value from stored order data and compares.
+    → New spec block asserts _result == 1 (pass). Bug gives 400 → caught.
+
+  Missing side-effect bugs (EB5):
+    → Spec postcondition checks the state that SHOULD have changed.
+    → not_in(buyerEmail, dom(C')) caught directly via get_C() live state fetch.
+
+  Boundary condition bugs (EB6):
+    → New factory function fetches current stock and sends exact-stock quantity.
+    → Postcondition asserts _result == 200 (acceptance expected).
+    → Bug rejects boundary → 400 ≠ 200 → CAUGHT.
+
+  Wrong conditional guard bugs (EB7):
+    → Spec postcondition asserts _result in dom(Rev') after createReview.
+    → Inverted guard causes HTTP 400 → factory returns "" → in-domain fails.
+
+  Authorization bypass bugs (EB8):
+    → Spec block sends request from unauthorized role (buyer deleting product).
+    → Postcondition asserts _result == 404 (rejection expected).
+    → Bug allows deletion → 200 → 200 ≠ 404 → CAUGHT.
+
+================================================================================
+CODE CHANGES MADE TO TESTGEN TOOL
+================================================================================
+
+  specs/EcommerceSpec.cpp
+    • registerBuyerOk: added _result == 201 to postcondition (EB1)
+    • Added checkOrderTotalOk spec block (EB4)
+    • Added addToCartMaxStockOk spec block (EB6)
+    • Added deleteProductByBuyerErr spec block (EB8)
+
+  see/ecommercefunctionfactory.hh / .cc
+    • CheckOrderTotalFunc: calls GET /api/test/check_order_total/:orderId
+    • AddToCartMaxStockFunc: fetches stock, calls POST /api/cart with qty=stock
+    • DeleteProductByBuyerFunc: calls DELETE /api/products/:id with buyer token
+
+  test_libapplication.cpp
+    • EcomBugTests namespace: 8 targeted test functions (bugEB1_–bugEB8_)
+    • Main updated to run EcomBugTests against http://localhost:3000
+
+  routes/testRoutes.js (ecommerce backend)
+    • GET /api/test/check_order_total/:orderId — verifies totalAmount arithmetic
+
+================================================================================
+FILES PRODUCED (all_test_files/)
+================================================================================
+
+  bugtest_ECOM_EB1_register_status_201.txt        ← EB1 DETECTED (depth 1)
+  bugtest_ECOM_EB2_create_product_status_201.txt  ← EB2 DETECTED (depth 3)
+  bugtest_ECOM_EB3_create_order_status_201.txt    ← EB3 DETECTED (depth 7)
+  bugtest_ECOM_EB4_order_total_ignores_quantity.txt ← EB4 DETECTED (depth 8)
+  bugtest_ECOM_EB5_cart_not_cleared_after_order.txt ← EB5 DETECTED (depth 7)
+  bugtest_ECOM_EB6_cart_boundary_condition.txt    ← EB6 DETECTED (depth 6)
+  bugtest_ECOM_EB7_review_guard_inverted.txt      ← EB7 DETECTED (depth 8)
+  bugtest_ECOM_EB8_delete_product_auth_bypass.txt ← EB8 DETECTED (depth 6)
+  bugtest_ECOM_SUMMARY_ALL8_BUGS.txt              ← This summary file
+
+  Mutation Score: 8 / 8 (100%)
+
+================================================================================

@@ -1,0 +1,132 @@
+[ASSERT] ✓ Assertion PASSED
+✓ [SAT] Test 01: Register User (Depth=1) COMPLETE!
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+✓ [SAT] Test 02: Register Two Users (Depth=2) COMPLETE!
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+✓ [SAT] Test 03: Register User + Device (Depth=2) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 04: Register → Device → GetMyDevices (Depth=3) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 05: Register → Device → GetDeviceInfo (Depth=3) COMPLETE!
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+✓ [SAT] Test 06: Register → Device → CreateSession (Depth=3) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+✓ [SAT] Test 07: Two Users → Device → Session → Join (Depth=5) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 08: Register → Device → Session → GetSessions (Depth=4) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+✓ [SAT] Test 09: Register → Device → Session → Terminate (Depth=4) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 10: Register → Device → DeleteDevice (Depth=3) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+✓ [SAT] Test 11: Two Users → Device → Session → Join → GetOtherDevices (Depth=6) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+✓ [SAT] Test 12: Register → Device → Session → UpdatePermissions (Depth=4) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 13: GetDeviceInfo Forbidden (no device, Depth=1) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 14: CreateSession Forbidden (no device, Depth=1) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 15: JoinSession NotFound (no session, Depth=1) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 16: TerminateSession Forbidden (no session, Depth=1) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+✓ [SAT] Test 17: Full Session Lifecycle (Depth=6) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 18: Register → Device → GetMyDevices → Session → GetSessions (Depth=5) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+✓ [SAT] Test 19: Register → Device → DeviceInfo → CreateSession (Depth=4) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+✓ [SAT] Test 20: Two Users → Device → Session → Join → UpdatePermissions (Depth=6) COMPLETE!
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[ASSERT] ✓ Assertion PASSED (numeric true)
+[DEPENDENCY-CHECK] ✓ All dependencies satisfied - sequence is potentially satisfiable.
+✓ [SAT] Test 21: Register → Device → Session → GetSessions → Terminate (Depth=5) COMPLETE!
+⊘ [UNSAT] Test 22: CreateSession alone — no device (Expected UNSAT) UNSAT: Preconditions not satisfiable
+[ASSERT] ✓ Assertion PASSED (numeric true)
+⊘ [UNSAT] Test 23: JoinSession alone — no session (Expected UNSAT) UNSAT: Preconditions not satisfiable
+[ASSERT] ✓ Assertion PASSED (numeric true)
+⊘ [UNSAT] Test 24: TerminateSession alone — no session (Expected UNSAT) UNSAT: Preconditions not satisfiable
+[ASSERT] ✓ Assertion PASSED (numeric true)
+⊘ [UNSAT] Test 25: GetDeviceInfo alone — no device (Expected UNSAT) UNSAT: Preconditions not satisfiable
+║  ALL GHOSTSOCKET TESTS COMPLETE        ║

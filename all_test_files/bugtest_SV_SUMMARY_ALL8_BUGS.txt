@@ -1,0 +1,16 @@
+======================================================================
+SERVEEZ MUTATION TESTING — ONE-BUG-AT-A-TIME RESULTS
+======================================================================
+
+SERVEEZ BACKEND — 8/8 detected
+--------------------------------------------------
+  SVB1   DETECTED   ✓   [Wrong role]   createCategory: wrong role — ADMIN role changed to PROVIDER
+  SVB2   DETECTED   ✓   [Logic inversion]   createCategory: inverted duplicate-name check — always throws on new names
+  SVB3   DETECTED   ✓   [Wrong role]   createListing: wrong role — PROVIDER role changed to ADMIN
+  SVB4   DETECTED   ✓   [Logic inversion]   createListing: inverted category-exists check — throws when category IS valid
+  SVB5   DETECTED   ✓   [Wrong role]   createBooking: wrong role — USER role changed to PROVIDER
+  SVB6   DETECTED   ✓   [Logic inversion]   createBooking: inverted isActive check — throws when listing IS active
+  SVB7   DETECTED   ✓   [Wrong value]   createListing: sets isActive=false — listing inactive, so booking later fails
+  SVB8   DETECTED   ✓   [Wrong HTTP method]   createCategory: wrong HTTP method — POST mapped as GET, returns 405
+
+OVERALL MUTATION SCORE: 8/8 (100.0%)

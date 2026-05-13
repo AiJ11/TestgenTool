@@ -1,0 +1,68 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — ECOMMERCE BACKEND
+========================================================================
+
+Bug ID       : [ECOM BUG EB7]
+Title        : Bug EB7: Review guard inverted — blocks reviews for valid orders
+Location     : controllers/reviewController.js:15
+Mutation     : if (!order) { return res.status(400)... }  [correct: reject if no order]
+               →
+               if (order) { return res.status(400)... }   [bug: reject if order EXISTS]
+Test Depth   : 8 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: registerSellerOk
+  Step  2: loginSellerOk
+  Step  3: createProductOk
+  Step  4: registerBuyerOk
+  Step  5: loginBuyerOk
+  Step  6: addToCartOk
+  Step  7: createOrderOk
+  Step  8: createReviewOk       ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR createReviewOk
+------------------------------------------------------------------------
+  in(_result7, dom(Rev'))
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With EB7 bug: the guard `if (order)` rejects the review precisely when
+  a valid order IS found — the exact opposite of the intended logic.
+  Result: POST /api/reviews returns 400 for all legitimate reviews.
+  CreateReviewFunc only extracts reviewId if resp.statusCode == 201.
+  Bug makes backend return 400 → factory returns make_unique<String>("").
+  Spec asserts _result in dom(Rev'). "" is not a reviewId → ASSERTION FAILS.
+
+  Key failing assertion:
+    in(_result7, dom(tmp_Rev_1)) → false [review rejected; factory returned ""]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [CreateReviewFunc] buyer@example.com reviewing product: <productId>
+  [HttpClient] POST /api/reviews -> 400
+  [CreateReviewFunc] Error response: {"error":"You can only review products you have purchased"}
+  [ASSIGN] Result: _result7 := ""
+  [ASSERT] Evaluating: in(_result7, dom(tmp_Rev_1))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+  (In the simultaneous all-bugs run, EB2 cascade fires at step 3.
+   The createReview check independently confirms EB7:
+   POST /api/reviews → 400 → factory returns "" → in("", dom(Rev')) → false.)
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug EB7 DETECTED. Detection depth: 8.
+  Strategy: wrong conditional guard bugs are caught when the spec postcondition
+  asserts that the result of the guarded action lands in the correct state map
+  (Rev'). The inverted guard prevents the review from being created, causing
+  the factory to return an empty string that fails the in-domain check.
+
+========================================================================
