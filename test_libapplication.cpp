@@ -10,12 +10,18 @@
 #include "see/restaurantfunctionfactory.hh"
 #include "see/ecommercefunctionfactory.hh"
 #include "see/libraryfunctionfactory.hh"
+#include "see/tripvaultfunctionfactory.hh"
+#include "see/ghostsocketfunctionfactory.hh"
+#include "see/serveezfunctionfactory.hh"
 #include "see/see.hh"
 
 // Import webapp-specific specs
 #include "specs/RestaurantSpec.hpp"
 #include "specs/EcommerceSpec.hpp"
 #include "specs/LibrarySpec.hpp"
+#include "specs/TripVaultSpec.hpp"
+#include "specs/GhostSocketSpec.hpp"
+#include "specs/ServeezSpec.hpp"
 
 using namespace std;
 
@@ -414,6 +420,999 @@ private:
         delete valueEnv;
     }
 };
+
+// ============================================
+// TRIPVAULT TEST EXECUTOR
+// ============================================
+
+class TripVaultTestExecutor
+{
+private:
+    TestMode mode;
+    string backendUrl;
+
+public:
+    TripVaultTestExecutor(TestMode m, const string &url = "http://localhost:4001")
+        : mode(m), backendUrl(url) {}
+
+    void runTest(
+        const string &testName,
+        unique_ptr<Spec> spec,
+        const vector<string> &testSequence)
+    {
+        cout << "\n========================================" << endl;
+        cout << "TEST: " << testName << endl;
+        cout << "MODE: " << getModeString() << endl;
+        cout << "DEPTH: " << testSequence.size() << " API calls" << endl;
+        cout << "========================================\n" << endl;
+
+        try
+        {
+            switch (mode)
+            {
+            case TestMode::ORIGINAL:
+                runOriginal(std::move(spec), testSequence);
+                break;
+            case TestMode::REWRITE_ONLY:
+                runRewriteOnly(std::move(spec), testSequence);
+                break;
+            case TestMode::FULL_PIPELINE:
+                runFullPipeline(std::move(spec), testSequence);
+                break;
+            }
+            cout << "\n✓ " << testName << " COMPLETE!\n" << endl;
+        }
+        catch (const runtime_error &e)
+        {
+            string errorMsg = e.what();
+            if (errorMsg.find("UNSAT") != string::npos)
+            {
+                cout << "\n⊘ " << testName << " UNSAT: Preconditions not satisfiable\n" << endl;
+            }
+            else
+            {
+                cout << "\n✗ " << testName << " FAILED: " << errorMsg << "\n" << endl;
+            }
+        }
+        catch (const exception &e)
+        {
+            cout << "\n✗ " << testName << " FAILED: " << e.what() << "\n" << endl;
+        }
+    }
+
+private:
+    string getModeString()
+    {
+        switch (mode)
+        {
+        case TestMode::ORIGINAL:    return "Original (No Rewrite)";
+        case TestMode::REWRITE_ONLY: return "Rewrite Only (No Backend)";
+        case TestMode::FULL_PIPELINE: return "Full Pipeline (With Backend)";
+        }
+        return "Unknown";
+    }
+
+    void runOriginal(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        Program atc = genATC(*spec, ts);
+        PrintVisitor printer;
+        printer.visitProgram(atc);
+    }
+
+    void runRewriteOnly(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        auto factory = make_unique<TripVault::TripVaultFunctionFactory>(backendUrl);
+        Tester tester(factory.get());
+        unique_ptr<Program> testApiATC = tester.generateATC(std::move(spec), ts);
+    }
+
+    void runFullPipeline(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        SymbolTable *symbolTable = new SymbolTable(nullptr);
+
+        auto factory = make_unique<TripVault::TripVaultFunctionFactory>(backendUrl);
+        Tester tester(factory.get());
+
+        unique_ptr<Program> testApiATC = tester.generateATC(std::move(spec), ts);
+
+        vector<Expr *> inputVars;
+        ValueEnvironment *valueEnv = new ValueEnvironment(nullptr);
+
+        unique_ptr<Program> ctc = tester.generateCTC(
+            std::move(testApiATC),
+            inputVars,
+            valueEnv);
+
+        if (!ctc)
+        {
+            cout << "\n[RESULT] UNSAT - Test preconditions cannot be satisfied" << endl;
+            delete symbolTable;
+            delete valueEnv;
+            throw runtime_error("UNSAT: Preconditions not satisfiable");
+        }
+
+        cout << "\n[FINAL CTC]" << endl;
+        PrintVisitor printer;
+        printer.visitProgram(*ctc);
+
+        delete symbolTable;
+        delete valueEnv;
+    }
+};
+
+// ============================================
+// 25 TRIPVAULT TESTS (21 SAT + 4 UNSAT)
+// ============================================
+
+namespace TripVaultTests
+{
+
+// SAT-01: Register + Login (Depth=2)
+void test01_registerLogin(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 01: Register → Login (Depth=2)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk"});
+}
+
+// SAT-02: Register + Login + Create Trip (Depth=3)
+void test02_createTrip(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 02: Register → Login → Create Trip (Depth=3)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk"});
+}
+
+// SAT-03: Register + Login + Create Trip + Get Trips (Depth=4)
+void test03_getUserTrips(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 03: Register → Login → Create Trip → Get Trips (Depth=4)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "getUserTripsOk"});
+}
+
+// SAT-04: Update Trip (Depth=4)
+void test04_updateTrip(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 04: Register → Login → Create Trip → Update Trip (Depth=4)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "updateTripAdminOk"});
+}
+
+// SAT-05: Delete Trip (Depth=4)
+void test05_deleteTrip(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 05: Register → Login → Create Trip → Delete Trip (Depth=4)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "deleteTripOk"});
+}
+
+// SAT-06: Two Users → Create Trip → Add Member (Depth=6)
+void test06_addMember(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 06: Two Users → Create Trip → Add Member (Depth=6)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk",
+         "registerUser2Ok", "loginUser2Ok", "addMemberOk"});
+}
+
+// SAT-07: Two Users → Create Trip → Join By Invite (Depth=6)
+void test07_joinByInvite(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 07: Two Users → Create Trip → Join By Invite (Depth=6)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk",
+         "registerUser2Ok", "loginUser2Ok", "joinByInviteOk"});
+}
+
+// SAT-08: Create Expense (Depth=4)
+void test08_createExpense(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 08: Register → Login → Create Trip → Create Expense (Depth=4)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "createExpenseOk"});
+}
+
+// SAT-09: Get Expenses (Depth=5)
+void test09_getExpenses(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 09: Create Trip → Create Expense → Get Expenses (Depth=5)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "createExpenseOk", "getExpensesOk"});
+}
+
+// SAT-10: Delete Expense (Depth=5)
+void test10_deleteExpense(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 10: Create Trip → Create Expense → Delete Expense (Depth=5)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "createExpenseOk", "deleteExpenseOk"});
+}
+
+// SAT-11: Create Proposal (Depth=4)
+void test11_createProposal(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 11: Create Trip → Create Proposal (Depth=4)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "createProposalOk"});
+}
+
+// SAT-12: Get Proposals (Depth=5)
+void test12_getProposals(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 12: Create Trip → Create Proposal → Get Proposals (Depth=5)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "createProposalOk", "getProposalsOk"});
+}
+
+// SAT-13: Delete Proposal (Depth=5)
+void test13_deleteProposal(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 13: Create Trip → Create Proposal → Delete Proposal (Depth=5)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "createProposalOk", "deleteProposalOk"});
+}
+
+// SAT-14: Multiple Expenses (Depth=6)
+void test14_multipleExpenses(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 14: Create Trip → Create 3 Expenses (Depth=6)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk",
+         "createExpenseOk", "createExpenseOk", "createExpenseOk"});
+}
+
+// SAT-15: Multiple Trips (Depth=5)
+void test15_multipleTrips(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 15: Register → Login → Create 2 Trips → Get Trips (Depth=5)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "createTripOk", "getUserTripsOk"});
+}
+
+// SAT-16: Expense + Proposal (Depth=5)
+void test16_expenseAndProposal(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 16: Create Trip → Create Expense → Create Proposal (Depth=5)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk", "createExpenseOk", "createProposalOk"});
+}
+
+// SAT-17: Multi-User Add Member Then Create Expense (Depth=7)
+void test17_memberCreatesExpense(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 17: Two Users → Add Member → Create Expense (Depth=7)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk",
+         "registerUser2Ok", "loginUser2Ok", "addMemberOk", "createExpenseOk"});
+}
+
+// SAT-18: Full Trip Lifecycle (Depth=7)
+void test18_fullTripLifecycle(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 18: Full Lifecycle: Create→Expense→Proposal→Delete Both (Depth=7)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk",
+         "createExpenseOk", "createProposalOk",
+         "deleteExpenseOk", "deleteProposalOk"});
+}
+
+// SAT-19: Join Then Create Expense (Depth=7)
+void test19_joinAndCreateExpense(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 19: Multi-User Join → Create Expense (Depth=7)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk",
+         "registerUser2Ok", "loginUser2Ok", "joinByInviteOk", "createExpenseOk"});
+}
+
+// SAT-20: Delete and Re-create Expense (Depth=6)
+void test20_deleteAndRecreateExpense(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 20: Create Expense → Delete → Re-create (Depth=6)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk",
+         "createExpenseOk", "deleteExpenseOk", "createExpenseOk"});
+}
+
+// SAT-21: Multiple Proposals (Depth=6)
+void test21_multipleProposals(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 21: Create Trip → Create 2 Proposals → Get All (Depth=6)",
+        makeTripVaultSpec(),
+        {"registerUserOk", "loginUserOk", "createTripOk",
+         "createProposalOk", "createProposalOk", "getProposalsOk"});
+}
+
+// UNSAT-22: Login Without Register (Depth=1)
+void test22_loginWithoutRegister(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 22: Login Without Register (Depth=1)",
+        makeTripVaultSpec(),
+        {"loginUserOk"});
+}
+
+// UNSAT-23: Create Trip Without Login (Depth=1)
+void test23_createTripWithoutLogin(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 23: Create Trip Without Login (Depth=1)",
+        makeTripVaultSpec(),
+        {"createTripOk"});
+}
+
+// UNSAT-24: Delete Expense Without Auth (Depth=1)
+void test24_deleteExpenseWithoutAuth(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 24: Delete Expense Without Auth (Depth=1)",
+        makeTripVaultSpec(),
+        {"deleteExpenseOk"});
+}
+
+// UNSAT-25: Delete Trip Without Login (Depth=1)
+void test25_deleteTripWithoutAuth(TripVaultTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 25: Delete Trip Without Login (Depth=1)",
+        makeTripVaultSpec(),
+        {"deleteTripOk"});
+}
+
+} // namespace TripVaultTests
+
+// ============================================
+// GHOSTSOCKET TEST EXECUTOR
+// ============================================
+
+class GhostSocketTestExecutor
+{
+private:
+    TestMode mode;
+    string backendUrl;
+
+public:
+    GhostSocketTestExecutor(TestMode m, const string &url = "http://localhost:4002")
+        : mode(m), backendUrl(url) {}
+
+    void runTest(
+        const string &testName,
+        unique_ptr<Spec> spec,
+        const vector<string> &testSequence)
+    {
+        cout << "\n========================================" << endl;
+        cout << "TEST: " << testName << endl;
+        cout << "MODE: " << getModeString() << endl;
+        cout << "DEPTH: " << testSequence.size() << " API calls" << endl;
+        cout << "========================================\n" << endl;
+
+        try
+        {
+            switch (mode)
+            {
+            case TestMode::ORIGINAL:
+                runOriginal(std::move(spec), testSequence);
+                break;
+            case TestMode::REWRITE_ONLY:
+                runRewriteOnly(std::move(spec), testSequence);
+                break;
+            case TestMode::FULL_PIPELINE:
+                runFullPipeline(std::move(spec), testSequence);
+                break;
+            }
+            cout << "\n✓ " << testName << " COMPLETE!\n" << endl;
+        }
+        catch (const runtime_error &e)
+        {
+            string errorMsg = e.what();
+            if (errorMsg.find("UNSAT") != string::npos)
+            {
+                cout << "\n⊘ " << testName << " UNSAT: Preconditions not satisfiable\n" << endl;
+            }
+            else
+            {
+                cout << "\n✗ " << testName << " FAILED: " << errorMsg << "\n" << endl;
+            }
+        }
+        catch (const exception &e)
+        {
+            cout << "\n✗ " << testName << " FAILED: " << e.what() << "\n" << endl;
+        }
+    }
+
+private:
+    string getModeString()
+    {
+        switch (mode)
+        {
+        case TestMode::ORIGINAL:     return "Original (No Rewrite)";
+        case TestMode::REWRITE_ONLY: return "Rewrite Only (No Backend)";
+        case TestMode::FULL_PIPELINE: return "Full Pipeline (With Backend)";
+        }
+        return "Unknown";
+    }
+
+    void runOriginal(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        Program atc = genATC(*spec, ts);
+        PrintVisitor printer;
+        printer.visitProgram(atc);
+    }
+
+    void runRewriteOnly(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        auto factory = make_unique<GhostSocket::GhostSocketFunctionFactory>(backendUrl);
+        Tester tester(factory.get());
+        unique_ptr<Program> testApiATC = tester.generateATC(std::move(spec), ts);
+    }
+
+    void runFullPipeline(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        SymbolTable *symbolTable = new SymbolTable(nullptr);
+
+        auto factory = make_unique<GhostSocket::GhostSocketFunctionFactory>(backendUrl);
+        Tester tester(factory.get());
+
+        unique_ptr<Program> testApiATC = tester.generateATC(std::move(spec), ts);
+
+        vector<Expr *> inputVars;
+        ValueEnvironment *valueEnv = new ValueEnvironment(nullptr);
+
+        unique_ptr<Program> ctc = tester.generateCTC(
+            std::move(testApiATC),
+            inputVars,
+            valueEnv);
+
+        if (!ctc)
+        {
+            cout << "\n[RESULT] UNSAT - Test preconditions cannot be satisfied" << endl;
+            delete symbolTable;
+            delete valueEnv;
+            throw runtime_error("UNSAT: Preconditions not satisfiable");
+        }
+
+        cout << "\n[FINAL CTC]" << endl;
+        PrintVisitor printer;
+        printer.visitProgram(*ctc);
+
+        delete symbolTable;
+        delete valueEnv;
+    }
+};
+
+// ============================================
+// 25 GHOSTSOCKET TESTS (21 SAT + 4 UNSAT)
+// ============================================
+
+namespace GhostSocketTests
+{
+
+// SAT-01: Register user only
+void test01_registerUser(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 01: Register User (Depth=1)",
+        makeGhostSocketSpec(),
+        {"registerUserOk"});
+}
+
+// SAT-02: Register two users
+void test02_registerTwoUsers(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 02: Register Two Users (Depth=2)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerUser2Ok"});
+}
+
+// SAT-03: Register user + device
+void test03_registerDevice(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 03: Register User + Device (Depth=2)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk"});
+}
+
+// SAT-04: Get my devices
+void test04_getMyDevices(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 04: Register → Device → GetMyDevices (Depth=3)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "getMyDevicesOk"});
+}
+
+// SAT-05: Get device info (owner has access)
+void test05_getDeviceInfo(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 05: Register → Device → GetDeviceInfo (Depth=3)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "getDeviceInfoOk"});
+}
+
+// SAT-06: Create session (201 check)
+void test06_createSession(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 06: Register → Device → CreateSession (Depth=3)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "createSessionOk"});
+}
+
+// SAT-07: Full join session flow
+void test07_joinSession(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 07: Two Users → Device → Session → Join (Depth=5)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerUser2Ok", "registerDeviceOk", "createSessionOk", "joinSessionOk"});
+}
+
+// SAT-08: Create session + get sessions list
+void test08_getSessions(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 08: Register → Device → Session → GetSessions (Depth=4)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "createSessionOk", "getSessionsOk"});
+}
+
+// SAT-09: Create session + terminate
+void test09_terminateSession(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 09: Register → Device → Session → Terminate (Depth=4)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "createSessionOk", "terminateSessionOk"});
+}
+
+// SAT-10: Delete device (owner)
+void test10_deleteDevice(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 10: Register → Device → DeleteDevice (Depth=3)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "deleteDeviceOk"});
+}
+
+// SAT-11: Join + get other devices
+void test11_getOtherDevices(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 11: Two Users → Device → Session → Join → GetOtherDevices (Depth=6)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerUser2Ok", "registerDeviceOk", "createSessionOk", "joinSessionOk", "getOtherDevicesOk"});
+}
+
+// SAT-12: Update permissions
+void test12_updatePermissions(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 12: Register → Device → Session → UpdatePermissions (Depth=4)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "createSessionOk", "updatePermissionsOk"});
+}
+
+// SAT-13: Forbidden - device info without device (no D entry)
+void test13_deviceInfoForbidden(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 13: GetDeviceInfo Forbidden (no device, Depth=1)",
+        makeGhostSocketSpec(),
+        {"getDeviceInfoForbiddenErr"});
+}
+
+// SAT-14: Forbidden - create session without device ownership
+void test14_createSessionForbidden(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 14: CreateSession Forbidden (no device, Depth=1)",
+        makeGhostSocketSpec(),
+        {"createSessionForbiddenErr"});
+}
+
+// SAT-15: Session not found when joining
+void test15_joinSessionNotFound(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 15: JoinSession NotFound (no session, Depth=1)",
+        makeGhostSocketSpec(),
+        {"joinSessionNotFoundErr"});
+}
+
+// SAT-16: Terminate session forbidden (no session)
+void test16_terminateSessionForbidden(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 16: TerminateSession Forbidden (no session, Depth=1)",
+        makeGhostSocketSpec(),
+        {"terminateSessionForbiddenErr"});
+}
+
+// SAT-17: Full lifecycle: register → device → session → join → terminate
+void test17_fullSessionLifecycle(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 17: Full Session Lifecycle (Depth=6)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerUser2Ok", "registerDeviceOk", "createSessionOk", "joinSessionOk", "terminateSessionOk"});
+}
+
+// SAT-18: Get devices + create session
+void test18_devicesAndSession(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 18: Register → Device → GetMyDevices → Session → GetSessions (Depth=5)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "getMyDevicesOk", "createSessionOk", "getSessionsOk"});
+}
+
+// SAT-19: Device info + create session
+void test19_deviceInfoAndSession(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 19: Register → Device → DeviceInfo → CreateSession (Depth=4)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "getDeviceInfoOk", "createSessionOk"});
+}
+
+// SAT-20: Join then update permissions
+void test20_joinAndUpdatePermissions(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 20: Two Users → Device → Session → Join → UpdatePermissions (Depth=6)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerUser2Ok", "registerDeviceOk", "createSessionOk", "joinSessionOk", "updatePermissionsOk"});
+}
+
+// SAT-21: Session list and terminate
+void test21_sessionListAndTerminate(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 21: Register → Device → Session → GetSessions → Terminate (Depth=5)",
+        makeGhostSocketSpec(),
+        {"registerUserOk", "registerDeviceOk", "createSessionOk", "getSessionsOk", "terminateSessionOk"});
+}
+
+// UNSAT-22: Create session alone (no device in D)
+void test22_createSessionNoDevice(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 22: CreateSession alone — no device (Expected UNSAT)",
+        makeGhostSocketSpec(),
+        {"createSessionOk"});
+}
+
+// UNSAT-23: Join session alone (no session in S)
+void test23_joinSessionNoSession(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 23: JoinSession alone — no session (Expected UNSAT)",
+        makeGhostSocketSpec(),
+        {"joinSessionOk"});
+}
+
+// UNSAT-24: Terminate session alone (no session in S)
+void test24_terminateNoSession(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 24: TerminateSession alone — no session (Expected UNSAT)",
+        makeGhostSocketSpec(),
+        {"terminateSessionOk"});
+}
+
+// UNSAT-25: Get device info alone (no device in D)
+void test25_deviceInfoNoDevice(GhostSocketTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 25: GetDeviceInfo alone — no device (Expected UNSAT)",
+        makeGhostSocketSpec(),
+        {"getDeviceInfoOk"});
+}
+
+} // namespace GhostSocketTests
+
+// ============================================
+// SERVEEZ TEST EXECUTOR
+// ============================================
+
+class ServeezTestExecutor
+{
+private:
+    TestMode mode;
+    string backendUrl;
+
+public:
+    ServeezTestExecutor(TestMode m, const string &url = "http://localhost:8083")
+        : mode(m), backendUrl(url) {}
+
+    void runTest(
+        const string &testName,
+        unique_ptr<Spec> spec,
+        const vector<string> &testSequence)
+    {
+        cout << "\n========================================" << endl;
+        cout << "TEST: " << testName << endl;
+        cout << "MODE: " << getModeString() << endl;
+        cout << "DEPTH: " << testSequence.size() << " API calls" << endl;
+        cout << "========================================\n" << endl;
+
+        try
+        {
+            switch (mode)
+            {
+            case TestMode::ORIGINAL:
+                runOriginal(std::move(spec), testSequence);
+                break;
+            case TestMode::REWRITE_ONLY:
+                runRewriteOnly(std::move(spec), testSequence);
+                break;
+            case TestMode::FULL_PIPELINE:
+                runFullPipeline(std::move(spec), testSequence);
+                break;
+            }
+            cout << "\n✓ " << testName << " COMPLETE!\n" << endl;
+        }
+        catch (const runtime_error &e)
+        {
+            string errorMsg = e.what();
+            if (errorMsg.find("UNSAT") != string::npos)
+            {
+                cout << "\n⊘ " << testName << " UNSAT: Preconditions not satisfiable\n" << endl;
+            }
+            else
+            {
+                cout << "\n✗ " << testName << " FAILED: " << errorMsg << "\n" << endl;
+            }
+        }
+        catch (const exception &e)
+        {
+            cout << "\n✗ " << testName << " FAILED: " << e.what() << "\n" << endl;
+        }
+    }
+
+private:
+    string getModeString()
+    {
+        switch (mode)
+        {
+        case TestMode::ORIGINAL:     return "Original (No Rewrite)";
+        case TestMode::REWRITE_ONLY: return "Rewrite Only (No Backend)";
+        case TestMode::FULL_PIPELINE: return "Full Pipeline (With Backend)";
+        }
+        return "Unknown";
+    }
+
+    void runOriginal(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        Program atc = genATC(*spec, ts);
+        PrintVisitor printer;
+        printer.visitProgram(atc);
+    }
+
+    void runRewriteOnly(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        auto factory = make_unique<Serveez::ServeezFunctionFactory>(backendUrl);
+        Tester tester(factory.get());
+        unique_ptr<Program> testApiATC = tester.generateATC(std::move(spec), ts);
+    }
+
+    void runFullPipeline(unique_ptr<Spec> spec, const vector<string> &ts)
+    {
+        SymbolTable *symbolTable = new SymbolTable(nullptr);
+
+        auto factory = make_unique<Serveez::ServeezFunctionFactory>(backendUrl);
+        Tester tester(factory.get());
+
+        unique_ptr<Program> testApiATC = tester.generateATC(std::move(spec), ts);
+
+        vector<Expr *> inputVars;
+        ValueEnvironment *valueEnv = new ValueEnvironment(nullptr);
+
+        unique_ptr<Program> ctc = tester.generateCTC(
+            std::move(testApiATC),
+            inputVars,
+            valueEnv);
+
+        if (!ctc)
+        {
+            cout << "\n[RESULT] UNSAT - Test preconditions cannot be satisfied" << endl;
+            delete symbolTable;
+            delete valueEnv;
+            throw runtime_error("UNSAT: Preconditions not satisfiable");
+        }
+
+        cout << "\n[FINAL CTC]" << endl;
+        PrintVisitor printer;
+        printer.visitProgram(*ctc);
+
+        delete symbolTable;
+        delete valueEnv;
+    }
+};
+
+// ============================================
+// 25 SERVEEZ TESTS (21 SAT + 4 UNSAT)
+// ============================================
+
+namespace ServeezTests
+{
+
+// SAT-01: Register a USER
+void test01_registerUser(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 01: Register USER (Depth=1)",
+        makeServeezSpec(),
+        {"registerUserOk"});
+}
+
+// SAT-02: Register a PROVIDER
+void test02_registerProvider(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 02: Register PROVIDER (Depth=1)",
+        makeServeezSpec(),
+        {"registerProviderOk"});
+}
+
+// SAT-03: Register an ADMIN
+void test03_registerAdmin(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 03: Register ADMIN (Depth=1)",
+        makeServeezSpec(),
+        {"registerAdminOk"});
+}
+
+// SAT-04: Admin creates a category
+void test04_createCategory(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 04: Admin → CreateCategory (Depth=2)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk"});
+}
+
+// SAT-05: Provider creates a listing
+void test05_createListing(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 05: Admin → Category → Provider → Listing (Depth=4)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk"});
+}
+
+// SAT-06: Public get all listings
+void test06_getListings(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 06: Admin → Category → Provider → Listing → GetListings (Depth=5)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "getListingsOk"});
+}
+
+// SAT-07: Public get listing by ID
+void test07_getListingById(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 07: Admin → Category → Provider → Listing → GetListingById (Depth=5)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "getListingByIdOk"});
+}
+
+// SAT-08: User creates a booking
+void test08_createBooking(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 08: Admin → Category → Provider → Listing → User → Booking (Depth=6)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk"});
+}
+
+// SAT-09: User gets own bookings
+void test09_getMyBookings(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 09: ... → Booking → GetMyBookings (Depth=7)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "getMyBookingsOk"});
+}
+
+// SAT-10: Provider confirms booking
+void test10_confirmBooking(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 10: ... → Booking → ConfirmBooking (Depth=7)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "confirmBookingOk"});
+}
+
+// SAT-11: Provider completes booking (after confirm)
+void test11_completeBooking(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 11: ... → Booking → Confirm → Complete (Depth=8)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "confirmBookingOk", "completeBookingOk"});
+}
+
+// SAT-12: User reviews after complete
+void test12_createReview(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 12: ... → Confirm → Complete → Review (Depth=9)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "confirmBookingOk", "completeBookingOk", "svzCreateReviewOk"});
+}
+
+// SAT-13: Get listing reviews (public)
+void test13_getListingReviews(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 13: ... → Review → GetListingReviews (Depth=10)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "confirmBookingOk", "completeBookingOk", "svzCreateReviewOk", "getListingReviewsOk"});
+}
+
+// SAT-14: User cancels a booking
+void test14_cancelBooking(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 14: ... → Booking → CancelBooking (Depth=7)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "cancelBookingOk"});
+}
+
+// SAT-15: Unauth listing creation rejected
+void test15_createListingUnauth(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 15: Admin → Category → CreateListingUnauth (Depth=3)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "createListingUnauthErr"});
+}
+
+// SAT-16: Provider cannot create booking (role enforcement)
+void test16_createBookingAsProvider(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 16: Admin → Category → Provider → Listing → CreateBookingAsProvider (Depth=5)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "createBookingAsProviderErr"});
+}
+
+// SAT-17: Two listings from same provider
+void test17_twoListings(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 17: Admin → Category → Provider → Listing1 → Listing2 (Depth=5)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "createListingOk"});
+}
+
+// SAT-18: Full lifecycle: register + list + book + confirm + complete + review
+void test18_fullLifecycle(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 18: Full booking lifecycle (Depth=8)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "confirmBookingOk", "completeBookingOk"});
+}
+
+// SAT-19: Multiple users book same listing
+void test19_multipleBookings(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 19: Two users book same listing (Depth=8)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "registerUserOk", "createBookingOk"});
+}
+
+// SAT-20: Booking + get bookings + cancel
+void test20_bookAndCancel(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 20: Book → GetMyBookings → Cancel (Depth=8)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "registerUserOk", "createBookingOk", "getMyBookingsOk", "cancelBookingOk"});
+}
+
+// SAT-21: Get listing by ID then book
+void test21_getListingThenBook(ServeezTestExecutor &executor)
+{
+    executor.runTest("[SAT] Test 21: Listing → GetById → Book → Confirm (Depth=8)",
+        makeServeezSpec(),
+        {"registerAdminOk", "createCategoryOk", "registerProviderOk", "createListingOk", "getListingByIdOk", "registerUserOk", "createBookingOk", "confirmBookingOk"});
+}
+
+// UNSAT-22: createCategory alone — no ADMIN
+void test22_createCategoryNoAdmin(ServeezTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 22: createCategory alone — no admin (Expected UNSAT)",
+        makeServeezSpec(),
+        {"createCategoryOk"});
+}
+
+// UNSAT-23: createListing alone — no PROVIDER, no C
+void test23_createListingNoProvider(ServeezTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 23: createListing alone — no provider/category (Expected UNSAT)",
+        makeServeezSpec(),
+        {"createListingOk"});
+}
+
+// UNSAT-24: createBooking alone — no USER, no L
+void test24_createBookingNoUser(ServeezTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 24: createBooking alone — no user/listing (Expected UNSAT)",
+        makeServeezSpec(),
+        {"createBookingOk"});
+}
+
+// UNSAT-25: confirmBooking alone — no PROVIDER, no B
+void test25_confirmBookingNone(ServeezTestExecutor &executor)
+{
+    executor.runTest("[UNSAT] Test 25: confirmBooking alone — no booking (Expected UNSAT)",
+        makeServeezSpec(),
+        {"confirmBookingOk"});
+}
+
+} // namespace ServeezTests
 
 // ============================================
 // 25 COMPREHENSIVE RESTAURANT TESTS
@@ -1309,11 +2308,355 @@ namespace EcommerceTests
 }
 
 // ============================================
+// BUG DETECTION TESTS (8 Mutation Bugs)
+// Backend: http://localhost:5002
+// ============================================
+
+namespace BugTests
+{
+    // B1: auth.js:73 — register returns 200 instead of 201
+    // Spec postcondition checks STATE (U', Roles'), NOT the return status code.
+    // Factory accepts any 2xx → state IS updated → test currently PASSES.
+    // Detection requires adding _result==201 to the register postcondition.
+    void bugB1_registerStatusCode(TestExecutor &executor)
+    {
+        executor.runTest(
+            "[BUG B1] POST /api/auth/register returns 200 instead of 201 (Depth=1)",
+            makeRestaurantSpec(),
+            {"registerCustomerOk"});
+    }
+
+    // B2: restaurants.js:31 — createRestaurant returns 200 instead of 201
+    // Factory strictly checks resp.statusCode==201. With bug: returns Num(200).
+    // Spec POST asserts: _result in dom(R') — 200 is NOT a valid restaurantId → ASSERTION FAILS.
+    void bugB2_createRestaurantStatusCode(TestExecutor &executor)
+    {
+        executor.runTest(
+            "[BUG B2] POST /api/restaurants returns 200 instead of 201 (Depth=3)",
+            makeRestaurantSpec(),
+            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk"});
+    }
+
+    // B3: menu.js:41 — addMenuItem returns 200 instead of 201
+    // Factory strictly checks resp.statusCode==201. With bug: returns Num(200).
+    // Spec POST asserts: _result in dom(M') — FAILS (cascade: B2 detected first at step 3).
+    void bugB3_addMenuItemStatusCode(TestExecutor &executor)
+    {
+        executor.runTest(
+            "[BUG B3] POST /api/menu returns 200 instead of 201 (Depth=4, B2 cascade expected)",
+            makeRestaurantSpec(),
+            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk"});
+    }
+
+    // B4: orders.js:41 — finalAmount missing delivery fee
+    // totalAmount + tax instead of totalAmount + deliveryFee + tax.
+    // Detection: placeOrderOk returns orderId, then checkOrderAmountOk calls
+    // /api/test/check_order_amount/:orderId which verifies finalAmount server-side.
+    // With B4: finalAmount is wrong → endpoint returns 400 → _result=400 ≠ 1 → ASSERTION FAILS.
+    void bugB4_orderAmountMissingDeliveryFee(TestExecutor &executor)
+    {
+        executor.runTest(
+            "[BUG B4] Order finalAmount missing deliveryFee — checkOrderAmountOk (Depth=11)",
+            makeRestaurantSpec(),
+            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+             "addToCartRestaurantOk", "placeOrderOk",
+             "checkOrderAmountOk"});
+    }
+
+    // B5: orders.js:82 — Cart.findOneAndDelete commented out (cart not cleared)
+    // After placing order, backend no longer deletes the cart document.
+    // Spec POST asserts: customerEmail not_in dom(C') — backend C still has the cart → ASSERTION FAILS.
+    // (Cascade: B2 fails first at step 3 before reaching placeOrderOk)
+    void bugB5_cartNotClearedAfterOrder(TestExecutor &executor)
+    {
+        executor.runTest(
+            "[BUG B5] Cart not cleared after placing order (Depth=10, B2 cascade expected)",
+            makeRestaurantSpec(),
+            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+             "addToCartRestaurantOk", "placeOrderOk"});
+    }
+
+    // B6: cart.js:129 — quantity <= 0 check changed to quantity < 0
+    // PUT /api/cart/:itemId with quantity:0 now succeeds (200) instead of returning 400.
+    // Detection: addToCartQuantityZeroErr calls PUT /api/cart/:itemId with quantity=0.
+    // Spec asserts _result==400. With B6: backend returns 200 → 200≠400 → ASSERTION FAILS.
+    void bugB6_cartQuantityBoundary(TestExecutor &executor)
+    {
+        executor.runTest(
+            "[BUG B6] Cart accepts quantity=0 — addToCartQuantityZeroErr (Depth=10)",
+            makeRestaurantSpec(),
+            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+             "addToCartRestaurantOk",
+             "addToCartQuantityZeroErr"});
+    }
+
+    // B7: reviews.js:40 — status !== 'delivered' changed to status !== 'cancelled'
+    // Only cancelled orders can now be reviewed; delivered orders get 400.
+    // Detection requires a test that brings the order to 'delivered' status then calls leaveReviewOk.
+    // Spec POST asserts: _result in dom(Rev') — with bug, leaveReview returns 400 → ASSERTION FAILS.
+    // (Cascade: B2 fails first at step 3 in this full workflow)
+    void bugB7_reviewGuardInverted(TestExecutor &executor)
+    {
+        executor.runTest(
+            "[BUG B7] Review rejected for delivered orders — full delivery flow (Depth=18, B2 cascade expected)",
+            makeRestaurantSpec(),
+            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+             "addToCartRestaurantOk", "placeOrderOk",
+             "updateOrderStatusOwnerOk",  // pending -> accepted
+             "updateOrderStatusOwnerOk",  // accepted -> preparing
+             "updateOrderStatusOwnerOk",  // preparing -> out_for_delivery
+             "registerAgentOk", "loginAgentOk", "assignOrderOk",
+             "updateOrderStatusAgentOk",  // out_for_delivery -> delivered
+             "leaveReviewOk"});
+    }
+
+    // B8: models/Cart.js:43 — total + (item.price * item.quantity) changed to total + item.price
+    // Cart totalAmount ignores quantity — 3 items at Rs100 each shows Rs100 instead of Rs300.
+    // Detection: checkCartTotalOk calls /api/test/check_cart_total/:email which
+    // computes expected=sum(price*qty) and compares with stored totalAmount.
+    // With B8: totalAmount is wrong → endpoint returns 400 → _result=400≠1 → ASSERTION FAILS.
+    void bugB8_cartTotalIgnoresQuantity(TestExecutor &executor)
+    {
+        executor.runTest(
+            "[BUG B8] Cart totalAmount ignores quantity — checkCartTotalOk (Depth=10)",
+            makeRestaurantSpec(),
+            {"registerOwnerOk", "loginOwnerOk", "createRestaurantOk", "addMenuItemOk",
+             "registerCustomerOk", "loginCustomerOk", "browseRestaurantsOk", "viewMenuOk",
+             "addToCartRestaurantOk",
+             "checkCartTotalOk"});
+    }
+}
+
+// ============================================
+// E-COMMERCE BUG DETECTION TESTS (8 Mutation Bugs)
+// Backend: http://localhost:3000
+// ============================================
+
+namespace EcomBugTests
+{
+    // EB1: authController.js — register returns 200 instead of 201
+    // registerBuyerOk postcondition now includes _result == 201.
+    // With bug: factory returns Num(200) → 200 ≠ 201 → ASSERTION FAILS.
+    void bugEB1_registerStatusCode(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[ECOM BUG EB1] POST /api/auth/register returns 200 instead of 201 (Depth=1)",
+            makeEcommerceSpec(),
+            {"registerBuyerOk"});
+    }
+
+    // EB2: productController.js — createProduct returns 200 instead of 201
+    // Factory checks resp.statusCode == 201; with bug returns "" → in(_result, dom(P')) fails.
+    void bugEB2_createProductStatusCode(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[ECOM BUG EB2] POST /api/products returns 200 instead of 201 (Depth=3)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk"});
+    }
+
+    // EB3: orderController.js — createOrder returns 200 instead of 201
+    // Factory checks resp.statusCode == 201; with bug returns "" → in(_result, dom(O')) fails.
+    void bugEB3_createOrderStatusCode(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[ECOM BUG EB3] POST /api/orders returns 200 instead of 201 (Depth=7)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk"});
+    }
+
+    // EB4: orderController.js — totalAmount ignores item.quantity
+    // itemTotal = item.product.price instead of item.product.price * item.quantity.
+    // checkOrderTotalOk calls /api/test/check_order_total/:orderId which recomputes
+    // expected = sum(items[].price * items[].quantity) and compares with totalAmount.
+    // With EB4: wrong totalAmount → endpoint returns 400 → _result = 400 ≠ 1 → ASSERTION FAILS.
+    void bugEB4_orderTotalIgnoresQuantity(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[ECOM BUG EB4] Order totalAmount ignores quantity — checkOrderTotalOk (Depth=8)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk",
+             "checkOrderTotalOk"});
+    }
+
+    // EB5: orderController.js — Cart.findOneAndDelete commented out (cart not cleared)
+    // createOrderOk postcondition includes: buyerEmail not_in dom(C').
+    // With EB5: cart still exists after order → get_C returns cart → not_in fails → ASSERTION FAILS.
+    void bugEB5_cartNotClearedAfterOrder(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[ECOM BUG EB5] Cart not cleared after order — createOrderOk (Depth=7)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk"});
+    }
+
+    // EB6: cartController.js — quantity > product.quantity changed to quantity >= product.quantity
+    // addToCartMaxStockOk factory fetches current stock and adds EXACTLY that quantity.
+    // Correct backend (>): exact-stock add is allowed → 200.
+    // Buggy backend (>=): exact-stock add rejected → 400 ≠ 200 → ASSERTION FAILS.
+    void bugEB6_cartBoundaryCondition(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[ECOM BUG EB6] Cart rejects exact-stock quantity — addToCartMaxStockOk (Depth=6)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartMaxStockOk"});
+    }
+
+    // EB7: reviewController.js — if (!order) changed to if (order) (inverted guard)
+    // With bug: review returns 400 for all valid-order purchases.
+    // createReviewOk postcondition: in(_result, dom(Rev')).
+    // Factory returns "" on non-201 → "" not in dom(Rev') → ASSERTION FAILS.
+    void bugEB7_reviewGuardInverted(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[ECOM BUG EB7] Review guard inverted — createReviewOk (Depth=8)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "addToCartOk", "createOrderOk", "createReviewOk"});
+    }
+
+    // EB8: productController.js — deleteProduct removes seller ownership check
+    // deleteProductByBuyerErr uses buyer's token to delete a seller's product.
+    // Correct: { _id, seller } query fails for buyer → 404.
+    // Buggy: { _id } only → product deleted → 200 ≠ 404 → ASSERTION FAILS.
+    void bugEB8_deleteProductAuthBypass(EcommerceTestExecutor &executor)
+    {
+        executor.runTest(
+            "[ECOM BUG EB8] Product delete missing seller auth — deleteProductByBuyerErr (Depth=6)",
+            makeEcommerceSpec(),
+            {"registerSellerOk", "loginSellerOk", "createProductOk",
+             "registerBuyerOk", "loginBuyerOk",
+             "deleteProductByBuyerErr"});
+    }
+}
+
+// ============================================
+// LIBRARY BUG DETECTION TESTS (8 Mutation Bugs)
+// Backend: http://localhost:8080
+// ============================================
+
+namespace LibraryBugTests
+{
+    // LB1: RequestController.java:167 — requestService.deleteRequestbyId() commented out
+    // accept() creates loan but never deletes the original request from DB.
+    // acceptRequestOk postcondition: in(_result, dom(Loans')) AND not_in(requestId, dom(Req')).
+    // With LB1: request still in DB → get_Req() returns it → not_in fails → ASSERTION FAILS.
+    void bugLB1_requestNotDeletedAfterAccept(LibraryTestExecutor &executor)
+    {
+        executor.runTest(
+            "[LIB BUG LB1] Request not deleted after accept — acceptRequestOk (Depth=4)",
+            makeLibrarySpec(),
+            {"saveBookOk", "saveStudentOk", "saveRequestOk", "acceptRequestOk"});
+    }
+
+    // LB2: BookService.java:43 — deleteBookByCode returns book without calling deleteById
+    // deleteBook endpoint returns the book (HTTP 200) but never removes it from DB.
+    // deleteBookOk postcondition: not_in(bookCode, dom(B')).
+    // With LB2: book still in DB → get_B() returns it → not_in fails → ASSERTION FAILS.
+    void bugLB2_bookNotDeleted(LibraryTestExecutor &executor)
+    {
+        executor.runTest(
+            "[LIB BUG LB2] Book not deleted — deleteBookOk (Depth=2)",
+            makeLibrarySpec(),
+            {"saveBookOk", "deleteBookOk"});
+    }
+
+    // LB3: RequestController.java:147 — doesRequestOverlap guard inverted
+    // With LB3: accept throws UnavailableForGivenDatesException even when no overlap exists.
+    // acceptRequestOk postcondition: in(_result, dom(Loans')).
+    // Bug makes POST /bookStudent/accept throw 500 → factory returns Num(500).
+    // AcceptRequestFunc returns Num(500) (non 200/201) → not a valid loanId → in fails → ASSERTION FAILS.
+    void bugLB3_overlapCheckInverted(LibraryTestExecutor &executor)
+    {
+        executor.runTest(
+            "[LIB BUG LB3] Overlap check inverted — accept rejects valid requests (Depth=4)",
+            makeLibrarySpec(),
+            {"saveBookOk", "saveStudentOk", "saveRequestOk", "acceptRequestOk"});
+    }
+
+    // LB4: BookStudentService.java:70 — deleteById returns findBookStudentById instead of deleteBookStudentById
+    // returnBook endpoint returns the loan (HTTP 200) but never removes it from DB.
+    // returnBookOk postcondition: not_in(loanId, dom(Loans')).
+    // With LB4: loan still in DB → get_Loans() returns it → not_in fails → ASSERTION FAILS.
+    void bugLB4_loanNotDeleted(LibraryTestExecutor &executor)
+    {
+        executor.runTest(
+            "[LIB BUG LB4] Loan not deleted on return — returnBookOk (Depth=5)",
+            makeLibrarySpec(),
+            {"saveBookOk", "saveStudentOk", "saveRequestOk", "acceptRequestOk", "returnBookOk"});
+    }
+
+    // LB5: StudentService.java:50 — deleteStudentById replaced with getStudentById
+    // deleteStudent endpoint returns student (HTTP 200) but never removes from DB.
+    // deleteStudentOk postcondition: not_in(studentId, dom(S')).
+    // With LB5: student still in DB → get_S() returns it → not_in fails → ASSERTION FAILS.
+    void bugLB5_studentNotDeleted(LibraryTestExecutor &executor)
+    {
+        executor.runTest(
+            "[LIB BUG LB5] Student not deleted — deleteStudentOk (Depth=2)",
+            makeLibrarySpec(),
+            {"saveStudentOk", "deleteStudentOk"});
+    }
+
+    // LB6: BookService.java — updateBook deletes instead of updating
+    // After updateBook call, book is gone from DB.
+    // updateBookOk postcondition: bookCode in dom(B').
+    // With LB6: book deleted → get_B() doesn't return it → in fails → ASSERTION FAILS.
+    void bugLB6_updateDeletesBook(LibraryTestExecutor &executor)
+    {
+        executor.runTest(
+            "[LIB BUG LB6] Update deletes book instead of updating (Depth=2)",
+            makeLibrarySpec(),
+            {"saveBookOk", "updateBookOk"});
+    }
+
+    // LB7: StudentService.java — saveStudent returns student without saving to DB
+    // saveStudent returns student object with id=0 (not persisted).
+    // saveStudentOk postcondition: in(_result, dom(S')).
+    // SaveStudentFunc gets id=0 → returns String("0") → get_S() fetches DB → "0" not there → ASSERTION FAILS.
+    void bugLB7_studentNotSaved(LibraryTestExecutor &executor)
+    {
+        executor.runTest(
+            "[LIB BUG LB7] Student not saved to DB — saveStudentOk (Depth=1)",
+            makeLibrarySpec(),
+            {"saveStudentOk"});
+    }
+
+    // LB8: BookService.java — addBook returns new Book() without saving to DB
+    // saveBook returns empty Book with bookCode=0 (not persisted).
+    // saveBookOk postcondition: in(_result, dom(B')).
+    // SaveBookFunc gets bookCode=0 → returns String("0") → get_B() fetches DB → "0" not there → ASSERTION FAILS.
+    void bugLB8_bookNotSaved(LibraryTestExecutor &executor)
+    {
+        executor.runTest(
+            "[LIB BUG LB8] Book not saved to DB — saveBookOk (Depth=1)",
+            makeLibrarySpec(),
+            {"saveBookOk"});
+    }
+}
+
+// ============================================
 // MAIN FUNCTION - TEST SELECTION
 // ============================================
 
-int main()
+int main(int argc, char* argv[])
 {
+    // backend = "restaurant" | "ecommerce" | "library"  (default: library)
+    string backend = (argc > 1) ? string(argv[1]) : "library";
+
     try
     {
         // ========================================
@@ -1323,26 +2666,258 @@ int main()
         // Choose test mode
         // TestMode mode = TestMode::REWRITE_ONLY;
         // TestMode mode = TestMode::ORIGINAL;
-         TestMode mode = TestMode::FULL_PIPELINE; // Needs backend running!
-
-        // Backend URL (only used for FULL_PIPELINE mode)
-        string backendUrl = "http://localhost:5002"; // for restaurant
-
-         TestExecutor executor(mode, backendUrl); // for restaurant
+        TestMode mode = TestMode::FULL_PIPELINE; // Needs backend running!
 
         // ========================================
-        // RUN TESTS
+        // BACKEND-SELECTED BUG DETECTION
         // ========================================
+        if (backend == "restaurant")
+        {
+            string restUrl = "http://localhost:5002";
+            TestExecutor executor(mode, restUrl);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  TESTGEN - RESTAURANT TEST SUITE       ║" << endl;
+            cout << "║  Total Tests: 25                       ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+            RestaurantTests::test01_registerLogin(executor);
+            RestaurantTests::test02_loginFailure(executor);
+            RestaurantTests::test03_browseOnly(executor);
+            RestaurantTests::test04_Login(executor);
+            RestaurantTests::test05_registerOwnerAndLogin(executor);
+            RestaurantTests::test06_registerAgentAndLogin(executor);
+            RestaurantTests::test07_loginBrowseView(executor);
+            RestaurantTests::test08_loginAndAddToCart(executor);
+            RestaurantTests::test09_loginAndReview(executor);
+            RestaurantTests::test10_reviewWithoutLogin(executor);
+            RestaurantTests::test11_fullCustomerOrder(executor);
+            RestaurantTests::test12_ownerCreateRestaurant(executor);
+            RestaurantTests::test13_cartWithoutItems(executor);
+            RestaurantTests::test14_customerFullWorkflow(executor);
+            RestaurantTests::test15_ownerFullSetup(executor);
+            RestaurantTests::test16_agentAssignOrder(executor);
+            RestaurantTests::test17_ownerManageOrder(executor);
+            RestaurantTests::test18_multipleCartAdditions(executor);
+            RestaurantTests::test19_wrongRoleAccess(executor);
+            RestaurantTests::test20_fullLifecycle(executor);
+            RestaurantTests::test21_ownerCompleteFlow(executor);
+            RestaurantTests::test22_complexOrderManagement(executor);
+            RestaurantTests::test23_invalidSequence(executor);
+            RestaurantTests::test24_deepWorkflow(executor);
+            RestaurantTests::test25_registerCustomerDuplicate(executor);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  ALL RESTAURANT TESTS COMPLETE         ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+        }
+        else if (backend == "ecommerce")
+        {
+            string ecomUrl = "http://localhost:3000";
+            EcommerceTestExecutor ecomExecutor(mode, ecomUrl);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  TESTGEN - E-COMMERCE TEST SUITE       ║" << endl;
+            cout << "║  Total Tests: 30 (21 SAT, 9 UNSAT)     ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+            EcommerceTests::test01_registerBuyer(ecomExecutor);
+            EcommerceTests::test02_registerSeller(ecomExecutor);
+            EcommerceTests::test03_browseProducts(ecomExecutor);
+            EcommerceTests::test04_buyerRegisterLogin(ecomExecutor);
+            EcommerceTests::test05_sellerRegisterLogin(ecomExecutor);
+            EcommerceTests::test06_sellerCreateProduct(ecomExecutor);
+            EcommerceTests::test07_sellerCreateMultipleProducts(ecomExecutor);
+            EcommerceTests::test08_sellerUpdateProduct(ecomExecutor);
+            EcommerceTests::test09_sellerDeleteProduct(ecomExecutor);
+            EcommerceTests::test10_sellerViewInventory(ecomExecutor);
+            EcommerceTests::test11_multiUserBrowse(ecomExecutor);
+            EcommerceTests::test12_multiUserAddToCart(ecomExecutor);
+            EcommerceTests::test13_multiUserViewCart(ecomExecutor);
+            EcommerceTests::test14_multiUserCreateOrder(ecomExecutor);
+            EcommerceTests::test15_multiUserViewOrders(ecomExecutor);
+            EcommerceTests::test16_sellerViewsOrders(ecomExecutor);
+            EcommerceTests::test17_multiUserCreateReview(ecomExecutor);
+            EcommerceTests::test18_completeEcommerceFlow(ecomExecutor);
+            EcommerceTests::test19_multipleOrders(ecomExecutor);
+            EcommerceTests::test20_sellerFullManagement(ecomExecutor);
+            EcommerceTests::test21_deepWorkflow(ecomExecutor);
+            EcommerceTests::test22_loginWithoutRegister(ecomExecutor);
+            EcommerceTests::test23_sellerLoginWithoutRegister(ecomExecutor);
+            EcommerceTests::test24_duplicateRegistration(ecomExecutor);
+            EcommerceTests::test25_buyerCannotCreateProduct(ecomExecutor);
+            EcommerceTests::test26_sellerCannotAddToCart(ecomExecutor);
+            EcommerceTests::test27_sellerCannotCreateOrder(ecomExecutor);
+            EcommerceTests::test28_addToCartNoProduct(ecomExecutor);
+            EcommerceTests::test29_createOrderEmptyCart(ecomExecutor);
+            EcommerceTests::test30_reviewWithoutOrder(ecomExecutor);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  ALL ECOMMERCE TESTS COMPLETE          ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+        }
+        else if (backend == "ghostsocket")
+        {
+            string gsUrl = "http://localhost:4002";
+            GhostSocketTestExecutor gsExecutor(mode, gsUrl);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  TESTGEN - GHOSTSOCKET TEST SUITE      ║" << endl;
+            cout << "║  Total Tests: 25 (21 SAT, 4 UNSAT)    ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+            GhostSocketTests::test01_registerUser(gsExecutor);
+            GhostSocketTests::test02_registerTwoUsers(gsExecutor);
+            GhostSocketTests::test03_registerDevice(gsExecutor);
+            GhostSocketTests::test04_getMyDevices(gsExecutor);
+            GhostSocketTests::test05_getDeviceInfo(gsExecutor);
+            GhostSocketTests::test06_createSession(gsExecutor);
+            GhostSocketTests::test07_joinSession(gsExecutor);
+            GhostSocketTests::test08_getSessions(gsExecutor);
+            GhostSocketTests::test09_terminateSession(gsExecutor);
+            GhostSocketTests::test10_deleteDevice(gsExecutor);
+            GhostSocketTests::test11_getOtherDevices(gsExecutor);
+            GhostSocketTests::test12_updatePermissions(gsExecutor);
+            GhostSocketTests::test13_deviceInfoForbidden(gsExecutor);
+            GhostSocketTests::test14_createSessionForbidden(gsExecutor);
+            GhostSocketTests::test15_joinSessionNotFound(gsExecutor);
+            GhostSocketTests::test16_terminateSessionForbidden(gsExecutor);
+            GhostSocketTests::test17_fullSessionLifecycle(gsExecutor);
+            GhostSocketTests::test18_devicesAndSession(gsExecutor);
+            GhostSocketTests::test19_deviceInfoAndSession(gsExecutor);
+            GhostSocketTests::test20_joinAndUpdatePermissions(gsExecutor);
+            GhostSocketTests::test21_sessionListAndTerminate(gsExecutor);
+            GhostSocketTests::test22_createSessionNoDevice(gsExecutor);
+            GhostSocketTests::test23_joinSessionNoSession(gsExecutor);
+            GhostSocketTests::test24_terminateNoSession(gsExecutor);
+            GhostSocketTests::test25_deviceInfoNoDevice(gsExecutor);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  ALL GHOSTSOCKET TESTS COMPLETE        ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+        }
+        else if (backend == "serveez")
+        {
+            string svUrl = "http://localhost:8083";
+            ServeezTestExecutor svExecutor(mode, svUrl);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  TESTGEN - SERVEEZ TEST SUITE          ║" << endl;
+            cout << "║  Total Tests: 25 (21 SAT, 4 UNSAT)    ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+            ServeezTests::test01_registerUser(svExecutor);
+            ServeezTests::test02_registerProvider(svExecutor);
+            ServeezTests::test03_registerAdmin(svExecutor);
+            ServeezTests::test04_createCategory(svExecutor);
+            ServeezTests::test05_createListing(svExecutor);
+            ServeezTests::test06_getListings(svExecutor);
+            ServeezTests::test07_getListingById(svExecutor);
+            ServeezTests::test08_createBooking(svExecutor);
+            ServeezTests::test09_getMyBookings(svExecutor);
+            ServeezTests::test10_confirmBooking(svExecutor);
+            ServeezTests::test11_completeBooking(svExecutor);
+            ServeezTests::test12_createReview(svExecutor);
+            ServeezTests::test13_getListingReviews(svExecutor);
+            ServeezTests::test14_cancelBooking(svExecutor);
+            ServeezTests::test15_createListingUnauth(svExecutor);
+            ServeezTests::test16_createBookingAsProvider(svExecutor);
+            ServeezTests::test17_twoListings(svExecutor);
+            ServeezTests::test18_fullLifecycle(svExecutor);
+            ServeezTests::test19_multipleBookings(svExecutor);
+            ServeezTests::test20_bookAndCancel(svExecutor);
+            ServeezTests::test21_getListingThenBook(svExecutor);
+            ServeezTests::test22_createCategoryNoAdmin(svExecutor);
+            ServeezTests::test23_createListingNoProvider(svExecutor);
+            ServeezTests::test24_createBookingNoUser(svExecutor);
+            ServeezTests::test25_confirmBookingNone(svExecutor);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  ALL SERVEEZ TESTS COMPLETE            ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+        }
+        else if (backend == "tripvault")
+        {
+            string tvUrl = "http://localhost:4001";
+            TripVaultTestExecutor tvExecutor(mode, tvUrl);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  TESTGEN - TRIPVAULT TEST SUITE        ║" << endl;
+            cout << "║  Total Tests: 25 (21 SAT, 4 UNSAT)    ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+            TripVaultTests::test01_registerLogin(tvExecutor);
+            TripVaultTests::test02_createTrip(tvExecutor);
+            TripVaultTests::test03_getUserTrips(tvExecutor);
+            TripVaultTests::test04_updateTrip(tvExecutor);
+            TripVaultTests::test05_deleteTrip(tvExecutor);
+            TripVaultTests::test06_addMember(tvExecutor);
+            TripVaultTests::test07_joinByInvite(tvExecutor);
+            TripVaultTests::test08_createExpense(tvExecutor);
+            TripVaultTests::test09_getExpenses(tvExecutor);
+            TripVaultTests::test10_deleteExpense(tvExecutor);
+            TripVaultTests::test11_createProposal(tvExecutor);
+            TripVaultTests::test12_getProposals(tvExecutor);
+            TripVaultTests::test13_deleteProposal(tvExecutor);
+            TripVaultTests::test14_multipleExpenses(tvExecutor);
+            TripVaultTests::test15_multipleTrips(tvExecutor);
+            TripVaultTests::test16_expenseAndProposal(tvExecutor);
+            TripVaultTests::test17_memberCreatesExpense(tvExecutor);
+            TripVaultTests::test18_fullTripLifecycle(tvExecutor);
+            TripVaultTests::test19_joinAndCreateExpense(tvExecutor);
+            TripVaultTests::test20_deleteAndRecreateExpense(tvExecutor);
+            TripVaultTests::test21_multipleProposals(tvExecutor);
+            TripVaultTests::test22_loginWithoutRegister(tvExecutor);
+            TripVaultTests::test23_createTripWithoutLogin(tvExecutor);
+            TripVaultTests::test24_deleteExpenseWithoutAuth(tvExecutor);
+            TripVaultTests::test25_deleteTripWithoutAuth(tvExecutor);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  ALL TRIPVAULT TESTS COMPLETE          ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+        }
+        else // library (default)
+        {
+            string libUrl = "http://localhost:8080";
+            LibraryTestExecutor libExecutor(mode, libUrl);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  TESTGEN - LIBRARY TEST SUITE          ║" << endl;
+            cout << "║  Total Tests: 25                       ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+            LibraryTests::test01_getAllBooks(libExecutor);
+            LibraryTests::test02_getAllStudents(libExecutor);
+            LibraryTests::test03_saveBook(libExecutor);
+            LibraryTests::test04_saveStudent(libExecutor);
+            LibraryTests::test05_saveAndGetBook(libExecutor);
+            LibraryTests::test06_saveAndGetStudent(libExecutor);
+            LibraryTests::test07_saveBookTwice(libExecutor);
+            LibraryTests::test08_getBookNotFound(libExecutor);
+            LibraryTests::test09_bookCRUD(libExecutor);
+            LibraryTests::test10_studentCRUD(libExecutor);
+            LibraryTests::test11_createBookAndStudent(libExecutor);
+            LibraryTests::test12_createRequest(libExecutor);
+            LibraryTests::test13_acceptRequest(libExecutor);
+            LibraryTests::test14_fullBorrowReturn(libExecutor);
+            LibraryTests::test15_directLoan(libExecutor);
+            LibraryTests::test16_rejectRequest(libExecutor);
+            LibraryTests::test17_requestWithoutBook(libExecutor);
+            LibraryTests::test18_requestWithoutStudent(libExecutor);
+            LibraryTests::test19_acceptWithoutRequest(libExecutor);
+            LibraryTests::test20_returnWithoutLoan(libExecutor);
+            LibraryTests::test21_multipleBooks(libExecutor);
+            LibraryTests::test22_multipleStudents(libExecutor);
+            LibraryTests::test23_multipleBorrowings(libExecutor);
+            LibraryTests::test24_fullLibraryWorkflow(libExecutor);
+            LibraryTests::test25_complexScenario(libExecutor);
+            cout << "\n╔════════════════════════════════════════╗" << endl;
+            cout << "║  ALL LIBRARY TESTS COMPLETE            ║" << endl;
+            cout << "╚════════════════════════════════════════╝\n" << endl;
+        }
 
-         cout << "\n╔════════════════════════════════════════╗" << endl; // for restaurant
-         cout << "║  TESTGEN - RESTAURANT TEST SUITE      ║" << endl; // for restaurant
-         cout << "║  Total Tests: 25                       ║" << endl; // for restaurant
-         cout << "╚════════════════════════════════════════╝\n" // for restaurant
-             << endl; // for restaurant
+        // ---- Restaurant Bug Tests (commented out) ----
+        // string backendUrl = "http://localhost:5002";
+        // TestExecutor executor(mode, backendUrl);
+        // BugTests::bugB1_registerStatusCode(executor);
+        // BugTests::bugB2_createRestaurantStatusCode(executor);
+        // BugTests::bugB3_addMenuItemStatusCode(executor);
+        // BugTests::bugB4_orderAmountMissingDeliveryFee(executor);
+        // BugTests::bugB5_cartNotClearedAfterOrder(executor);
+        // BugTests::bugB6_cartQuantityBoundary(executor);
+        // BugTests::bugB7_reviewGuardInverted(executor);
+        // BugTests::bugB8_cartTotalIgnoresQuantity(executor);
 
-
-        // RUN ALL 25 TESTS (comment out for selective testing)
-         cout << "\n=== DEPTH TESTS ===" << endl; // for restaurant
+        // ---- Original 25 Restaurant Tests (commented out) ----
+        // cout << "\n╔════════════════════════════════════════╗" << endl; // for restaurant
+        // cout << "║  TESTGEN - RESTAURANT TEST SUITE      ║" << endl; // for restaurant
+        // cout << "║  Total Tests: 25                       ║" << endl; // for restaurant
+        // cout << "╚════════════════════════════════════════╝\n"        // for restaurant
+        //     << endl; // for restaurant
+        // cout << "\n=== DEPTH TESTS ===" << endl; // for restaurant
         // RestaurantTests::test01_registerLogin(executor);
         // RestaurantTests::test02_loginFailure(executor);
         // RestaurantTests::test03_browseOnly(executor);
@@ -1378,7 +2953,7 @@ int main()
          // RestaurantTests::test22_complexOrderManagement(executor);
          // RestaurantTests::test23_invalidSequence(executor);
          // RestaurantTests::test24_deepWorkflow(executor);
-          RestaurantTests::test25_registerCustomerDuplicate(executor);
+         // RestaurantTests::test25_registerCustomerDuplicate(executor);
 
          // ========================================
          // E-COMMERCE TESTS

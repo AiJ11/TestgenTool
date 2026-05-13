@@ -113,6 +113,78 @@ static const std::map<std::string, std::set<std::string>> operationProducesState
     // Public read-only
     {"getAllProductsOk", {}},
     {"getProductByIdOk", {}},
+
+    // ========================================
+    // TRIPVAULT APP OPERATIONS
+    // ========================================
+
+    {"registerUserOk",       {"U", "T"}},
+    {"registerUser2Ok",      {"U", "T"}},
+    {"loginUserOk",          {"T"}},
+    {"loginUser2Ok",         {"T"}},
+    {"createTripOk",         {"Trips", "Members"}},
+    {"getUserTripsOk",       {}},
+    {"updateTripAdminOk",    {}},
+    {"deleteTripOk",         {}},
+    {"addMemberOk",          {}},
+    {"joinByInviteOk",       {}},
+    {"createExpenseOk",      {"E"}},
+    {"getExpensesOk",        {}},
+    {"deleteExpenseOk",      {}},
+    {"createProposalOk",     {"Proposals"}},
+    {"getProposalsOk",       {}},
+    {"deleteProposalOk",     {}},
+    // Error/UNSAT-triggering ops
+    {"registerUserDuplicateErr",    {}},
+    {"loginUserNotFoundErr",        {}},
+    {"createTripUnauthErr",         {}},
+    {"deleteTripForbiddenErr",      {}},
+    {"addMemberForbiddenErr",       {}},
+    {"createExpenseForbiddenErr",   {}},
+    {"deleteExpenseForbiddenErr",   {}},
+    {"deleteProposalForbiddenErr",  {}},
+
+    // ========================================
+    // GHOSTSOCKET APP OPERATIONS
+    // ========================================
+    {"registerUserOk",              {"U"}},
+    {"registerUser2Ok",             {"U"}},
+    {"registerDeviceOk",            {"D"}},
+    {"getMyDevicesOk",              {}},
+    {"getOtherDevicesOk",           {}},
+    {"getDeviceInfoOk",             {}},
+    {"getDeviceInfoForbiddenErr",   {}},
+    {"deleteDeviceOk",              {}},
+    {"createSessionOk",             {"S"}},
+    {"createSessionForbiddenErr",   {}},
+    {"joinSessionOk",               {}},
+    {"joinSessionNotFoundErr",      {}},
+    {"getSessionsOk",               {}},
+    {"terminateSessionOk",          {}},
+    {"terminateSessionForbiddenErr",{}},
+    {"updatePermissionsOk",         {}},
+
+    // ========================================
+    // SERVEEZ APP OPERATIONS
+    // ========================================
+    {"registerUserOk",              {"U"}},
+    {"registerProviderOk",          {"P"}},
+    {"registerAdminOk",             {"A"}},
+    {"registerProvider2Ok",         {"P"}},
+    {"registerAdmin2Ok",            {"A"}},
+    {"createCategoryOk",            {"C"}},
+    {"createListingOk",             {"L"}},
+    {"getListingsOk",               {}},
+    {"getListingByIdOk",            {}},
+    {"createBookingOk",             {"B"}},
+    {"getMyBookingsOk",             {}},
+    {"confirmBookingOk",            {}},
+    {"completeBookingOk",           {}},
+    {"cancelBookingOk",             {}},
+    {"svzCreateReviewOk",           {}},
+    {"getListingReviewsOk",         {}},
+    {"createListingUnauthErr",      {}},
+    {"createBookingAsProviderErr",  {}},
 };
 
 // Mapping: Operation -> State variables that MUST be non-empty before this op
@@ -207,6 +279,58 @@ static const std::map<std::string, std::set<std::string>> operationRequiresState
     // Product browsing - public, no requirements
     // {"getAllProductsOk", {}},
     // {"getProductByIdOk", {"P"}},  // Needs product to exist, but public
+
+    // ========================================
+    // TRIPVAULT APP REQUIREMENTS
+    // ========================================
+
+    {"loginUserOk",          {"U"}},
+    {"loginUser2Ok",         {"U"}},
+    {"createTripOk",         {"T"}},
+    {"getUserTripsOk",       {"T"}},
+    {"updateTripAdminOk",    {"T", "Trips"}},
+    {"deleteTripOk",         {"T", "Trips"}},
+    {"addMemberOk",          {"T", "Trips", "U"}},
+    {"joinByInviteOk",       {"T", "Trips"}},
+    {"createExpenseOk",      {"T", "Trips"}},
+    {"getExpensesOk",        {"T", "Trips"}},
+    {"deleteExpenseOk",      {"T", "E"}},
+    {"createProposalOk",     {"T", "Trips"}},
+    {"getProposalsOk",       {"T", "Trips"}},
+    {"deleteProposalOk",     {"T", "Proposals"}},
+    {"registerUserDuplicateErr", {"U"}},
+    {"loginUser2Ok",         {"U"}},
+
+    // ========================================
+    // GHOSTSOCKET APP REQUIREMENTS
+    // ========================================
+    {"registerDeviceOk",        {"U"}},
+    {"getMyDevicesOk",          {"U"}},
+    {"getOtherDevicesOk",       {"U"}},
+    {"getDeviceInfoOk",         {"D"}},
+    {"deleteDeviceOk",          {"D"}},
+    {"createSessionOk",         {"D"}},
+    {"joinSessionOk",           {"S", "U"}},
+    {"getSessionsOk",           {"U"}},
+    {"terminateSessionOk",      {"S"}},
+    {"updatePermissionsOk",     {"S"}},
+
+    // ========================================
+    // SERVEEZ APP REQUIREMENTS
+    // ========================================
+    {"createCategoryOk",            {"A"}},
+    {"createListingOk",             {"P", "C"}},
+    {"getListingsOk",               {"L"}},
+    {"getListingByIdOk",            {"L"}},
+    {"createBookingOk",             {"U", "L"}},
+    {"getMyBookingsOk",             {"U", "B"}},
+    {"confirmBookingOk",            {"P", "B"}},
+    {"completeBookingOk",           {"P", "B"}},
+    {"cancelBookingOk",             {"U", "B"}},
+    {"svzCreateReviewOk",           {"U", "B"}},
+    {"getListingReviewsOk",         {"L"}},
+    {"createListingUnauthErr",      {"C"}},
+    {"createBookingAsProviderErr",  {"P", "L"}},
 };
 /**
  * Check if the operation sequence has all required dependencies.
@@ -998,6 +1122,35 @@ Expr *Tester::generateValueForBaseName(const string &baseName, const string &var
         // Generate date 14 days after start date
         static int endDateOffset = 0;
         value = new String("2025-02-" + to_string(24 + (endDateOffset++ % 5)) + "T00:00:00.000Z");
+    }
+
+    // ========================================
+    // SERVEEZ APP VARIABLES (unique per test — cached so all occurrences in one test share same value)
+    // ========================================
+    else if (baseName == "userEmail")
+    {
+        static int svzUserCounter = 0;
+        value = new String("testuser" + to_string(++svzUserCounter) + "@serveez.com");
+    }
+    else if (baseName == "adminEmail")
+    {
+        static int svzAdminCounter = 0;
+        value = new String("admin" + to_string(++svzAdminCounter) + "@serveez.com");
+    }
+    else if (baseName == "provEmail")
+    {
+        static int svzProvCounter = 0;
+        value = new String("provider" + to_string(++svzProvCounter) + "@serveez.com");
+    }
+    else if (baseName == "catName")
+    {
+        static int svzCatCounter = 0;
+        value = new String("TestCategory" + to_string(++svzCatCounter));
+    }
+    else if (baseName == "listingTitle")
+    {
+        static int svzListingCounter = 0;
+        value = new String("TestListing" + to_string(++svzListingCounter));
     }
 
     // ========================================

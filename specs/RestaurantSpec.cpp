@@ -157,9 +157,10 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
             Response(nullptr)
         );
 
-        // POST: U'[customerEmail] = customerPassword AND Roles'[customerEmail] = CUSTOMER
+        // POST: U'[customerEmail] = customerPassword AND Roles'[customerEmail] = CUSTOMER AND _result = 201
+        // NOTE: _result = 201 detects B1 (auth.js mutation returns 200 instead of 201)
         vector<unique_ptr<Expr>> postArgs;
-        
+
         vector<unique_ptr<Expr>> eq1Args;
         vector<unique_ptr<Expr>> uPrimeArgs;
         uPrimeArgs.push_back(make_unique<Var>("U"));
@@ -179,6 +180,12 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         eq2Args.push_back(make_unique<FuncCall>("[]", std::move(indexArgs2)));
         eq2Args.push_back(make_unique<Var>("CUSTOMER"));
         postArgs.push_back(make_unique<FuncCall>("=", std::move(eq2Args)));
+
+        // _result = 201 (checks HTTP status code — detects B1: mutation returns 200)
+        vector<unique_ptr<Expr>> eq3Args;
+        eq3Args.push_back(make_unique<Var>("_result"));
+        eq3Args.push_back(make_unique<Num>(201));
+        postArgs.push_back(make_unique<FuncCall>("=", std::move(eq3Args)));
 
         auto post = make_unique<FuncCall>("AND", std::move(postArgs));
 
@@ -478,9 +485,10 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
             Response(nullptr)
         );
 
-        // POST: U'[ownerEmail] = ownerPassword AND Roles'[ownerEmail] = OWNER
+        // POST: U'[ownerEmail] = ownerPassword AND Roles'[ownerEmail] = OWNER AND _result = 201
+        // NOTE: _result = 201 detects B1 (auth.js mutation returns 200 instead of 201)
         vector<unique_ptr<Expr>> postArgs;
-        
+
         vector<unique_ptr<Expr>> eq1Args;
         vector<unique_ptr<Expr>> uPrimeArgs;
         uPrimeArgs.push_back(make_unique<Var>("U"));
@@ -500,6 +508,12 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         eq2Args.push_back(make_unique<FuncCall>("[]", std::move(indexArgs2)));
         eq2Args.push_back(make_unique<Var>("OWNER"));
         postArgs.push_back(make_unique<FuncCall>("=", std::move(eq2Args)));
+
+        // _result = 201 (checks HTTP status code — detects B1: mutation returns 200)
+        vector<unique_ptr<Expr>> eq3Args;
+        eq3Args.push_back(make_unique<Var>("_result"));
+        eq3Args.push_back(make_unique<Num>(201));
+        postArgs.push_back(make_unique<FuncCall>("=", std::move(eq3Args)));
 
         auto post = make_unique<FuncCall>("AND", std::move(postArgs));
 
@@ -997,6 +1011,124 @@ std::unique_ptr<Spec> makeRestaurantSpec() {
         ));
     }
 
+
+    /* ---------- checkOrderAmountOk ----------
+     * Detects B4: finalAmount = totalAmount + tax (missing deliveryFee).
+     * PRE:  orderId in dom(O)
+     * CALL: checkOrderAmount(orderId)   -> 1 if correct, 0 if wrong
+     * POST: _result = 1
+     * With B4: finalAmount is wrong -> backend returns 400 -> _result = 400 != 1 -> FAIL
+     * ----------------------------------------------------------------------- */
+    {
+        // PRE: orderId in dom(O)
+        vector<unique_ptr<Expr>> inArgs;
+        inArgs.push_back(make_unique<Var>("orderId"));
+        vector<unique_ptr<Expr>> domArgs;
+        domArgs.push_back(make_unique<Var>("O"));
+        inArgs.push_back(make_unique<FuncCall>("dom", std::move(domArgs)));
+        auto pre = make_unique<FuncCall>("in", std::move(inArgs));
+
+        // CALL: checkOrderAmount(orderId)
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("orderId"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("checkOrderAmount", std::move(callArgs)),
+            Response(nullptr)
+        );
+
+        // POST: _result = 1 (backend returns 1 only if finalAmount is correct)
+        vector<unique_ptr<Expr>> eqArgs;
+        eqArgs.push_back(make_unique<Var>("_result"));
+        eqArgs.push_back(make_unique<Num>(1));
+        auto post = make_unique<FuncCall>("=", std::move(eqArgs));
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "checkOrderAmountOk"
+        ));
+    }
+
+    /* ---------- checkCartTotalOk ----------
+     * Detects B8: totalAmount = sum(item.price) instead of sum(item.price * item.quantity).
+     * PRE:  customerEmail in dom(C)
+     * CALL: checkCartTotal(customerEmail)  -> 1 if correct, 0 if wrong
+     * POST: _result = 1
+     * With B8: totalAmount ignores qty -> backend returns 400 -> _result = 400 != 1 -> FAIL
+     * ----------------------------------------------------------------------- */
+    {
+        // PRE: customerEmail in dom(C)
+        vector<unique_ptr<Expr>> inArgs;
+        inArgs.push_back(make_unique<Var>("customerEmail"));
+        vector<unique_ptr<Expr>> domArgs;
+        domArgs.push_back(make_unique<Var>("C"));
+        inArgs.push_back(make_unique<FuncCall>("dom", std::move(domArgs)));
+        auto pre = make_unique<FuncCall>("in", std::move(inArgs));
+
+        // CALL: checkCartTotal(customerEmail)
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("customerEmail"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("checkCartTotal", std::move(callArgs)),
+            Response(nullptr)
+        );
+
+        // POST: _result = 1 (backend returns 1 only if totalAmount is correct)
+        vector<unique_ptr<Expr>> eqArgs;
+        eqArgs.push_back(make_unique<Var>("_result"));
+        eqArgs.push_back(make_unique<Num>(1));
+        auto post = make_unique<FuncCall>("=", std::move(eqArgs));
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "checkCartTotalOk"
+        ));
+    }
+
+    /* ---------- addToCartQuantityZeroErr ----------
+     * Detects B6: quantity < 0 instead of quantity <= 0 (allows zero).
+     * PRE:  customerEmail in dom(T) AND menuItemId in dom(M) AND quantity = 0
+     * CALL: addToCartQuantityZero(customerEmail, menuItemId)
+     * POST: _result = 400   (backend must reject quantity=0)
+     * With B6: backend accepts qty=0 -> returns 200 -> _result = 200 != 400 -> FAIL
+     * ----------------------------------------------------------------------- */
+    {
+        // PRE: customerEmail in dom(T)
+        vector<unique_ptr<Expr>> preArgs;
+
+        vector<unique_ptr<Expr>> inArgs1;
+        inArgs1.push_back(make_unique<Var>("customerEmail"));
+        vector<unique_ptr<Expr>> domArgs1;
+        domArgs1.push_back(make_unique<Var>("T"));
+        inArgs1.push_back(make_unique<FuncCall>("dom", std::move(domArgs1)));
+        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs1)));
+
+        // AND menuItemId in dom(M)
+        vector<unique_ptr<Expr>> inArgs2;
+        inArgs2.push_back(make_unique<Var>("menuItemId"));
+        vector<unique_ptr<Expr>> domArgs2;
+        domArgs2.push_back(make_unique<Var>("M"));
+        inArgs2.push_back(make_unique<FuncCall>("dom", std::move(domArgs2)));
+        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs2)));
+
+        auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
+
+        // CALL: addToCartQuantityZero(customerEmail, menuItemId)  [passes qty=0 internally]
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("customerEmail"));
+        callArgs.push_back(make_unique<Var>("menuItemId"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("addToCartQuantityZero", std::move(callArgs)),
+            Response(nullptr)
+        );
+
+        // POST: _result = 400 (backend must reject quantity=0 with 400)
+        vector<unique_ptr<Expr>> eqArgs;
+        eqArgs.push_back(make_unique<Var>("_result"));
+        eqArgs.push_back(make_unique<Num>(400));
+        auto post = make_unique<FuncCall>("=", std::move(eqArgs));
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "addToCartQuantityZeroErr"
+        ));
+    }
 
     /* =====================================================
      * 5. BUILD SPEC

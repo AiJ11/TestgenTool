@@ -1,0 +1,65 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — ECOMMERCE BACKEND
+========================================================================
+
+Bug ID       : [ECOM BUG EB3]
+Title        : Bug EB3: POST /api/orders returns HTTP 200 instead of 201
+Location     : controllers/orderController.js:53
+Mutation     : res.status(201) → res.status(200)
+Test Depth   : 7 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: registerSellerOk
+  Step  2: loginSellerOk
+  Step  3: createProductOk      ← EB2 cascade detected first
+  Step  4: registerBuyerOk      ← EB1 cascade
+  Step  5: loginBuyerOk
+  Step  6: addToCartOk
+  Step  7: createOrderOk        ← EB3 assertion also fails here
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR createOrderOk
+------------------------------------------------------------------------
+  in(_result6, dom(O')) AND OrderStatus'[_result6]=PENDING AND buyerEmail not_in dom(C')
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  CreateOrderFunc.execute() only stores orderId if resp.statusCode == 201.
+  With bug: backend returns 200 → the if (resp.statusCode == 201) branch is skipped.
+  Factory returns make_unique<String>("") — empty string.
+  Spec postcondition: in(_result6, dom(O')) → "" not in dom(O') → ASSERTION FAILS.
+
+  Cascade note: EB2 (createProduct returns 200) also fires at step 3, meaning
+  the full 7-step flow has two independent assertion failures:
+    - Step 3: in("", dom(P')) → false  [EB2 cascade]
+    - Step 7: in("", dom(O')) → false  [EB3 direct detection]
+
+  Key failing assertions:
+    in(_result2, dom(tmp_P_1)) → false [EB2 cascade at depth 3]
+    in(_result6, dom(tmp_O_1)) → false [EB3 at depth 7]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [CreateProductFunc] seller@example.com creating product: Test Product
+  [HttpClient] POST /api/products -> 200
+  [ASSERT] in(_result2, dom(tmp_P_1)) → false  ← EB2 cascade
+  ...
+  [HttpClient] POST /api/orders -> 400     ← 400 because cart/product chain broke
+  [ASSERT] AND(in(_result6, dom(tmp_O_1)), ...) → false  ← EB3 assertion
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug EB3 DETECTED. Detection depth: 7.
+  Detected both via EB2 cascade (step 3) and independently via createOrder
+  status code check (step 7). With only EB3 active (no EB2), the spec would
+  detect EB3 directly at step 7: POST /api/orders → 200 → factory returns ""
+  → in("", dom(O')) → false.
+
+========================================================================

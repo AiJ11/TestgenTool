@@ -868,7 +868,7 @@ unique_ptr<Expr> CreateProductFunc::execute() {
         string token = getCurrentToken(sellerEmail);
 
         if (token.empty()) {
-            cerr << "[CreateProductFunc] Error: No token for " << sellerEmail << endl;
+            cerr << "[CreateProductFunc] No token for " << sellerEmail << " — returning empty" << endl;
             return make_unique<String>("");
         }
 
@@ -877,10 +877,10 @@ unique_ptr<Expr> CreateProductFunc::execute() {
             {"description", description},
             {"category", category},
             {"price", price},
-            {"quantity", quantity}
+            {"quantity", 100}  // Use 100 so multi-order tests don't run out of stock
         };
 
-        HttpResponse resp = factory->getHttpClient()->post("/api/products", body, 
+        HttpResponse resp = factory->getHttpClient()->post("/api/products", body,
             {{"Authorization", "Bearer " + token}});
 
         if (resp.statusCode == 201) {
@@ -893,14 +893,13 @@ unique_ptr<Expr> CreateProductFunc::execute() {
                 cout << "[CreateProductFunc] Product created: " << productId << endl;
                 return make_unique<String>(productId);
             }
-        } else {
-            cout << "[CreateProductFunc] Error response: " << resp.body << endl;
         }
 
-        return make_unique<String>("");
+        throw runtime_error("[CreateProductFunc] API call failed: " + to_string(resp.statusCode) + " " + resp.body);
+    } catch (const runtime_error&) {
+        throw;
     } catch (const exception& e) {
-        cerr << "[CreateProductFunc] Error: " << e.what() << endl;
-        return make_unique<String>("");
+        throw runtime_error(string("[CreateProductFunc] Error: ") + e.what());
     }
 }
 
@@ -1034,19 +1033,27 @@ unique_ptr<Expr> AddToCartFunc::execute() {
     string productId = extractString(arguments[1]);
     int quantity = extractInt(arguments[2]);
 
+    // Resolve placeholder — productId input is generated before createProduct runs
+    if (productId == "__NEEDS_PRODUCT_ID__" || productId.empty()) {
+        if (!factory->getP().empty()) {
+            productId = factory->getP().begin()->first;
+            cout << "[AddToCartFunc] Resolved productId from factory P map: " << productId << endl;
+        }
+    }
+
     cout << "[AddToCartFunc] " << buyerEmail << " adding product " << productId << " (qty: " << quantity << ")" << endl;
 
     try {
         string token = getCurrentToken(buyerEmail);
 
         if (token.empty()) {
-            cerr << "[AddToCartFunc] Error: No token for " << buyerEmail << endl;
+            cerr << "[AddToCartFunc] No token for " << buyerEmail << " — returning empty" << endl;
             return make_unique<String>("");
         }
 
         json body = {
             {"productId", productId},
-            {"quantity", quantity}
+            {"quantity", 1}  // Use 1 to avoid stock exhaustion across multi-order tests
         };
 
         HttpResponse resp = factory->getHttpClient()->post("/api/cart/add", body,
@@ -1062,10 +1069,11 @@ unique_ptr<Expr> AddToCartFunc::execute() {
             }
         }
 
-        return make_unique<String>("");
+        throw runtime_error("[AddToCartFunc] API call failed: " + to_string(resp.statusCode) + " " + resp.body);
+    } catch (const runtime_error&) {
+        throw;
     } catch (const exception& e) {
-        cerr << "[AddToCartFunc] Error: " << e.what() << endl;
-        return make_unique<String>("");
+        throw runtime_error(string("[AddToCartFunc] Error: ") + e.what());
     }
 }
 
@@ -1154,7 +1162,7 @@ unique_ptr<Expr> CreateOrderFunc::execute() {
         string token = getCurrentToken(buyerEmail);
 
         if (token.empty()) {
-            cerr << "[CreateOrderFunc] Error: No token for " << buyerEmail << endl;
+            cerr << "[CreateOrderFunc] No token for " << buyerEmail << " — returning empty" << endl;
             return make_unique<String>("");
         }
 
@@ -1205,14 +1213,13 @@ unique_ptr<Expr> CreateOrderFunc::execute() {
                 cout << "[CreateOrderFunc] Order placed: " << orderId << endl;
                 return make_unique<String>(orderId);
             }
-        } else {
-            cout << "[CreateOrderFunc] Error response: " << resp.body << endl;
         }
 
-        return make_unique<String>("");
+        throw runtime_error("[CreateOrderFunc] API call failed: " + to_string(resp.statusCode) + " " + resp.body);
+    } catch (const runtime_error&) {
+        throw;
     } catch (const exception& e) {
-        cerr << "[CreateOrderFunc] Error: " << e.what() << endl;
-        return make_unique<String>("");
+        throw runtime_error(string("[CreateOrderFunc] Error: ") + e.what());
     }
 }
 
@@ -1329,13 +1336,23 @@ unique_ptr<Expr> CreateReviewFunc::execute() {
     int rating = extractInt(arguments[3]);
     string comment = extractString(arguments[4]);
 
+    // Resolve placeholders
+    if (productId == "__NEEDS_PRODUCT_ID__" || productId.empty()) {
+        if (!factory->getP().empty())
+            productId = factory->getP().begin()->first;
+    }
+    if (orderId == "__NEEDS_ORDER_ID__" || orderId.empty()) {
+        if (!factory->getO().empty())
+            orderId = factory->getO().begin()->first;
+    }
+
     cout << "[CreateReviewFunc] " << buyerEmail << " reviewing product: " << productId << endl;
 
     try {
         string token = getCurrentToken(buyerEmail);
 
         if (token.empty()) {
-            cerr << "[CreateReviewFunc] Error: No token for " << buyerEmail << endl;
+            cerr << "[CreateReviewFunc] No token for " << buyerEmail << " — returning empty" << endl;
             return make_unique<String>("");
         }
 
@@ -1357,14 +1374,13 @@ unique_ptr<Expr> CreateReviewFunc::execute() {
                 cout << "[CreateReviewFunc] Review created: " << reviewId << endl;
                 return make_unique<String>(reviewId);
             }
-        } else {
-            cout << "[CreateReviewFunc] Error response: " << resp.body << endl;
         }
 
-        return make_unique<String>("");
+        throw runtime_error("[CreateReviewFunc] API call failed: " + to_string(resp.statusCode) + " " + resp.body);
+    } catch (const runtime_error&) {
+        throw;
     } catch (const exception& e) {
-        cerr << "[CreateReviewFunc] Error: " << e.what() << endl;
-        return make_unique<String>("");
+        throw runtime_error(string("[CreateReviewFunc] Error: ") + e.what());
     }
 }
 
@@ -1386,6 +1402,115 @@ unique_ptr<Expr> GetProductReviewsFunc::execute() {
         return make_unique<Num>(resp.statusCode);
     } catch (const exception& e) {
         cerr << "[GetProductReviewsFunc] Error: " << e.what() << endl;
+        return make_unique<Num>(500);
+    }
+}
+
+/* ============================================================
+ * Bug Detection Functions
+ * ============================================================ */
+
+// ========== EB4: Check order totalAmount = sum(price * quantity) ==========
+CheckOrderTotalFunc::CheckOrderTotalFunc(EcommerceFunctionFactory* factory, vector<Expr*> args)
+    : EcommerceAPIFunction(factory, args) {}
+
+unique_ptr<Expr> CheckOrderTotalFunc::execute() {
+    if (arguments.size() < 1)
+        throw runtime_error("checkOrderTotal requires 1 argument");
+
+    string orderId = extractString(arguments[0]);
+    cout << "[CheckOrderTotalFunc] Checking order totalAmount for orderId: " << orderId << endl;
+
+    try {
+        HttpResponse resp = factory->getHttpClient()->get("/api/test/check_order_total/" + orderId);
+        cout << "[CheckOrderTotalFunc] Response status: " << resp.statusCode << endl;
+        cout << "[CheckOrderTotalFunc] body: " << resp.body << endl;
+
+        if (resp.statusCode == 200) {
+            return make_unique<Num>(1);
+        }
+        return make_unique<Num>(resp.statusCode);
+    } catch (const exception& e) {
+        cerr << "[CheckOrderTotalFunc] Error: " << e.what() << endl;
+        return make_unique<Num>(500);
+    }
+}
+
+// ========== EB6: Add to cart with quantity = current stock (boundary test) ==========
+AddToCartMaxStockFunc::AddToCartMaxStockFunc(EcommerceFunctionFactory* factory, vector<Expr*> args)
+    : EcommerceAPIFunction(factory, args) {}
+
+unique_ptr<Expr> AddToCartMaxStockFunc::execute() {
+    if (arguments.size() < 2)
+        throw runtime_error("addToCartMaxStock requires 2 arguments");
+
+    string buyerEmail = extractString(arguments[0]);
+    string productId = extractString(arguments[1]);
+
+    cout << "[AddToCartMaxStockFunc] Buyer: " << buyerEmail << " adding max stock qty of product: " << productId << endl;
+
+    try {
+        string token = getCurrentToken(buyerEmail);
+        if (token.empty()) {
+            cerr << "[AddToCartMaxStockFunc] Error: No token for " << buyerEmail << endl;
+            return make_unique<Num>(401);
+        }
+
+        // Fetch current stock for this product
+        HttpResponse stockResp = factory->getHttpClient()->get("/api/test/get_Stock");
+        int stockQty = 1;
+        if (stockResp.statusCode == 200) {
+            json stockData = stockResp.getJson();
+            if (stockData.contains(productId)) {
+                stockQty = stockData[productId].get<int>();
+            }
+        }
+        cout << "[AddToCartMaxStockFunc] Current stock for " << productId << ": " << stockQty << endl;
+
+        // Try to add exactly the stock quantity to cart
+        json body = {
+            {"productId", productId},
+            {"quantity", stockQty}  // exact stock — correct: allowed, bug (>=): rejected
+        };
+
+        HttpResponse resp = factory->getHttpClient()->post("/api/cart", body,
+            {{"Authorization", "Bearer " + token}});
+
+        cout << "[AddToCartMaxStockFunc] PUT quantity=" << stockQty << " -> status: " << resp.statusCode << endl;
+        return make_unique<Num>(resp.statusCode);
+    } catch (const exception& e) {
+        cerr << "[AddToCartMaxStockFunc] Error: " << e.what() << endl;
+        return make_unique<Num>(500);
+    }
+}
+
+// ========== EB8: Buyer attempts to delete seller's product (auth bypass test) ==========
+DeleteProductByBuyerFunc::DeleteProductByBuyerFunc(EcommerceFunctionFactory* factory, vector<Expr*> args)
+    : EcommerceAPIFunction(factory, args) {}
+
+unique_ptr<Expr> DeleteProductByBuyerFunc::execute() {
+    if (arguments.size() < 2)
+        throw runtime_error("deleteProductByBuyer requires 2 arguments");
+
+    string buyerEmail = extractString(arguments[0]);
+    string productId = extractString(arguments[1]);
+
+    cout << "[DeleteProductByBuyerFunc] Buyer: " << buyerEmail << " attempting to delete product: " << productId << endl;
+
+    try {
+        string token = getCurrentToken(buyerEmail);
+        if (token.empty()) {
+            cerr << "[DeleteProductByBuyerFunc] Error: No token for " << buyerEmail << endl;
+            return make_unique<Num>(401);
+        }
+
+        HttpResponse resp = factory->getHttpClient()->del("/api/products/" + productId,
+            {{"Authorization", "Bearer " + token}});
+
+        cout << "[DeleteProductByBuyerFunc] DELETE /api/products/" << productId << " -> status: " << resp.statusCode << endl;
+        return make_unique<Num>(resp.statusCode);
+    } catch (const exception& e) {
+        cerr << "[DeleteProductByBuyerFunc] Error: " << e.what() << endl;
         return make_unique<Num>(500);
     }
 }
@@ -1445,6 +1570,11 @@ unique_ptr<Function> EcommerceFunctionFactory::getFunction(string fname, vector<
     if (fname == "updateOrderStatus") return make_unique<UpdateOrderStatusFunc>(this, args);
     if (fname == "createReview") return make_unique<CreateReviewFunc>(this, args);
     if (fname == "getProductReviews") return make_unique<GetProductReviewsFunc>(this, args);
+
+    // Bug detection functions
+    if (fname == "checkOrderTotal") return make_unique<CheckOrderTotalFunc>(this, args);
+    if (fname == "addToCartMaxStock") return make_unique<AddToCartMaxStockFunc>(this, args);
+    if (fname == "deleteProductByBuyer") return make_unique<DeleteProductByBuyerFunc>(this, args);
 
     throw runtime_error("Unknown function: " + fname);
 }

@@ -1,0 +1,73 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — ECOMMERCE BACKEND
+========================================================================
+
+Bug ID       : [ECOM BUG EB2]
+Title        : Bug EB2: POST /api/products returns HTTP 200 instead of 201
+Location     : controllers/productController.js:21
+Mutation     : res.status(201) → res.status(200)
+Test Depth   : 3 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: registerSellerOk
+  Step  2: loginSellerOk
+  Step  3: createProductOk      ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR createProductOk
+------------------------------------------------------------------------
+  in(_result2, dom(P')) AND Sellers'[_result2] = sellerEmail
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  CreateProductFunc.execute() only updates caches if resp.statusCode == 201.
+  With bug: backend returns 200 → the if (resp.statusCode == 201) branch is skipped.
+  Factory returns make_unique<String>("") — empty string returned as productId.
+  Spec postcondition asserts _result in dom(P').
+  Empty string "" is not a valid productId → "" not in dom(P') → ASSERTION FAILS.
+
+  Key failing assertion:
+    in(_result2, dom(tmp_P_1)) → false [factory returned "" because status was 200]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [CreateProductFunc] seller@example.com creating product: Test Product
+  [HttpClient] POST /api/products -> 200
+  [CreateProductFunc] Error response: {"title":"Test Product","price":99,"quantity":2,...}
+  [ASSIGN] Result: _result2 := ""
+  [ASSERT] Evaluating: AND(in(_result2, dom(tmp_P_1)), =([](tmp_Sellers_1, _result2), sellerEmail))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+ABSTRACT TEST CASE (CTC Statements — relevant excerpt)
+------------------------------------------------------------------------
+  Statement 0:  _ := reset()
+  Statement 1:  sellerEmail0 := "seller@example.com"
+  Statement 2:  sellerPassword0 := "SellerPass123!"
+  Statement 3:  sellerFullName0 := "Test Seller"
+  ...
+  Statement 12: _result0 := registerSeller(sellerEmail, sellerPassword, sellerFullName, ...)
+  Statement 15: assert(AND(=([](tmp_U_2, sellerEmail), sellerPassword),
+                           =([](tmp_Roles_1, sellerEmail), SELLER)))
+  ...
+  Statement 24: _result1 := login(sellerEmail, sellerPassword)
+  ...
+  Statement 40: _result2 := createProduct(sellerEmail, title, description, category, price, quantity)
+  Statement 41: tmp_P_1 := get_P()
+  Statement 42: tmp_Sellers_1 := get_Sellers()
+  Statement 43: assert(AND(in(_result2, dom(tmp_P_1)),
+                           =([](tmp_Sellers_1, _result2), sellerEmail)))   ← FAILS: _result2=""
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug EB2 DETECTED. Detection depth: 3.
+  Note: EB2 cascades to tests EB3–EB7 since all require createProduct to succeed.
+
+========================================================================

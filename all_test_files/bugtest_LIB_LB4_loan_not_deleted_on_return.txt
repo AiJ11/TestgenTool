@@ -1,0 +1,74 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — LIBRARY BACKEND
+========================================================================
+
+Bug ID       : [LIB BUG LB4]
+Title        : Bug LB4: Loan not deleted when book is returned
+Location     : service/BookStudentService.java:70
+Mutation     : return bookStudentDAO.deleteBookStudentById(id)
+               →
+               return bookStudentDAO.findBookStudentById(id)  [delete skipped]
+Test Depth   : 5 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: saveBookOk
+  Step  2: saveStudentOk
+  Step  3: saveRequestOk
+  Step  4: acceptRequestOk
+  Step  5: returnBookOk       ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR returnBookOk
+------------------------------------------------------------------------
+  not_in(loanId, dom(Loans'))
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With LB4 bug: deleteById() in BookStudentService calls
+  bookStudentDAO.findBookStudentById() instead of deleteBookStudentById().
+  The returnBook endpoint returns the loan object (HTTP 200) but never
+  removes the BookStudent record from the database.
+  ReturnBookFunc sees resp.statusCode==200, erases loanId from Loans_cache.
+  BUT the spec evaluates Loans' via get_Loans() which fetches live DB state.
+  The DB still contains the loan → loanId IS in Loans' → not_in FAILS.
+
+  Note: In the simultaneous all-bugs run, LB7 and LB8 cascade and fire
+  at steps 2 and 1 respectively. LB4 is independently detectable when
+  run with only LB4 active.
+
+  Key failing assertion:
+    not_in(loanId, dom(tmp_Loans_2)) → false [loan still in Loans' after return]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [SaveBookFunc] Creating book: Test Book 4
+  [HttpClient] POST /books/save -> 200
+  [SaveStudentFunc] Creating student: Test Student 3
+  [HttpClient] POST /student/save -> 200
+  [SaveRequestFunc] Creating request: student=<id> book=<code>
+  [HttpClient] POST /requests/save -> 200
+  [AcceptRequestFunc] Accepting request: <requestId>
+  [HttpClient] POST /bookStudent/accept -> 200
+  [AcceptRequestFunc] Created loan <loanId> from request <requestId>
+  [ReturnBookFunc] Returning book (loan): <loanId>
+  [HttpClient] DELETE /bookStudent/delete/<loanId> -> 200
+  [GetLoansFunc] Fetching Loans...
+  [GetLoansFunc] <loanId> -> <loanData>    ← loan STILL in DB
+  [ASSERT] Evaluating: not_in(loanId, dom(tmp_Loans_2))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug LB4 DETECTED. Detection depth: 5.
+  Strategy: missing side-effect bugs are detected by spec postconditions
+  that check the state that SHOULD have changed. get_Loans() fetches live
+  DB state; the un-deleted loan is caught directly.
+
+========================================================================

@@ -1,0 +1,72 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — ECOMMERCE BACKEND
+========================================================================
+
+Bug ID       : [ECOM BUG EB5]
+Title        : Bug EB5: Cart not cleared after order is placed
+Location     : controllers/orderController.js:50
+Mutation     : await Cart.findOneAndDelete({ buyer: req.user._id })
+               →
+               // await Cart.findOneAndDelete({ buyer: req.user._id }); [commented out]
+Test Depth   : 7 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: registerSellerOk
+  Step  2: loginSellerOk
+  Step  3: createProductOk
+  Step  4: registerBuyerOk
+  Step  5: loginBuyerOk
+  Step  6: addToCartOk
+  Step  7: createOrderOk        ← BUG DETECTED HERE (post-condition check)
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR createOrderOk
+------------------------------------------------------------------------
+  in(_result6, dom(O')) AND OrderStatus'[_result6]=PENDING AND
+  buyerEmail not_in dom(C')          ← cart-cleared assertion
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  After placing the order, the spec checks that buyerEmail is NO LONGER
+  in dom(C') (cart map). With EB5 bug: the Cart.findOneAndDelete is
+  commented out → cart document remains in MongoDB after order creation.
+  get_C() fetches live backend state → cart still present →
+  buyerEmail in dom(C') → not_in fails → ASSERTION FAILS.
+
+  This is a missing side-effect bug: the correct state change (cart deletion)
+  fails to occur, leaving the system in an inconsistent post-order state.
+
+  Key failing assertion:
+    not_in(buyerEmail, dom(tmp_C_4)) → false [cart still exists after order]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [CreateOrderFunc] buyer@example.com placing order...
+  [HttpClient] POST /api/orders -> 201    (order itself created correctly)
+  [CreateOrderFunc] Order placed: <orderId>
+  [GetCFunc] Fetching carts from backend...
+  [HttpClient] GET /api/test/get_C -> 200
+  [GetCFunc] buyer@example.com -> <cartId>  ← cart STILL EXISTS
+  [ASSERT] Evaluating: AND(in(_result6, dom(tmp_O_1)),
+                           =([](tmp_OrderStatus_1, _result6), PENDING),
+                           not_in(buyerEmail, dom(tmp_C_4)))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+  (In the simultaneous all-bugs run, EB2 cascade also fires at step 3.
+   The not_in(buyerEmail, dom(C')) check independently confirms EB5.)
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug EB5 DETECTED. Detection depth: 7.
+  Strategy: missing side-effect bugs are detected by spec postconditions
+  that check the state that SHOULD have changed. get_C() fetches live
+  backend state; the un-deleted cart is caught directly.
+
+========================================================================

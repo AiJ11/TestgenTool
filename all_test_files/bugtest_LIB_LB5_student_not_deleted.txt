@@ -1,0 +1,66 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — LIBRARY BACKEND
+========================================================================
+
+Bug ID       : [LIB BUG LB5]
+Title        : Bug LB5: Student not deleted — deleteStudent skips DB removal
+Location     : service/StudentService.java:50
+Mutation     : Student s1 = studentDAO.deleteStudentById(id)
+               →
+               Student s1 = studentDAO.getStudentById(id)  [delete never called]
+Test Depth   : 2 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: saveStudentOk
+  Step  2: deleteStudentOk    ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR deleteStudentOk
+------------------------------------------------------------------------
+  not_in(studentId, dom(S'))
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With LB5 bug: deleteStudent() in StudentService reads the student via
+  getStudentById() instead of deleting it. The deleteStudent endpoint
+  returns the student (HTTP 200) but never removes the Student row from
+  the database.
+  DeleteStudentFunc sees resp.statusCode==200, erases studentId from S_cache.
+  BUT the spec evaluates S' via get_S() which fetches live DB state.
+  The DB still contains the student → studentId IS in S' → not_in FAILS.
+
+  Note: In the simultaneous all-bugs run, LB7 (saveStudent not saved)
+  cascades and fires at step 1 — saving with id=0 means student is never
+  actually in DB. LB5 is independently detectable when run with only LB5 active.
+
+  Key failing assertion (independent run):
+    not_in(studentId, dom(tmp_S_2)) → false [student still in S' after delete]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [SaveStudentFunc] Creating student: Test Student 4
+  [HttpClient] POST /student/save?userId=4 -> 200
+  [SaveStudentFunc] Created student with id: <studentId>
+  [ASSIGN] Result: _result0 := "<studentId>"
+  [DeleteStudentFunc] Deleting student: <studentId>
+  [HttpClient] DELETE /student/deleteStudent/<studentId> -> 200
+  [GetSFunc] Fetching S (Students)...
+  [GetSFunc] <studentId> -> <studentData>   ← student STILL in DB
+  [ASSERT] Evaluating: not_in(studentId, dom(tmp_S_2))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug LB5 DETECTED. Detection depth: 2.
+  Strategy: missing side-effect bugs are detected by spec postconditions
+  that check the state that SHOULD have changed. get_S() fetches live DB
+  state; the un-deleted student is caught directly.
+
+========================================================================

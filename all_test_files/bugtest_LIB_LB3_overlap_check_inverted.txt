@@ -1,0 +1,74 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — LIBRARY BACKEND
+========================================================================
+
+Bug ID       : [LIB BUG LB3]
+Title        : Bug LB3: Overlap check inverted — accept rejects valid requests
+Location     : controllers/RequestController.java:147
+Mutation     : if (bookStudentService.doesRequestOverlap(request)) { throw ... }
+               →
+               if (!bookStudentService.doesRequestOverlap(request)) { throw ... }
+Test Depth   : 4 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: saveBookOk
+  Step  2: saveStudentOk
+  Step  3: saveRequestOk
+  Step  4: acceptRequestOk    ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR acceptRequestOk
+------------------------------------------------------------------------
+  AND(in(_result3, dom(Loans')), not_in(requestId, dom(Req')))
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With LB3 bug: the guard `!bookStudentService.doesRequestOverlap(request)`
+  throws UnavailableForGivenDatesException even when no overlap exists —
+  the exact opposite of the intended logic.
+  For a fresh request with no competing loans: doesRequestOverlap() returns
+  false → negated → true → exception thrown → HTTP 500.
+  AcceptRequestFunc receives non-200/201 response → returns Num(500).
+  Spec asserts in(_result3, dom(Loans')) — 500 is not a valid loanId and
+  Num(500) would not be found in Loans' → ASSERTION FAILS.
+
+  Note: In the simultaneous all-bugs run, LB7 and LB8 cascade and fire
+  at steps 2 and 1 respectively. LB3 is independently detectable when
+  run with only LB3 active.
+
+  Key failing assertion:
+    AND(in(_result3, dom(tmp_Loans_1)), ...) → false [accept threw exception]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [SaveBookFunc] Creating book: Test Book 3
+  [HttpClient] POST /books/save -> 200
+  [SaveStudentFunc] Creating student: Test Student 2
+  [HttpClient] POST /student/save -> 200
+  [SaveRequestFunc] Creating request: student=<id> book=<code>
+  [HttpClient] POST /requests/save -> 200
+  [AcceptRequestFunc] Accepting request: <requestId>
+  [HttpClient] GET /requests/<requestId> -> 200
+  [HttpClient] POST /bookStudent/accept -> 500
+  [AcceptRequestFunc] Error: {"message":"Book not available for the given dates"}
+  [ASSIGN] Result: _result3 := 500
+  [ASSERT] Evaluating: AND(in(_result3, dom(tmp_Loans_1)), ...)
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug LB3 DETECTED. Detection depth: 4.
+  Strategy: wrong conditional guard bugs are caught when the spec
+  postcondition asserts that the result of the guarded action lands in
+  the correct state map (Loans'). The inverted guard throws an exception
+  for every valid accept request, causing a non-201 response that fails
+  the in-domain assertion.
+
+========================================================================

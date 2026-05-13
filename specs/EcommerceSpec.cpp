@@ -118,6 +118,12 @@ std::unique_ptr<Spec> makeEcommerceSpec() {
         eq2Args.push_back(make_unique<Var>("BUYER"));
         postArgs.push_back(make_unique<FuncCall>("=", std::move(eq2Args)));
 
+        // _result = 201 (checks HTTP status code — detects EB1: mutation returns 200)
+        vector<unique_ptr<Expr>> eq3Args;
+        eq3Args.push_back(make_unique<Var>("_result"));
+        eq3Args.push_back(make_unique<Num>(201));
+        postArgs.push_back(make_unique<FuncCall>("=", std::move(eq3Args)));
+
         auto post = make_unique<FuncCall>("AND", std::move(postArgs));
 
         blocks.push_back(make_unique<API>(
@@ -990,6 +996,140 @@ std::unique_ptr<Spec> makeEcommerceSpec() {
 
         blocks.push_back(make_unique<API>(
             std::move(pre), std::move(call), Response(std::move(post)), "updateOrderStatusOk"
+        ));
+    }
+
+    /* ========================================================================
+     * BUG DETECTION SPEC BLOCKS
+     * ======================================================================== */
+
+    /* ---------- checkOrderTotalOk (EB4: totalAmount ignores quantity) ---------- */
+    {
+        // PRE: orderId in dom(O)
+        vector<unique_ptr<Expr>> inArgs;
+        inArgs.push_back(make_unique<Var>("orderId"));
+        vector<unique_ptr<Expr>> domArgs;
+        domArgs.push_back(make_unique<Var>("O"));
+        inArgs.push_back(make_unique<FuncCall>("dom", std::move(domArgs)));
+        auto pre = make_unique<FuncCall>("in", std::move(inArgs));
+
+        // CALL: checkOrderTotal(orderId)
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("orderId"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("checkOrderTotal", std::move(callArgs)),
+            Response(nullptr)
+        );
+
+        // POST: _result = 1
+        vector<unique_ptr<Expr>> eqArgs;
+        eqArgs.push_back(make_unique<Var>("_result"));
+        eqArgs.push_back(make_unique<Num>(1));
+        auto post = make_unique<FuncCall>("=", std::move(eqArgs));
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "checkOrderTotalOk"
+        ));
+    }
+
+    /* ---------- addToCartMaxStockOk (EB6: boundary >= instead of >) ---------- */
+    {
+        // PRE: buyerEmail in dom(T) AND productId in dom(P) AND Roles[buyerEmail] = BUYER
+        vector<unique_ptr<Expr>> preArgs;
+
+        vector<unique_ptr<Expr>> inArgs1;
+        inArgs1.push_back(make_unique<Var>("buyerEmail"));
+        vector<unique_ptr<Expr>> domArgs1;
+        domArgs1.push_back(make_unique<Var>("T"));
+        inArgs1.push_back(make_unique<FuncCall>("dom", std::move(domArgs1)));
+        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs1)));
+
+        vector<unique_ptr<Expr>> inArgs2;
+        inArgs2.push_back(make_unique<Var>("productId"));
+        vector<unique_ptr<Expr>> domArgs2;
+        domArgs2.push_back(make_unique<Var>("P"));
+        inArgs2.push_back(make_unique<FuncCall>("dom", std::move(domArgs2)));
+        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs2)));
+
+        vector<unique_ptr<Expr>> roleEqArgs;
+        vector<unique_ptr<Expr>> roleIndexArgs;
+        roleIndexArgs.push_back(make_unique<Var>("Roles"));
+        roleIndexArgs.push_back(make_unique<Var>("buyerEmail"));
+        roleEqArgs.push_back(make_unique<FuncCall>("[]", std::move(roleIndexArgs)));
+        roleEqArgs.push_back(make_unique<Var>("BUYER"));
+        preArgs.push_back(make_unique<FuncCall>("=", std::move(roleEqArgs)));
+
+        auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
+
+        // CALL: addToCartMaxStock(buyerEmail, productId)
+        // Factory fetches current stock and tries to add exactly that quantity
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("buyerEmail"));
+        callArgs.push_back(make_unique<Var>("productId"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("addToCartMaxStock", std::move(callArgs)),
+            Response(nullptr)
+        );
+
+        // POST: _result = 200 (correct backend accepts exact stock quantity)
+        vector<unique_ptr<Expr>> eqArgs;
+        eqArgs.push_back(make_unique<Var>("_result"));
+        eqArgs.push_back(make_unique<Num>(200));
+        auto post = make_unique<FuncCall>("=", std::move(eqArgs));
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "addToCartMaxStockOk"
+        ));
+    }
+
+    /* ---------- deleteProductByBuyerErr (EB8: seller auth check removed) ---------- */
+    {
+        // PRE: buyerEmail in dom(T) AND productId in dom(P) AND Roles[buyerEmail] = BUYER
+        vector<unique_ptr<Expr>> preArgs;
+
+        vector<unique_ptr<Expr>> inArgs1;
+        inArgs1.push_back(make_unique<Var>("buyerEmail"));
+        vector<unique_ptr<Expr>> domArgs1;
+        domArgs1.push_back(make_unique<Var>("T"));
+        inArgs1.push_back(make_unique<FuncCall>("dom", std::move(domArgs1)));
+        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs1)));
+
+        vector<unique_ptr<Expr>> inArgs2;
+        inArgs2.push_back(make_unique<Var>("productId"));
+        vector<unique_ptr<Expr>> domArgs2;
+        domArgs2.push_back(make_unique<Var>("P"));
+        inArgs2.push_back(make_unique<FuncCall>("dom", std::move(domArgs2)));
+        preArgs.push_back(make_unique<FuncCall>("in", std::move(inArgs2)));
+
+        vector<unique_ptr<Expr>> roleEqArgs;
+        vector<unique_ptr<Expr>> roleIndexArgs;
+        roleIndexArgs.push_back(make_unique<Var>("Roles"));
+        roleIndexArgs.push_back(make_unique<Var>("buyerEmail"));
+        roleEqArgs.push_back(make_unique<FuncCall>("[]", std::move(roleIndexArgs)));
+        roleEqArgs.push_back(make_unique<Var>("BUYER"));
+        preArgs.push_back(make_unique<FuncCall>("=", std::move(roleEqArgs)));
+
+        auto pre = make_unique<FuncCall>("AND", std::move(preArgs));
+
+        // CALL: deleteProductByBuyer(buyerEmail, productId)
+        // Buyer uses their own token to attempt deleting a seller's product
+        vector<unique_ptr<Expr>> callArgs;
+        callArgs.push_back(make_unique<Var>("buyerEmail"));
+        callArgs.push_back(make_unique<Var>("productId"));
+        auto call = make_unique<APIcall>(
+            make_unique<FuncCall>("deleteProductByBuyer", std::move(callArgs)),
+            Response(nullptr)
+        );
+
+        // POST: _result = 404 (correct backend rejects — seller check fails for buyer)
+        // With BUG (no seller check): product deleted → 200 ≠ 404 → ASSERTION FAILS
+        vector<unique_ptr<Expr>> eqArgs;
+        eqArgs.push_back(make_unique<Var>("_result"));
+        eqArgs.push_back(make_unique<Num>(404));
+        auto post = make_unique<FuncCall>("=", std::move(eqArgs));
+
+        blocks.push_back(make_unique<API>(
+            std::move(pre), std::move(call), Response(std::move(post)), "deleteProductByBuyerErr"
         ));
     }
 

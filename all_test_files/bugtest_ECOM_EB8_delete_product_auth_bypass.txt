@@ -1,0 +1,81 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — ECOMMERCE BACKEND
+========================================================================
+
+Bug ID       : [ECOM BUG EB8]
+Title        : Bug EB8: Product delete missing seller ownership check
+Location     : controllers/productController.js:59
+Mutation     : Product.findOneAndDelete({ _id: req.params.id, seller: req.user._id })
+               →
+               Product.findOneAndDelete({ _id: req.params.id })  [seller check removed]
+Test Depth   : 6 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: registerSellerOk
+  Step  2: loginSellerOk
+  Step  3: createProductOk           (product owned by seller)
+  Step  4: registerBuyerOk
+  Step  5: loginBuyerOk
+  Step  6: deleteProductByBuyerErr   ← BUG DETECTED HERE
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR deleteProductByBuyerErr
+------------------------------------------------------------------------
+  _result = 404
+
+  (Correct backend: { _id, seller } query finds nothing for buyer's _id
+   as seller → product not found → HTTP 404.
+   Buggy backend: { _id } only → finds the product → deletes it → HTTP 200.)
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With EB8 bug: the seller ownership check is removed from the delete query.
+  Any authenticated user can now delete any product by productId.
+  When a buyer uses their own token to call DELETE /api/products/:productId
+  on a product they do not own:
+    - Correct: 404 (seller check fails, Mongoose returns null → "not found")
+    - Bug: 200 (product found by _id alone → deleted successfully)
+  Spec asserts _result == 404. Bug gives 200 → 200 ≠ 404 → ASSERTION FAILS.
+
+  Key failing assertion:
+    =(_result5, 404) → false [backend returned 200: product was deleted by non-owner]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [DeleteProductByBuyerFunc] Buyer: buyer@example.com attempting to delete product: <productId>
+  [HttpClient] DELETE /api/products/<productId> [with buyer's JWT token]
+  [DeleteProductByBuyerFunc] DELETE /api/products/<productId> -> status: 200
+  [ASSIGN] Result: _result5 := 200
+  [ASSERT] Evaluating: =(_result5, 404)
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+  (In the simultaneous all-bugs run, EB2 cascade fires at step 3.
+   deleteProductByBuyerErr independently confirms EB8:
+   buyer token + product DELETE → 200 [deleted] → 200 ≠ 404 → FAILS.)
+
+------------------------------------------------------------------------
+FACTORY FUNCTION (added to ecommercefunctionfactory.cc)
+------------------------------------------------------------------------
+  DeleteProductByBuyerFunc::execute():
+    1. getCurrentToken(buyerEmail)     ← buyer's JWT
+    2. DEL /api/products/:productId with buyer Authorization header
+    3. return Num(resp.statusCode)
+    Correct: 404 (seller check fails)
+    Bug: 200 (no seller check → product deleted)
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug EB8 DETECTED. Detection depth: 6.
+  Strategy: authorization bypass bugs are caught by a spec block that
+  sends a request from an unauthorized user (buyer) and asserts the
+  expected rejection status code (404). The bug allows unauthorized
+  deletion → wrong status code → spec postcondition fails.
+
+========================================================================

@@ -1,0 +1,16 @@
+======================================================================
+GHOSTSOCKET MUTATION TESTING — ONE-BUG-AT-A-TIME RESULTS
+======================================================================
+
+GHOSTSOCKET BACKEND — 8/8 detected
+--------------------------------------------------
+  GSB1   DETECTED   ✓   [Wrong status code]   createSession returns HTTP 200 instead of 201
+  GSB2   DETECTED   ✓   [Missing side-effect]   deleteDevice (owner) does not delete device from DB
+  GSB3   DETECTED   ✓   [Auth bypass]   createSession ownership check removed (any user can create session for any device)
+  GSB4   DETECTED   ✓   [Auth bypass]   terminateSession does not check if userId matches session owner
+  GSB5   DETECTED   ✓   [Missing validation]   joinSession does not check if session is already used (joinedUserId null check removed)
+  GSB6   DETECTED   ✓   [Auth bypass]   getDeviceInfo access check removed (any auth user can see any device info)
+  GSB7   DETECTED   ✓   [Auth bypass]   updatePermissions does not check session belongs to requesting user
+  GSB8   DETECTED   ✓   [Missing validation]   createSession expiry validation removed (allows sessions < 10 min)
+
+OVERALL MUTATION SCORE: 8/8 (100.0%)

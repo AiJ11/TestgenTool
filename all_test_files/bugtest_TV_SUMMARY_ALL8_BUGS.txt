@@ -1,0 +1,16 @@
+======================================================================
+TRIPVAULT MUTATION TESTING — ONE-BUG-AT-A-TIME RESULTS
+======================================================================
+
+TRIPVAULT BACKEND — 8/8 detected
+--------------------------------------------------
+  TVB1   DETECTED   ✓   [Wrong status code]   createTrip returns HTTP 200 instead of 201
+  TVB2   DETECTED   ✓   [Missing side-effect]   deleteTrip does not actually delete the trip from DB
+  TVB3   DETECTED   ✓   [Wrong status code]   createExpense returns HTTP 200 instead of 201
+  TVB4   DETECTED   ✓   [Missing side-effect]   deleteExpense does not actually delete the expense from DB
+  TVB5   DETECTED   ✓   [Auth bypass]   addMemberByEmail admin role check removed (any logged-in user can add members)
+  TVB6   DETECTED   ✓   [Auth bypass]   updateTrip admin role check removed (any member can update trip details)
+  TVB7   DETECTED   ✓   [Missing validation]   createExpense split percentage validation removed (allows invalid splits)
+  TVB8   DETECTED   ✓   [Auth bypass]   deleteTrip creator check removed (any member can delete any trip)
+
+OVERALL MUTATION SCORE: 8/8 (100.0%)

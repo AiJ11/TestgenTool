@@ -41,6 +41,9 @@ SRCS = test_libapplication.cpp \
        specs/RestaurantSpec.cpp \
        specs/EcommerceSpec.cpp \
        specs/LibrarySpec.cpp \
+       specs/TripVaultSpec.cpp \
+       specs/GhostSocketSpec.cpp \
+       specs/ServeezSpec.cpp \
        see/see.cc \
        see/solver.cc \
        see/z3solver.cc \
@@ -49,6 +52,9 @@ SRCS = test_libapplication.cpp \
        see/restaurantfunctionfactory.cc \
        see/ecommercefunctionfactory.cc \
        see/libraryfunctionfactory.cc \
+       see/tripvaultfunctionfactory.cc \
+       see/ghostsocketfunctionfactory.cc \
+       see/serveezfunctionfactory.cc \
        tester/tester.cc
 
 # Default target

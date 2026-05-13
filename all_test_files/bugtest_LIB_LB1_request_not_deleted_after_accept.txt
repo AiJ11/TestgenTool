@@ -1,0 +1,77 @@
+========================================================================
+TESTGEN BUG DETECTION REPORT — LIBRARY BACKEND
+========================================================================
+
+Bug ID       : [LIB BUG LB1]
+Title        : Bug LB1: Request not deleted after accept
+Location     : controllers/RequestController.java:167
+Mutation     : requestService.deleteRequestbyId(request.getSlno())
+               →
+               // requestService.deleteRequestbyId(request.getSlno()); [commented out]
+Test Depth   : 4 API calls
+Detection    : DETECTED ✓
+
+------------------------------------------------------------------------
+TEST SEQUENCE
+------------------------------------------------------------------------
+  Step  1: saveBookOk
+  Step  2: saveStudentOk
+  Step  3: saveRequestOk
+  Step  4: acceptRequestOk    ← BUG DETECTED HERE (postcondition check)
+
+------------------------------------------------------------------------
+SPEC POSTCONDITION FOR acceptRequestOk
+------------------------------------------------------------------------
+  AND(in(_result3, dom(Loans')), not_in(requestId, dom(Req')))
+
+  (Correct backend: accept() creates loan AND deletes the original request.
+   Buggy backend: loan IS created, but request is never removed from Req'.)
+
+------------------------------------------------------------------------
+DETECTION ANALYSIS
+------------------------------------------------------------------------
+  With LB1 bug: the call to requestService.deleteRequestbyId() is commented out.
+  The accept endpoint creates a BookStudent loan successfully (HTTP 200/201)
+  but the original Request row remains in the database.
+  The spec postcondition checks both:
+    1. in(_result3, dom(Loans')) — new loan exists ✓
+    2. not_in(requestId, dom(Req')) — request should be gone
+  Condition 2 FAILS because get_Req() fetches the live DB and the request
+  is still present → ASSERTION FAILS.
+
+  Note: In the simultaneous all-bugs run, LB7 (saveStudent not saved) and
+  LB8 (saveBook not saved) cascade and fire at steps 2 and 1 respectively.
+  LB1 is independently detectable when run alone against only LB1 active.
+
+  Key failing assertion:
+    AND(in(_result3, dom(tmp_Loans_1)), not_in(requestId, dom(tmp_Req_4)))
+    → false [request still in Req after accept]
+
+------------------------------------------------------------------------
+KEY EVIDENCE (from CTC execution)
+------------------------------------------------------------------------
+  [SaveBookFunc] Creating book: Test Book 1
+  [HttpClient] POST /books/save -> 200
+  [SaveStudentFunc] Creating student: Test Student 1
+  [HttpClient] POST /student/save?userId=1 -> 200
+  [SaveRequestFunc] Creating request: student=<studentId> book=<bookCode>
+  [HttpClient] POST /requests/save -> 200
+  [AcceptRequestFunc] Accepting request: <requestId>
+  [HttpClient] POST /bookStudent/accept -> 200
+  [AcceptRequestFunc] Created loan <loanSlno> from request <requestId>
+  [GetReqFunc] Fetching Req (Requests)...
+  [GetReqFunc] <requestId> -> <requestData>   ← request STILL EXISTS
+  [ASSERT] Evaluating: AND(in(_result3, dom(tmp_Loans_1)),
+                           not_in(requestId, dom(tmp_Req_4)))
+  [ASSERT] Result: false
+  [ASSERT] ✗ Assertion FAILED
+
+------------------------------------------------------------------------
+MUTATION SCORE CONTRIBUTION
+------------------------------------------------------------------------
+  Bug LB1 DETECTED. Detection depth: 4.
+  Strategy: missing side-effect bugs are caught by spec postconditions
+  that assert the state SHOULD have changed. not_in(requestId, dom(Req'))
+  catches the un-deleted request directly via get_Req() live state fetch.
+
+========================================================================
