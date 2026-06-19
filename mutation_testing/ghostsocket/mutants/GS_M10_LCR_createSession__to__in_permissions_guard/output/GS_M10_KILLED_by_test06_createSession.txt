@@ -1,0 +1,51 @@
+========================================
+TEST: [SAT] Test06 Createsession
+MODE: Full Pipeline (With Backend)
+DEPTH: 2 API calls
+WEBAPP: GHOSTSOCKET backend
+MUTATION: GS_M10 — [LCR] createSession: || → && in permissions guard
+========================================
+
+[RewriteGlobalsVisitor] Detected globals for ghostsocket spec
+[RewriteGlobalsVisitor] Generated rewritten test-API ATC
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: email0 := input()
+Statement 2: password0 := input()
+... [intermediate steps] ...
+Statement 5: _result1 := api06_createSession(...)
+Statement 6:   assert(postcondition_1)
+=== End Program ===
+
+>>> generateCTC: Starting iteration
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+>>> generateCTC: STEP 2 - Running symbolic execution
+
+[SEE] Executing API call sequence (2 steps)
+
+[HTTP_CLIENT] Making HTTP call to ghostsocket backend
+[HTTP_CLIENT] Response received
+
+[ASSIGN] Evaluating API result
+[ASSERT] Evaluating: postcondition for test06_createSession
+  Mutation type: LCR — logical connector replaced
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+✗ Test06 Createsession  FAILED:
+  [LCR] createSession: || → && in permissions guard
+  Postcondition violated at step 1
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : GS_M10
+Operator        : LCR
+Killing test    : test06_createSession
+File            : controllers/SessionController.js
+Change          : [LCR] createSession: || → && in permissions guard
+────────────────────────────────────────

@@ -1,0 +1,12 @@
+Mutation ID    : SV_M08
+Operator       : LCR
+File           : service/BookingService.java
+Description    : [ROR] cancelBooking: CANCELLED == → != in double-cancel guard
+Result         : EXPECTED_KILLED
+Killing tests  : test10_cancelBooking
+
+ORIGINAL:
+                booking.getStatus() == Booking.BookingStatus.CANCELLED) {
+
+MUTANT:
+                booking.getStatus() != Booking.BookingStatus.CANCELLED) {

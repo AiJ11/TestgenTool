@@ -1,0 +1,12 @@
+Mutation ID    : GS_M24
+Operator       : LCR
+File           : controllers/SessionController.js
+Description    : [LCR] terminateSession: || → && in not-found guard
+Result         : EXPECTED_KILLED
+Killing tests  : test09_terminateSession
+
+ORIGINAL:
+if (!session || session.terminated) {
+
+MUTANT:
+if (!session && session.terminated) {

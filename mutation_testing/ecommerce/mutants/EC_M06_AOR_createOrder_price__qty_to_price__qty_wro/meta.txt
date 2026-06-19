@@ -1,0 +1,12 @@
+Mutation ID    : EC_M06
+Operator       : AOR
+File           : controllers/orderController.js
+Description    : [AOR] createOrder: price * qty → price + qty (wrong total)
+Result         : EXPECTED_KILLED
+Killing tests  : test14_multiUserCreateOrder, test19_multipleOrders
+
+ORIGINAL:
+      const itemTotal = item.product.price * item.quantity;
+
+MUTANT:
+      const itemTotal = item.product.price + item.quantity;

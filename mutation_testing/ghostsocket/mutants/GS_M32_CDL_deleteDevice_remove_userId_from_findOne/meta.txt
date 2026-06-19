@@ -1,0 +1,12 @@
+Mutation ID    : GS_M32
+Operator       : CDL
+File           : controllers/DeviceController.js
+Description    : [CDL] deleteDevice: remove userId from findOne
+Result         : EXPECTED_KILLED
+Killing tests  : test10_deleteDevice
+
+ORIGINAL:
+    const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, deviceId});
+
+MUTANT:
+    const userDeviceLink = await DBUserDeviceLinks.findOne({ deviceId});

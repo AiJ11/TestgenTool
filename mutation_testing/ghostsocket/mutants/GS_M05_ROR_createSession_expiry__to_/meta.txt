@@ -1,0 +1,12 @@
+Mutation ID    : GS_M05
+Operator       : ROR
+File           : controllers/SessionController.js
+Description    : [ROR] createSession: expiry < → >
+Result         : EXPECTED_KILLED
+Killing tests  : test06_createSession, test07_joinSession
+
+ORIGINAL:
+if (selectedDate < tenMinutesFromNow) {
+
+MUTANT:
+if (selectedDate > tenMinutesFromNow) {

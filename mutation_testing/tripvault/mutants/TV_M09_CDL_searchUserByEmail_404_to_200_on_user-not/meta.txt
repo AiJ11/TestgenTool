@@ -1,0 +1,18 @@
+Mutation ID    : TV_M09
+Operator       : CDL
+File           : controllers/TripController.js
+Description    : [CDL] searchUserByEmail: 404 → 200 on user-not-found
+Result         : EXPECTED_KILLED
+Killing tests  : test10_searchUserNotFound
+
+ORIGINAL:
+            return res.status(404).json({ 
+                success: false,
+                message: "User not found with this email" 
+            });
+
+MUTANT:
+            return res.status(200).json({ 
+                success: false,
+                message: "User not found with this email" 
+            });

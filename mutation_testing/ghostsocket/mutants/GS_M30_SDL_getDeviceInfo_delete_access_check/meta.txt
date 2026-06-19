@@ -1,0 +1,16 @@
+Mutation ID    : GS_M30
+Operator       : SDL
+File           : controllers/DeviceController.js
+Description    : [SDL] getDeviceInfo: delete access check
+Result         : EXPECTED_KILLED
+Killing tests  : test13_deviceInfoForbidden
+
+ORIGINAL:
+    // Check if the user has access to the device
+    const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, deviceId });
+    if (!userDeviceLink) {
+      return res.status(403).json({ error: "You do not have access to this device" });
+    }
+
+MUTANT:
+    // [MUTANT GS_M30: SDL] access check deleted

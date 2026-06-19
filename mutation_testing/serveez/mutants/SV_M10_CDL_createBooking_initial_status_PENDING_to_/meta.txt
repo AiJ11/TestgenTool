@@ -1,0 +1,12 @@
+Mutation ID    : SV_M10
+Operator       : CDL
+File           : service/BookingService.java
+Description    : [CDL] createBooking: initial status PENDING → CONFIRMED
+Result         : EXPECTED_KILLED
+Killing tests  : test06_createBooking, test07_confirmBooking
+
+ORIGINAL:
+        booking.setStatus(Booking.BookingStatus.PENDING);
+
+MUTANT:
+        booking.setStatus(Booking.BookingStatus.CONFIRMED);

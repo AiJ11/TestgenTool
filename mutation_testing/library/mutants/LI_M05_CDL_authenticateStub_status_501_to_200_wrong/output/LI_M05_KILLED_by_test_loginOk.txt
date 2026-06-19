@@ -1,0 +1,50 @@
+========================================
+TEST: [SAT] Test Loginok
+MODE: Full Pipeline (With Backend)
+DEPTH: 2 API calls
+WEBAPP: LIBRARY backend
+MUTATION: LI_M05 — [CDL] authenticateStub: status 501 → 200 (wrong status code)
+========================================
+
+[RewriteGlobalsVisitor] Detected globals for library spec
+[RewriteGlobalsVisitor] Generated rewritten test-API ATC
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: email0 := input()
+Statement 2: password0 := input()
+... [intermediate steps] ...
+Statement 5: _result1 := api_loginOk(...)
+Statement 6:   assert(postcondition_1)
+=== End Program ===
+
+>>> generateCTC: Starting iteration
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+>>> generateCTC: STEP 2 - Running symbolic execution
+
+[SEE] Executing API call sequence (2 steps)
+
+[HTTP_CLIENT] Making HTTP call to library backend
+[HTTP_CLIENT] Response received
+
+[ASSIGN] Evaluating API result
+[ASSERT] Evaluating: postcondition for test_loginOk
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+✗ Test Loginok  FAILED:
+  [CDL] authenticateStub: status 501 → 200 (wrong status code)
+  Postcondition violated at step 1
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : LI_M05
+Operator        : CDL
+Killing test    : test_loginOk
+File            : controller/AuthenticationController.java
+Change          : [CDL] authenticateStub: status 501 → 200 (wrong status code)
+────────────────────────────────────────

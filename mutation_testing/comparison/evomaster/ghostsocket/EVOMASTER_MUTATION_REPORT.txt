@@ -1,0 +1,357 @@
+================================================================================
+  EVOMASTER MUTATION TESTING REPORT — GHOSTSOCKET
+================================================================================
+  Tool            : EVOMASTER (Evolutionary black-box REST tester)
+  Backend         : GHOSTSOCKET
+  Total Mutants   : 54
+  Killed          : 0 (0%)
+  Survived        : 54
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  TOOL CAPABILITIES & LIMITATIONS ON THIS BACKEND
+────────────────────────────────────────────────────────────────────────────────
+
+  Authentication barrier : Clerk OAuth tokens required
+
+  GhostSocket uses Clerk external OAuth. RESTler/EvoMaster cannot perform a
+  browser-based OAuth flow. All endpoints return 401/403. Mutated code paths
+  are never executed — the mutation cannot be observed.
+
+  EvoMaster detection mechanism:
+    • HTTP 5xx = fault indication
+    • Does NOT check: exact 2xx codes, response body content, postconditions
+    • Black-box mode, 120s budget, no auth configured
+    • OMTSP: 0.00 (auth-protected)
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION RESULTS
+────────────────────────────────────────────────────────────────────────────────
+
+  GS_M01  [CDL]  [CDL] createSession: status 201 → 200
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__createSession__status_201___200/output/GS_M01_SURVIVED_evomaster.txt
+
+  GS_M02  [CDL]  [CDL] createSession: ownership-check 403 → 200
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__createSession__ownership-check_403/output/GS_M02_SURVIVED_evomaster.txt
+
+  GS_M03  [UOI]  [UOI] createSession: negate ownership guard
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_UOI__createSession__negate_ownership_gu/output/GS_M03_SURVIVED_evomaster.txt
+
+  GS_M04  [CDL]  [CDL] createSession: role owner → user
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__createSession__role_owner___user/output/GS_M04_SURVIVED_evomaster.txt
+
+  GS_M05  [ROR]  [ROR] createSession: expiry < → >
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_ROR__createSession__expiry______/output/GS_M05_SURVIVED_evomaster.txt
+
+  GS_M06  [ROR]  [ROR] createSession: expiry < → <= (off-by-one)
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_ROR__createSession__expiry_________off-/output/GS_M06_SURVIVED_evomaster.txt
+
+  GS_M07  [AOR]  [AOR] createSession: 10min threshold + → -
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_AOR__createSession__10min_threshold____/output/GS_M07_SURVIVED_evomaster.txt
+
+  GS_M08  [AOR]  [AOR] createSession: 10 min → 9 min threshold
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_AOR__createSession__10_min___9_min_thre/output/GS_M08_SURVIVED_evomaster.txt
+
+  GS_M09  [ROR]  [ROR] createSession: permissions.length === 0 → !=
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_ROR__createSession__permissions_length_/output/GS_M09_SURVIVED_evomaster.txt
+
+  GS_M10  [LCR]  [LCR] createSession: || → && in permissions guard
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_LCR__createSession__________in_permissi/output/GS_M10_SURVIVED_evomaster.txt
+
+  GS_M11  [SDL]  [SDL] createSession: delete permissions validation
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__createSession__delete_permissions_/output/GS_M11_SURVIVED_evomaster.txt
+
+  GS_M12  [CDL]  [CDL] createSession: expiry error 400 → 200
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__createSession__expiry_error_400___/output/GS_M12_SURVIVED_evomaster.txt
+
+  GS_M13  [CDL]  [CDL] joinSession: terminated: false → true
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__joinSession__terminated__false___t/output/GS_M13_SURVIVED_evomaster.txt
+
+  GS_M14  [SDL]  [SDL] joinSession: remove joinedUserId/terminated
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__joinSession__remove_joinedUserId_t/output/GS_M14_SURVIVED_evomaster.txt
+
+  GS_M15  [CDL]  [CDL] joinSession: 404 → 200 on session-not-found
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__joinSession__404___200_on_session-/output/GS_M15_SURVIVED_evomaster.txt
+
+  GS_M16  [ROR]  [ROR] joinSession: expiry check < → >
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_ROR__joinSession__expiry_check______/output/GS_M16_SURVIVED_evomaster.txt
+
+  GS_M17  [SDL]  [SDL] joinSession: delete expiry validation
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__joinSession__delete_expiry_validat/output/GS_M17_SURVIVED_evomaster.txt
+
+  GS_M18  [SDL]  [SDL] joinSession: delete duplicate user-device link
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__joinSession__delete_duplicate_user/output/GS_M18_SURVIVED_evomaster.txt
+
+  GS_M19  [ROR]  [ROR] terminateSession: !== → === in owner check
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_ROR__terminateSession____________in_own/output/GS_M19_SURVIVED_evomaster.txt
+
+  GS_M20  [UOI]  [UOI] terminateSession: double-negation on owner check
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_UOI__terminateSession__double-negation_/output/GS_M20_SURVIVED_evomaster.txt
+
+  GS_M21  [CDL]  [CDL] terminateSession: 403 → 200 on unauthorized
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__terminateSession__403___200_on_una/output/GS_M21_SURVIVED_evomaster.txt
+
+  GS_M22  [SDL]  [SDL] terminateSession: delete userId ownership check
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__terminateSession__delete_userId_ow/output/GS_M22_SURVIVED_evomaster.txt
+
+  GS_M23  [CDL]  [CDL] terminateSession: terminated:true → false
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__terminateSession__terminated_true_/output/GS_M23_SURVIVED_evomaster.txt
+
+  GS_M24  [LCR]  [LCR] terminateSession: || → && in not-found guard
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_LCR__terminateSession__________in_not-f/output/GS_M24_SURVIVED_evomaster.txt
+
+  GS_M25  [CDL]  [CDL] updatePermissions: remove userId scope
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__updatePermissions__remove_userId_s/output/GS_M25_SURVIVED_evomaster.txt
+
+  GS_M26  [SDL]  [SDL] updatePermissions: delete permissions format check
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__updatePermissions__delete_permissi/output/GS_M26_SURVIVED_evomaster.txt
+
+  GS_M27  [CDL]  [CDL] updatePermissions: success 200 → 201
+    File    : controllers/SessionController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__updatePermissions__success_200___2/output/GS_M27_SURVIVED_evomaster.txt
+
+  GS_M28  [UOI]  [UOI] getDeviceInfo: negate access guard
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_UOI__getDeviceInfo__negate_access_guard/output/GS_M28_SURVIVED_evomaster.txt
+
+  GS_M29  [CDL]  [CDL] getDeviceInfo: 403 → 200 on access denied
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__getDeviceInfo__403___200_on_access/output/GS_M29_SURVIVED_evomaster.txt
+
+  GS_M30  [SDL]  [SDL] getDeviceInfo: delete access check
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__getDeviceInfo__delete_access_check/output/GS_M30_SURVIVED_evomaster.txt
+
+  GS_M31  [CDL]  [CDL] getDeviceInfo: success 200 → 201
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__getDeviceInfo__success_200___201/output/GS_M31_SURVIVED_evomaster.txt
+
+  GS_M32  [CDL]  [CDL] deleteDevice: remove userId from findOne
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__deleteDevice__remove_userId_from_f/output/GS_M32_SURVIVED_evomaster.txt
+
+  GS_M33  [ROR]  [ROR] deleteDevice: role === owner → !==
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_ROR__deleteDevice__role_____owner______/output/GS_M33_SURVIVED_evomaster.txt
+
+  GS_M34  [CDL]  [CDL] deleteDevice: owner → user role check
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__deleteDevice__owner___user_role_ch/output/GS_M34_SURVIVED_evomaster.txt
+
+  GS_M35  [SDL]  [SDL] deleteDevice: skip DBDevice.deleteOne
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__deleteDevice__skip_DBDevice_delete/output/GS_M35_SURVIVED_evomaster.txt
+
+  GS_M36  [SDL]  [SDL] deleteDevice: skip deleteMany user-device links
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__deleteDevice__skip_deleteMany_user/output/GS_M36_SURVIVED_evomaster.txt
+
+  GS_M37  [SDL]  [SDL] deleteDevice: skip session termination
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__deleteDevice__skip_session_termina/output/GS_M37_SURVIVED_evomaster.txt
+
+  GS_M38  [CDL]  [CDL] deleteDevice: 403 → 200 on no-access
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__deleteDevice__403___200_on_no-acce/output/GS_M38_SURVIVED_evomaster.txt
+
+  GS_M39  [CDL]  [CDL] deleteDevice (owner): success 200 → 201
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__deleteDevice__owner___success_200_/output/GS_M39_SURVIVED_evomaster.txt
+
+  GS_M40  [CDL]  [CDL] deleteDevice (user branch): success 200 → 201
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__deleteDevice__user_branch___succes/output/GS_M40_SURVIVED_evomaster.txt
+
+  GS_M41  [CDL]  [CDL] getMyDevices: owner → user role filter
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__getMyDevices__owner___user_role_fi/output/GS_M41_SURVIVED_evomaster.txt
+
+  GS_M42  [CDL]  [CDL] getOtherDevices: user → owner role filter
+    File    : controllers/DeviceController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__getOtherDevices__user___owner_role/output/GS_M42_SURVIVED_evomaster.txt
+
+  GS_M43  [ROR]  [ROR] verifyOtp: expiresAt < → >
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_ROR__verifyOtp__expiresAt______/output/GS_M43_SURVIVED_evomaster.txt
+
+  GS_M44  [ROR]  [ROR] verifyOtp: expiresAt < → <= (off-by-one)
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_ROR__verifyOtp__expiresAt_________off-b/output/GS_M44_SURVIVED_evomaster.txt
+
+  GS_M45  [SDL]  [SDL] verifyOtp: delete OTP expiry check
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__verifyOtp__delete_OTP_expiry_check/output/GS_M45_SURVIVED_evomaster.txt
+
+  GS_M46  [SDL]  [SDL] verifyOtp: OTP not deleted after use
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__verifyOtp__OTP_not_deleted_after_u/output/GS_M46_SURVIVED_evomaster.txt
+
+  GS_M47  [CDL]  [CDL] verifyOtp: invalid-OTP 400 → 200
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__verifyOtp__invalid-OTP_400___200/output/GS_M47_SURVIVED_evomaster.txt
+
+  GS_M48  [CDL]  [CDL] verifyOtp: expired-OTP 400 → 200
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__verifyOtp__expired-OTP_400___200/output/GS_M48_SURVIVED_evomaster.txt
+
+  GS_M49  [CDL]  [CDL] verifyOtp: owner → user in link check
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_CDL__verifyOtp__owner___user_in_link_ch/output/GS_M49_SURVIVED_evomaster.txt
+
+  GS_M50  [SDL]  [SDL] verifyOtp: skip DBDevice.create
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__verifyOtp__skip_DBDevice_create/output/GS_M50_SURVIVED_evomaster.txt
+
+  GS_M51  [SDL]  [SDL] verifyOtp: skip UserDeviceLinks.create on existing dev
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__verifyOtp__skip_UserDeviceLinks_cr/output/GS_M51_SURVIVED_evomaster.txt
+
+  GS_M52  [AOR]  [AOR] sendOtp: + → - in expiresAt (OTP already expired)
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_AOR__sendOtp______-_in_expiresAt__OTP_a/output/GS_M52_SURVIVED_evomaster.txt
+
+  GS_M53  [AOR]  [AOR] sendOtp: 5 min → 50 min OTP expiry
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_AOR__sendOtp__5_min___50_min_OTP_expiry/output/GS_M53_SURVIVED_evomaster.txt
+
+  GS_M54  [SDL]  [SDL] logoutApp: skip deleteMany user links
+    File    : controllers/AppController.js
+    Result  : SURVIVED ✗
+    Reason  : Clerk OAuth tokens required
+    Output  : ghostsocket/mutants/_SDL__logoutApp__skip_deleteMany_user_li/output/GS_M54_SURVIVED_evomaster.txt
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY: 0/54 mutants killed = 0% mutation score
+────────────────────────────────────────────────────────────────────────────────

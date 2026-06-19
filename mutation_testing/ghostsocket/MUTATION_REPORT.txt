@@ -1,0 +1,494 @@
+================================================================================
+  TESTGEN MUTATION TESTING REPORT — GHOSTSOCKET
+================================================================================
+  Tool          : TestGen (Specification-Based Test Generation)
+  Backend       : Ghostsocket
+  Total Mutants : 54
+  Operators     : AOR, CDL, LCR, ROR, SDL, UOI
+  All Results   : KILLED (100%)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  WHY THESE OPERATORS WERE CHOSEN
+────────────────────────────────────────────────────────────────────────────────
+
+  AOR (4 mutants)
+    Arithmetic Operator Replacement — +/- swap and constant scaling; targets calculation errors in fees, totals, and time-window arithmetic.
+
+  CDL (22 mutants)
+    Constant/Literal Replacement — changes HTTP status codes, role strings, and boolean flags; directly tests postcondition assertions in TestGen.
+
+  LCR (2 mutants)
+    Logical Connector Replacement — && ↔ || swap; weakens composite guards, a subtle but critical source of auth-bypass vulnerabilities.
+
+  ROR (8 mutants)
+    Relational Operator Replacement — models off-by-one and inverted guard defects, one of the most common real-world bug classes in API backends.
+
+  SDL (15 mutants)
+    Statement Deletion — removes DB writes, auth guards, and validation blocks; models 'forgotten line' defects caught by stateful multi-step tests.
+
+  UOI (3 mutants)
+    Unary Operator Insertion — negates a boolean guard (if !x → if x); cleanly inverts an access-control decision with a single character change.
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION CATALOGUE
+────────────────────────────────────────────────────────────────────────────────
+
+  GS_M01  [CDL]  [CDL] createSession: status 201 → 200
+    File         : controllers/SessionController.js
+    Original     : res.status(201).json({ sessionKey: session._id });
+    Mutant       : res.status(200).json({ sessionKey: session._id });
+    Killed by    : test06_createSession, test07_joinSession, test08_getSessions, test09_terminateSession, test17_fullSessionLifecycle, test18_devicesAndSession, test20_joinAndUpdatePermissions
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M01_CDL_createSession_status_201_to_200/output/
+
+  GS_M02  [CDL]  [CDL] createSession: ownership-check 403 → 200
+    File         : controllers/SessionController.js
+    Original     : return res.status(403).json({ error: "You do not have permission to cr
+    Mutant       : return res.status(200).json({ error: "You do not have permission to cr
+    Killed by    : test14_createSessionForbidden
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M02_CDL_createSession_ownership-check_403_to_200/output/
+
+  GS_M03  [UOI]  [UOI] createSession: negate ownership guard
+    File         : controllers/SessionController.js
+    Original     : const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, devic
+    Mutant       : const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, devic
+    Killed by    : test06_createSession, test14_createSessionForbidden
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M03_UOI_createSession_negate_ownership_guard/output/
+
+  GS_M04  [CDL]  [CDL] createSession: role owner → user
+    File         : controllers/SessionController.js
+    Original     : const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, devic
+    Mutant       : const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, devic
+    Killed by    : test06_createSession, test14_createSessionForbidden
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M04_CDL_createSession_role_owner_to_user/output/
+
+  GS_M05  [ROR]  [ROR] createSession: expiry < → >
+    File         : controllers/SessionController.js
+    Original     : if (selectedDate < tenMinutesFromNow) {
+    Mutant       : if (selectedDate > tenMinutesFromNow) {
+    Killed by    : test06_createSession, test07_joinSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M05_ROR_createSession_expiry__to_/output/
+
+  GS_M06  [ROR]  [ROR] createSession: expiry < → <= (off-by-one)
+    File         : controllers/SessionController.js
+    Original     : if (selectedDate < tenMinutesFromNow) {
+    Mutant       : if (selectedDate <= tenMinutesFromNow) {
+    Killed by    : test06_createSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M06_ROR_createSession_expiry__to__off-by-one/output/
+
+  GS_M07  [AOR]  [AOR] createSession: 10min threshold + → -
+    File         : controllers/SessionController.js
+    Original     : const tenMinutesFromNow = new Date(currentDate.getTime() + 10 * 60 * 1
+    Mutant       : const tenMinutesFromNow = new Date(currentDate.getTime() - 10 * 60 * 1
+    Killed by    : test06_createSession, test07_joinSession, test09_terminateSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M07_AOR_createSession_10min_threshold__to_-/output/
+
+  GS_M08  [AOR]  [AOR] createSession: 10 min → 9 min threshold
+    File         : controllers/SessionController.js
+    Original     : const tenMinutesFromNow = new Date(currentDate.getTime() + 10 * 60 * 1
+    Mutant       : const tenMinutesFromNow = new Date(currentDate.getTime() + 9 * 60 * 10
+    Killed by    : test06_createSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M08_AOR_createSession_10_min_to_9_min_threshold/output/
+
+  GS_M09  [ROR]  [ROR] createSession: permissions.length === 0 → !== 0
+    File         : controllers/SessionController.js
+    Original     : if (!permissions || !Array.isArray(permissions) || permissions.length
+    Mutant       : if (!permissions || !Array.isArray(permissions) || permissions.length
+    Killed by    : test06_createSession, test07_joinSession, test12_updatePermissions
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M09_ROR_createSession_permissionslength__0_to__0/output/
+
+  GS_M10  [LCR]  [LCR] createSession: || → && in permissions guard
+    File         : controllers/SessionController.js
+    Original     : if (!permissions || !Array.isArray(permissions) || permissions.length
+    Mutant       : if (!permissions && !Array.isArray(permissions) && permissions.length
+    Killed by    : test06_createSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M10_LCR_createSession__to__in_permissions_guard/output/
+
+  GS_M11  [SDL]  [SDL] createSession: delete permissions validation
+    File         : controllers/SessionController.js
+    Original     : // Check if permissions are provided else return error
+    Mutant       : // [MUTANT GS_M11: SDL] permissions check deleted
+    Killed by    : test06_createSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M11_SDL_createSession_delete_permissions_validat/output/
+
+  GS_M12  [CDL]  [CDL] createSession: expiry error 400 → 200
+    File         : controllers/SessionController.js
+    Original     : return res.status(400).json({ error: "Expiry must be at least 10 minut
+    Mutant       : return res.status(200).json({ error: "Expiry must be at least 10 minut
+    Killed by    : test06_createSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M12_CDL_createSession_expiry_error_400_to_200/output/
+
+  GS_M13  [CDL]  [CDL] joinSession: terminated: false → true
+    File         : controllers/SessionController.js
+    Original     : const session = await DBSessions.findOne({ _id: sessionKey, joinedUser
+    Mutant       : const session = await DBSessions.findOne({ _id: sessionKey, joinedUser
+    Killed by    : test07_joinSession, test11_getOtherDevices, test17_fullSessionLifecycle
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M13_CDL_joinSession_terminated_false_to_true/output/
+
+  GS_M14  [SDL]  [SDL] joinSession: remove joinedUserId/terminated conditions
+    File         : controllers/SessionController.js
+    Original     : const session = await DBSessions.findOne({ _id: sessionKey, joinedUser
+    Mutant       : const session = await DBSessions.findOne({ _id: sessionKey });
+    Killed by    : test07_joinSession, test17_fullSessionLifecycle
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M14_SDL_joinSession_remove_joinedUserIdterminate/output/
+
+  GS_M15  [CDL]  [CDL] joinSession: 404 → 200 on session-not-found
+    File         : controllers/SessionController.js
+    Original     : return res.status(404).json({ message: "Session not found or used." })
+    Mutant       : return res.status(200).json({ message: "Session not found or used." })
+    Killed by    : test15_joinSessionNotFound
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M15_CDL_joinSession_404_to_200_on_session-not-fo/output/
+
+  GS_M16  [ROR]  [ROR] joinSession: expiry check < → >
+    File         : controllers/SessionController.js
+    Original     : if (session.expiry && new Date(session.expiry) < new Date()) {
+    Mutant       : if (session.expiry && new Date(session.expiry) > new Date()) {
+    Killed by    : test07_joinSession, test11_getOtherDevices, test17_fullSessionLifecycle
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M16_ROR_joinSession_expiry_check__to_/output/
+
+  GS_M17  [SDL]  [SDL] joinSession: delete expiry validation
+    File         : controllers/SessionController.js
+    Original     : // Check if the session has expired if its null then it means
+    Mutant       : // [MUTANT GS_M17: SDL] expiry check deleted
+    Killed by    : test07_joinSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M17_SDL_joinSession_delete_expiry_validation/output/
+
+  GS_M18  [SDL]  [SDL] joinSession: delete duplicate user-device-link check
+    File         : controllers/SessionController.js
+    Original     : // Check if the user device link already exists
+        const
+    Mutant       : // [MUTANT GS_M18: SDL] duplicate-link check deleted
+    Killed by    : test11_getOtherDevices
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M18_SDL_joinSession_delete_duplicate_user-device/output/
+
+  GS_M19  [ROR]  [ROR] terminateSession: !== → === in owner check
+    File         : controllers/SessionController.js
+    Original     : if (session.userId !== userId) {
+    Mutant       : if (session.userId === userId) {
+    Killed by    : test09_terminateSession, test16_terminateSessionForbidden, test17_fullSessionLifecycle
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M19_ROR_terminateSession__to__in_owner_check/output/
+
+  GS_M20  [UOI]  [UOI] terminateSession: double-negation on owner check
+    File         : controllers/SessionController.js
+    Original     : if (session.userId !== userId) {
+    Mutant       : if (!(session.userId !== userId)) {
+    Killed by    : test09_terminateSession, test16_terminateSessionForbidden
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M20_UOI_terminateSession_double-negation_on_owne/output/
+
+  GS_M21  [CDL]  [CDL] terminateSession: 403 → 200 on unauthorized
+    File         : controllers/SessionController.js
+    Original     : return res.status(403).json({ message: "You are not authorized to term
+    Mutant       : return res.status(200).json({ message: "You are not authorized to term
+    Killed by    : test16_terminateSessionForbidden
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M21_CDL_terminateSession_403_to_200_on_unauthori/output/
+
+  GS_M22  [SDL]  [SDL] terminateSession: delete userId ownership check
+    File         : controllers/SessionController.js
+    Original     : // Check if the user is the owner of the session
+        if (s
+    Mutant       : // [MUTANT GS_M22: SDL] ownership check for terminate deleted
+    Killed by    : test09_terminateSession, test16_terminateSessionForbidden, test17_fullSessionLifecycle
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M22_SDL_terminateSession_delete_userId_ownership/output/
+
+  GS_M23  [CDL]  [CDL] terminateSession: terminated:true → false
+    File         : controllers/SessionController.js
+    Original     : await DBSessions.updateOne({ _id: sessionKey }, { $set: { terminated:
+    Mutant       : await DBSessions.updateOne({ _id: sessionKey }, { $set: { terminated:
+    Killed by    : test09_terminateSession, test17_fullSessionLifecycle, test21_sessionListAndTerminate
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M23_CDL_terminateSession_terminatedtrue_to_false/output/
+
+  GS_M24  [LCR]  [LCR] terminateSession: || → && in not-found guard
+    File         : controllers/SessionController.js
+    Original     : if (!session || session.terminated) {
+    Mutant       : if (!session && session.terminated) {
+    Killed by    : test09_terminateSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M24_LCR_terminateSession__to__in_not-found_guard/output/
+
+  GS_M25  [CDL]  [CDL] updatePermissions: remove userId scope
+    File         : controllers/SessionController.js
+    Original     : const session = await DBSessions.findOne({ _id: sessionKey, userId });
+    Mutant       : const session = await DBSessions.findOne({ _id: sessionKey });
+    Killed by    : test12_updatePermissions, test20_joinAndUpdatePermissions
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M25_CDL_updatePermissions_remove_userId_scope/output/
+
+  GS_M26  [SDL]  [SDL] updatePermissions: delete permissions format validation
+    File         : controllers/SessionController.js
+    Original     : // Validate permissions format
+        if (!Array.isArray(perm
+    Mutant       : // [MUTANT GS_M26: SDL] permissions format validation deleted
+    Killed by    : test12_updatePermissions
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M26_SDL_updatePermissions_delete_permissions_for/output/
+
+  GS_M27  [CDL]  [CDL] updatePermissions: success 200 → 201
+    File         : controllers/SessionController.js
+    Original     : res.status(200).json({ message: "Permissions updated successfu
+    Mutant       : res.status(201).json({ message: "Permissions updated successfu
+    Killed by    : test12_updatePermissions, test20_joinAndUpdatePermissions
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M27_CDL_updatePermissions_success_200_to_201/output/
+
+  GS_M28  [UOI]  [UOI] getDeviceInfo: negate access guard
+    File         : controllers/DeviceController.js
+    Original     : if (!userDeviceLink) {
+      return res.status(403).json({ error:
+    Mutant       : if (userDeviceLink) {
+      return res.status(403).json({ error: "
+    Killed by    : test05_getDeviceInfo, test13_deviceInfoForbidden
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M28_UOI_getDeviceInfo_negate_access_guard/output/
+
+  GS_M29  [CDL]  [CDL] getDeviceInfo: 403 → 200 on access denied
+    File         : controllers/DeviceController.js
+    Original     : return res.status(403).json({ error: "You do not have access to
+    Mutant       : return res.status(200).json({ error: "You do not have access to
+    Killed by    : test13_deviceInfoForbidden
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M29_CDL_getDeviceInfo_403_to_200_on_access_denie/output/
+
+  GS_M30  [SDL]  [SDL] getDeviceInfo: delete access check
+    File         : controllers/DeviceController.js
+    Original     : // Check if the user has access to the device
+    const userDevice
+    Mutant       : // [MUTANT GS_M30: SDL] access check deleted
+    Killed by    : test13_deviceInfoForbidden
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M30_SDL_getDeviceInfo_delete_access_check/output/
+
+  GS_M31  [CDL]  [CDL] getDeviceInfo: success 200 → 201
+    File         : controllers/DeviceController.js
+    Original     : res.status(200).json({deviceInfo: {
+    Mutant       : res.status(201).json({deviceInfo: {
+    Killed by    : test05_getDeviceInfo, test19_deviceInfoAndSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M31_CDL_getDeviceInfo_success_200_to_201/output/
+
+  GS_M32  [CDL]  [CDL] deleteDevice: remove userId from findOne
+    File         : controllers/DeviceController.js
+    Original     : const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, d
+    Mutant       : const userDeviceLink = await DBUserDeviceLinks.findOne({ deviceId}
+    Killed by    : test10_deleteDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M32_CDL_deleteDevice_remove_userId_from_findOne/output/
+
+  GS_M33  [ROR]  [ROR] deleteDevice: role === owner → !==
+    File         : controllers/DeviceController.js
+    Original     : if (userDeviceLink.role === "owner") {
+    Mutant       : if (userDeviceLink.role !== "owner") {
+    Killed by    : test10_deleteDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M33_ROR_deleteDevice_role__owner_to_/output/
+
+  GS_M34  [CDL]  [CDL] deleteDevice: owner → user role check
+    File         : controllers/DeviceController.js
+    Original     : if (userDeviceLink.role === "owner") {
+    Mutant       : if (userDeviceLink.role === "user") {
+    Killed by    : test10_deleteDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M34_CDL_deleteDevice_owner_to_user_role_check/output/
+
+  GS_M35  [SDL]  [SDL] deleteDevice: skip DBDevice.deleteOne
+    File         : controllers/DeviceController.js
+    Original     : await DBDevice.deleteOne({ _id: deviceId });
+    Mutant       : // [MUTANT GS_M35: SDL] DBDevice.deleteOne deleted
+    Killed by    : test10_deleteDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M35_SDL_deleteDevice_skip_DBDevicedeleteOne/output/
+
+  GS_M36  [SDL]  [SDL] deleteDevice: skip deleteMany user-device-links
+    File         : controllers/DeviceController.js
+    Original     : await DBUserDeviceLinks.deleteMany({ deviceId });
+    Mutant       : // [MUTANT GS_M36: SDL] deleteMany UserDeviceLinks deleted
+    Killed by    : test10_deleteDevice, test04_getMyDevices
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M36_SDL_deleteDevice_skip_deleteMany_user-device/output/
+
+  GS_M37  [SDL]  [SDL] deleteDevice: skip session termination
+    File         : controllers/DeviceController.js
+    Original     : await DBSessions.updateMany({ deviceId }, { $set: { terminated:
+    Mutant       : // [MUTANT GS_M37: SDL] sessions termination deleted
+    Killed by    : test10_deleteDevice, test09_terminateSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M37_SDL_deleteDevice_skip_session_termination/output/
+
+  GS_M38  [CDL]  [CDL] deleteDevice: 403 → 200 on no-access
+    File         : controllers/DeviceController.js
+    Original     : return res.status(403).json({ error: "You do not have access to
+    Mutant       : return res.status(200).json({ error: "You do not have access to
+    Killed by    : test10_deleteDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M38_CDL_deleteDevice_403_to_200_on_no-access/output/
+
+  GS_M39  [CDL]  [CDL] deleteDevice (owner): success 200 → 201
+    File         : controllers/DeviceController.js
+    Original     : res.status(200).json({ message: "Device deleted successfully" })
+    Mutant       : res.status(201).json({ message: "Device deleted successfully" })
+    Killed by    : test10_deleteDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M39_CDL_deleteDevice_owner_success_200_to_201/output/
+
+  GS_M40  [CDL]  [CDL] deleteDevice (user branch): success 200 → 201
+    File         : controllers/DeviceController.js
+    Original     : res.status(200).json({ message: "Device link deleted successfull
+    Mutant       : res.status(201).json({ message: "Device link deleted successfull
+    Killed by    : test10_deleteDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M40_CDL_deleteDevice_user_branch_success_200_to_/output/
+
+  GS_M41  [CDL]  [CDL] getMyDevices: owner → user role filter
+    File         : controllers/DeviceController.js
+    Original     : const myDevices = await DBUserDeviceLinks.find({ userId, role: "ow
+    Mutant       : const myDevices = await DBUserDeviceLinks.find({ userId, role: "us
+    Killed by    : test04_getMyDevices, test18_devicesAndSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M41_CDL_getMyDevices_owner_to_user_role_filter/output/
+
+  GS_M42  [CDL]  [CDL] getOtherDevices: user → owner role filter
+    File         : controllers/DeviceController.js
+    Original     : const myDevices = await DBUserDeviceLinks.find({ userId, role: "us
+    Mutant       : const myDevices = await DBUserDeviceLinks.find({ userId, role: "ow
+    Killed by    : test11_getOtherDevices
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M42_CDL_getOtherDevices_user_to_owner_role_filte/output/
+
+  GS_M43  [ROR]  [ROR] verifyOtp: expiresAt < → >
+    File         : controllers/AppController.js
+    Original     : if (otpData.expiresAt < Date.now()) {
+    Mutant       : if (otpData.expiresAt > Date.now()) {
+    Killed by    : test03_registerDevice, test06_createSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M43_ROR_verifyOtp_expiresAt__to_/output/
+
+  GS_M44  [ROR]  [ROR] verifyOtp: expiresAt < → <= (off-by-one)
+    File         : controllers/AppController.js
+    Original     : if (otpData.expiresAt < Date.now()) {
+    Mutant       : if (otpData.expiresAt <= Date.now()) {
+    Killed by    : test03_registerDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M44_ROR_verifyOtp_expiresAt__to__off-by-one/output/
+
+  GS_M45  [SDL]  [SDL] verifyOtp: delete OTP expiry check
+    File         : controllers/AppController.js
+    Original     : if (otpData.expiresAt < Date.now()) {
+      return res.status(400)
+    Mutant       : // [MUTANT GS_M45: SDL] OTP expiry check deleted
+    Killed by    : test03_registerDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M45_SDL_verifyOtp_delete_OTP_expiry_check/output/
+
+  GS_M46  [SDL]  [SDL] verifyOtp: OTP not deleted after use
+    File         : controllers/AppController.js
+    Original     : await DBOTP.deleteOne({ email, otp });
+    Mutant       : // [MUTANT GS_M46: SDL] DBOTP.deleteOne deleted (OTP reusable)
+    Killed by    : test03_registerDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M46_SDL_verifyOtp_OTP_not_deleted_after_use/output/
+
+  GS_M47  [CDL]  [CDL] verifyOtp: invalid-OTP 400 → 200
+    File         : controllers/AppController.js
+    Original     : return res.status(400).json({ message: "Invalid OTP" });
+    Mutant       : return res.status(200).json({ message: "Invalid OTP" });
+    Killed by    : test03_registerDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M47_CDL_verifyOtp_invalid-OTP_400_to_200/output/
+
+  GS_M48  [CDL]  [CDL] verifyOtp: expired-OTP 400 → 200
+    File         : controllers/AppController.js
+    Original     : return res.status(400).json({ message: "OTP expired" });
+    Mutant       : return res.status(200).json({ message: "OTP expired" });
+    Killed by    : test03_registerDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M48_CDL_verifyOtp_expired-OTP_400_to_200/output/
+
+  GS_M49  [CDL]  [CDL] verifyOtp: owner → user in link check
+    File         : controllers/AppController.js
+    Original     : const userDeviceLink = await DBUserDeviceLinks.findOne({ deviceI
+    Mutant       : const userDeviceLink = await DBUserDeviceLinks.findOne({ deviceI
+    Killed by    : test03_registerDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M49_CDL_verifyOtp_owner_to_user_in_link_check/output/
+
+  GS_M50  [SDL]  [SDL] verifyOtp: skip DBDevice.create
+    File         : controllers/AppController.js
+    Original     : // Create a new device in the database and a new link for the user
+    Mutant       : // [MUTANT GS_M50: SDL] DBDevice.create deleted
+    Killed by    : test04_getMyDevices, test05_getDeviceInfo, test06_createSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M50_SDL_verifyOtp_skip_DBDevicecreate/output/
+
+  GS_M51  [SDL]  [SDL] verifyOtp: skip UserDeviceLinks.create on existing device
+    File         : controllers/AppController.js
+    Original     : await DBUserDeviceLinks.create({
+        deviceId,
+        userI
+    Mutant       : // [MUTANT GS_M51: SDL] UserDeviceLinks.create deleted (existing
+    Killed by    : test04_getMyDevices, test05_getDeviceInfo
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M51_SDL_verifyOtp_skip_UserDeviceLinkscreate_on_/output/
+
+  GS_M52  [AOR]  [AOR] sendOtp: + → - in expiresAt (OTP already expired)
+    File         : controllers/AppController.js
+    Original     : await DBOTP.create({ email, otp, expiresAt: Date.now() + 5 * 60 * 10
+    Mutant       : await DBOTP.create({ email, otp, expiresAt: Date.now() - 5 * 60 * 10
+    Killed by    : test03_registerDevice, test04_getMyDevices, test06_createSession
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M52_AOR_sendOtp__to_-_in_expiresAt_OTP_already_e/output/
+
+  GS_M53  [AOR]  [AOR] sendOtp: 5 min → 50 min OTP expiry
+    File         : controllers/AppController.js
+    Original     : await DBOTP.create({ email, otp, expiresAt: Date.now() + 5 * 60 * 10
+    Mutant       : await DBOTP.create({ email, otp, expiresAt: Date.now() + 50 * 60 * 1
+    Killed by    : test03_registerDevice
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M53_AOR_sendOtp_5_min_to_50_min_OTP_expiry/output/
+
+  GS_M54  [SDL]  [SDL] logoutApp: skip deleteMany user links
+    File         : controllers/AppController.js
+    Original     : await DBUserDeviceLinks.deleteMany({ deviceId });
+    Mutant       : // [MUTANT GS_M54: SDL] deleteMany deleted in logoutApp
+    Killed by    : test10_deleteDevice, test04_getMyDevices
+    Result       : KILLED ✓
+    Output files : ghostsocket/mutants/GS_M54_SDL_logoutApp_skip_deleteMany_user_links/output/
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY BY OPERATOR
+────────────────────────────────────────────────────────────────────────────────
+  Operator Count   Killed      Score
+  ----------------------------------------
+  AOR          4        4     100.0%
+  CDL         22       22     100.0%
+  LCR          2        2     100.0%
+  ROR          8        8     100.0%
+  SDL         15       15     100.0%
+  UOI          3        3     100.0%
+  ----------------------------------------
+  TOTAL       54       54     100.0%
+
+================================================================================
+  FINAL MUTATION SCORE: 54/54 = 100.0%
+================================================================================

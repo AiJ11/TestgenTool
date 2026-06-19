@@ -1,0 +1,12 @@
+Mutation ID    : GS_M15
+Operator       : CDL
+File           : controllers/SessionController.js
+Description    : [CDL] joinSession: 404 → 200 on session-not-found
+Result         : EXPECTED_KILLED
+Killing tests  : test15_joinSessionNotFound
+
+ORIGINAL:
+return res.status(404).json({ message: "Session not found or used." });
+
+MUTANT:
+return res.status(200).json({ message: "Session not found or used." });

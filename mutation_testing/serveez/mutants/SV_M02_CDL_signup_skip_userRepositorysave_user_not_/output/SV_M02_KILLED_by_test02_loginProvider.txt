@@ -1,0 +1,50 @@
+========================================
+TEST: [SAT] Test02 Loginprovider
+MODE: Full Pipeline (With Backend)
+DEPTH: 2 API calls
+WEBAPP: SERVEEZ backend
+MUTATION: SV_M02 — [SDL] signup: skip userRepository.save (user not persisted)
+========================================
+
+[RewriteGlobalsVisitor] Detected globals for serveez spec
+[RewriteGlobalsVisitor] Generated rewritten test-API ATC
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: email0 := input()
+Statement 2: password0 := input()
+... [intermediate steps] ...
+Statement 5: _result1 := api02_loginProvider(...)
+Statement 6:   assert(postcondition_1)
+=== End Program ===
+
+>>> generateCTC: Starting iteration
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+>>> generateCTC: STEP 2 - Running symbolic execution
+
+[SEE] Executing API call sequence (2 steps)
+
+[HTTP_CLIENT] Making HTTP call to serveez backend
+[HTTP_CLIENT] Response received
+
+[ASSIGN] Evaluating API result
+[ASSERT] Evaluating: postcondition for test02_loginProvider
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+✗ Test02 Loginprovider  FAILED:
+  [SDL] signup: skip userRepository.save (user not persisted)
+  Postcondition violated at step 1
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : SV_M02
+Operator        : CDL
+Killing test    : test02_loginProvider
+File            : service/AuthService.java
+Change          : [SDL] signup: skip userRepository.save (user not persisted)
+────────────────────────────────────────

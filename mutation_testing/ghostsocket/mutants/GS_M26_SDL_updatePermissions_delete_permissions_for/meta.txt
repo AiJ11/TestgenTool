@@ -1,0 +1,15 @@
+Mutation ID    : GS_M26
+Operator       : SDL
+File           : controllers/SessionController.js
+Description    : [SDL] updatePermissions: delete permissions format validation
+Result         : EXPECTED_KILLED
+Killing tests  : test12_updatePermissions
+
+ORIGINAL:
+        // Validate permissions format
+        if (!Array.isArray(permissions) || permissions.length === 0) {
+            return res.status(400).json({ message: "Invalid permissions format." });
+        }
+
+MUTANT:
+        // [MUTANT GS_M26: SDL] permissions format validation deleted

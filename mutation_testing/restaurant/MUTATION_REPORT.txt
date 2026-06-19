@@ -1,0 +1,124 @@
+================================================================================
+  TESTGEN MUTATION TESTING REPORT — RESTAURANT
+================================================================================
+  Tool          : TestGen (Specification-Based Test Generation)
+  Backend       : Restaurant
+  Total Mutants : 10
+  Operators     : AOR, CDL, SDL
+  All Results   : KILLED (100%)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  WHY THESE OPERATORS WERE CHOSEN
+────────────────────────────────────────────────────────────────────────────────
+
+  AOR (3 mutants)
+    Arithmetic Operator Replacement — +/- swap and constant scaling; targets calculation errors in fees, totals, and time-window arithmetic.
+
+  CDL (4 mutants)
+    Constant/Literal Replacement — changes HTTP status codes, role strings, and boolean flags; directly tests postcondition assertions in TestGen.
+
+  SDL (3 mutants)
+    Statement Deletion — removes DB writes, auth guards, and validation blocks; models 'forgotten line' defects caught by stateful multi-step tests.
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION CATALOGUE
+────────────────────────────────────────────────────────────────────────────────
+
+  RE_M01  [CDL]  [CDL] register: 201 → 200
+    File         : routes/auth.js
+    Original     : res.status(201).json({
+    Mutant       : res.status(200).json({
+    Killed by    : test01_registerLogin
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M01_CDL_register_201_to_200/output/
+
+  RE_M02  [SDL]  [SDL] register: delete duplicate-user check
+    File         : routes/auth.js
+    Original     : if (existingUser) {
+      return res.status(400).json({
+        me
+    Mutant       : // [MUTANT RE_M02: SDL] duplicate-user check deleted
+    Killed by    : test25_registerCustomerDuplicate
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M02_SDL_register_delete_duplicate-user_check/output/
+
+  RE_M03  [CDL]  [CDL] login: 401 → 200 on invalid credentials
+    File         : routes/auth.js
+    Original     : return res.status(401)
+    Mutant       : return res.status(200)
+    Killed by    : test02_loginFailure
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M03_CDL_login_401_to_200_on_invalid_credentials/output/
+
+  RE_M04  [AOR]  [AOR] createOrder: deliveryFee 50 → 0
+    File         : routes/orders.js
+    Original     : const deliveryFee = 50; // Fixed delivery fee
+    Mutant       : const deliveryFee = 0; // Fixed delivery fee
+    Killed by    : test11_fullCustomerOrder, test14_customerFullWorkflow
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M04_AOR_createOrder_deliveryFee_50_to_0/output/
+
+  RE_M05  [AOR]  [AOR] createOrder: tax 0.05 → 0.0
+    File         : routes/orders.js
+    Original     : const tax = Math.round(cart.totalAmount * 0.05); // 5% tax
+    Mutant       : const tax = Math.round(cart.totalAmount * 0.0); // 5% tax
+    Killed by    : test11_fullCustomerOrder, test14_customerFullWorkflow
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M05_AOR_createOrder_tax_005_to_00/output/
+
+  RE_M06  [SDL]  [SDL] createOrder: skip cart clear
+    File         : routes/orders.js
+    Original     : // Clear cart
+    await Cart.findOneAndDelete({ user: req.user._id
+    Mutant       : // [MUTANT RE_M06: SDL] Cart.findOneAndDelete deleted (cart not cl
+    Killed by    : test11_fullCustomerOrder, test13_cartWithoutItems
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M06_SDL_createOrder_skip_cart_clear/output/
+
+  RE_M07  [CDL]  [CDL] createOrder: 201 → 200
+    File         : routes/orders.js
+    Original     : res.status(201).json({
+    Mutant       : res.status(200).json({
+    Killed by    : test11_fullCustomerOrder, test14_customerFullWorkflow
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M07_CDL_createOrder_201_to_200/output/
+
+  RE_M08  [AOR]  [AOR] createOrder: finalAmount + → - (wrong total)
+    File         : routes/orders.js
+    Original     : const finalAmount = cart.totalAmount + deliveryFee + tax;
+    Mutant       : const finalAmount = cart.totalAmount - deliveryFee - tax;
+    Killed by    : test11_fullCustomerOrder, test17_ownerManageOrder
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M08_AOR_createOrder_finalAmount__to_-_wrong_tota/output/
+
+  RE_M09  [CDL]  [CDL] addToCart: unavailable item 400 → 200
+    File         : routes/cart.js
+    Original     : return res.status(400).json({ message: 'Menu item not available'
+    Mutant       : return res.status(200).json({ message: 'Menu item not available'
+    Killed by    : test08_loginAndAddToCart
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M09_CDL_addToCart_unavailable_item_400_to_200/output/
+
+  RE_M10  [SDL]  [SDL] createOrder: skip order.save()
+    File         : routes/orders.js
+    Original     : await order.save();
+    Mutant       : // [MUTANT RE_M10: SDL] order.save() deleted (order not persisted)
+    Killed by    : test11_fullCustomerOrder, test17_ownerManageOrder
+    Result       : KILLED ✓
+    Output files : restaurant/mutants/RE_M10_SDL_createOrder_skip_ordersave/output/
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY BY OPERATOR
+────────────────────────────────────────────────────────────────────────────────
+  Operator Count   Killed      Score
+  ----------------------------------------
+  AOR          3        3     100.0%
+  CDL          4        4     100.0%
+  SDL          3        3     100.0%
+  ----------------------------------------
+  TOTAL       10       10     100.0%
+
+================================================================================
+  FINAL MUTATION SCORE: 10/10 = 100.0%
+================================================================================

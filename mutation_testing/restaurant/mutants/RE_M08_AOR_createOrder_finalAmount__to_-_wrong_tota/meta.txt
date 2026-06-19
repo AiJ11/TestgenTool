@@ -1,0 +1,12 @@
+Mutation ID    : RE_M08
+Operator       : AOR
+File           : routes/orders.js
+Description    : [AOR] createOrder: finalAmount + → - (wrong total)
+Result         : EXPECTED_KILLED
+Killing tests  : test11_fullCustomerOrder, test17_ownerManageOrder
+
+ORIGINAL:
+    const finalAmount = cart.totalAmount + deliveryFee + tax;
+
+MUTANT:
+    const finalAmount = cart.totalAmount - deliveryFee - tax;

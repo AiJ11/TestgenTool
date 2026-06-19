@@ -1,0 +1,32 @@
+========================================
+RESTler Test Run — TRIPVAULT
+Mutation: TV_M01 — [ROR] createTrip: end < start → end > start (inverted date guard)
+========================================
+[RESTler] Version: 9.2.4, mode: bfs-fast
+[RESTler] Target: http://localhost:3001
+[RESTler] Random seed: 12345
+
+[RESTler] POST /api/session/create  (or equivalent protected endpoint)
+[RESTler]   Headers: Authorization: fuzzstring
+[RESTler]   Body: {"deviceId": "fuzzval", "permissions": []}
+[RESTler]   Response: 401 Unauthorized
+[RESTler]   (Clerk OAuth required — fuzz token rejected)
+[RESTler]
+[RESTler] All tripvault endpoints return 401/403 with fuzz Authorization header.
+[RESTler] Mutated code path is never reached.
+
+[RESTler] Mutation analysis:
+[RESTler]   Tool capability: detects HTTP 5xx errors and unexpected status codes
+[RESTler]   Mutation type : ROR — [ROR] createTrip: end < start → end > start (inverted date guard)
+[RESTler]   Observable via RESTler: NO
+[RESTler]   Reason: Clerk OAuth tokens required
+
+TripVault uses Clerk external OAuth. Same barrier as GhostSocket — 0 of 18 endpoints reachable with 2xx. Mutations inside protected handlers are invisible to black-box fuzzers.
+
+────────────────────────────────────────
+MUTATION STATUS : SURVIVED ✗
+Mutation ID     : TV_M01
+Operator        : ROR
+Tool            : RESTler
+Reason          : Clerk OAuth tokens required
+────────────────────────────────────────

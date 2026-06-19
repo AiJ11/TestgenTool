@@ -1,0 +1,12 @@
+Mutation ID    : SV_M04
+Operator       : CDL
+File           : service/BookingService.java
+Description    : [CDL] confirmBooking: CONFIRMED → PENDING (wrong status set)
+Result         : EXPECTED_KILLED
+Killing tests  : test07_confirmBooking, test09_completeBooking
+
+ORIGINAL:
+        booking.setStatus(Booking.BookingStatus.CONFIRMED);
+
+MUTANT:
+        booking.setStatus(Booking.BookingStatus.PENDING);

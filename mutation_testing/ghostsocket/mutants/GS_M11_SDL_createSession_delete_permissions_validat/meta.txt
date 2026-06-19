@@ -1,0 +1,15 @@
+Mutation ID    : GS_M11
+Operator       : SDL
+File           : controllers/SessionController.js
+Description    : [SDL] createSession: delete permissions validation
+Result         : EXPECTED_KILLED
+Killing tests  : test06_createSession
+
+ORIGINAL:
+        // Check if permissions are provided else return error
+        if (!permissions || !Array.isArray(permissions) || permissions.length === 0) {
+            return res.status(400).json({ error: "Permissions are required." });
+        }
+
+MUTANT:
+        // [MUTANT GS_M11: SDL] permissions check deleted

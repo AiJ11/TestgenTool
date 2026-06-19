@@ -1,0 +1,94 @@
+================================================================================
+  RESTLER MUTATION TESTING REPORT — LIBRARY
+================================================================================
+  Tool            : RESTLER (Grammar-based REST fuzzer)
+  Backend         : LIBRARY
+  Total Mutants   : 10
+  Killed          : 1 (10%)
+  Survived        : 9
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  TOOL CAPABILITIES & LIMITATIONS ON THIS BACKEND
+────────────────────────────────────────────────────────────────────────────────
+
+  Authentication barrier : No authentication (Spring Boot, public endpoints)
+
+  Library backend has no authentication. RESTler/EvoMaster CAN reach all
+  endpoints. However, they detect only HTTP 5xx errors — they do NOT check
+  exact status codes (201 vs 200), response body correctness, or stateful
+  invariants. Most semantic mutations (CDL, SDL, ROR) go undetected.
+
+  RESTler detection mechanism:
+    • HTTP 5xx (500/501) = bug bucket (reproducible crash)
+    • Does NOT check: exact 2xx codes, response body, stateful invariants
+    • Grammar-based, BFS-fast mode, random seed 12345
+    • Run details: 46,536 total requests, found 9 bugs (6×500, 3×501) on Library
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION RESULTS
+────────────────────────────────────────────────────────────────────────────────
+
+  LI_M01  [CDL]  [CDL] saveBook: always returns null instead of saved book
+    File    : controller/BookController.java
+    Result  : SURVIVED ✗
+    Reason  : Returns null (Spring Boot serializes as HTTP 204 No Content — valid 2xx; not a 5
+    Output  : library/mutants/_CDL__saveBook__always_returns_null_inst/output/LI_M01_SURVIVED_restler.txt
+
+  LI_M02  [SDL]  [SDL] deleteRequest: skip requestService.deleteRequest
+    File    : controller/RequestController.java
+    Result  : SURVIVED ✗
+    Reason  : deleteRequest skip — endpoint returns null → HTTP 204; no crash or error code ch
+    Output  : library/mutants/_SDL__deleteRequest__skip_requestService/output/LI_M02_SURVIVED_restler.txt
+
+  LI_M03  [SDL]  [SDL] deleteBook: skip bookService.deleteBookByCode
+    File    : controller/BookController.java
+    Result  : SURVIVED ✗
+    Reason  : deleteBook skip — similarly returns null → HTTP 204; no observable 5xx
+    Output  : library/mutants/_SDL__deleteBook__skip_bookService_delet/output/LI_M03_SURVIVED_restler.txt
+
+  LI_M04  [CDL]  [CDL] getBooks: always returns empty list
+    File    : controller/BookController.java
+    Result  : SURVIVED ✗
+    Reason  : getBooks returns empty ArrayList — HTTP 200 with [] body; 2xx not flagged
+    Output  : library/mutants/_CDL__getBooks__always_returns_empty_lis/output/LI_M04_SURVIVED_restler.txt
+
+  LI_M05  [CDL]  [CDL] authenticateStub: status 501 → 200
+    File    : controller/AuthenticationController.java
+    Result  : SURVIVED ✗
+    Reason  : authenticateStub 501→200 — removes the 501 that RESTler flagged as a bug; mutant
+    Output  : library/mutants/_CDL__authenticateStub__status_501___200/output/LI_M05_SURVIVED_restler.txt
+
+  LI_M06  [ROR]  [ROR] saveBook: setBookCode(0) → setBookCode(1)
+    File    : controller/BookController.java
+    Result  : KILLED ✓
+    Reason  : Duplicate primary key (bookCode=1) causes DataIntegrityViolationException → HTTP
+    Output  : library/mutants/_ROR__saveBook__setBookCode_0____setBook/output/LI_M06_KILLED_by_restler.txt
+
+  LI_M07  [SDL]  [SDL] saveRequest: skip requestService.saveRequest
+    File    : controller/RequestController.java
+    Result  : SURVIVED ✗
+    Reason  : saveRequest returns null → HTTP 204 — no 5xx produced; postcondition check neede
+    Output  : library/mutants/_SDL__saveRequest__skip_requestService_s/output/LI_M07_SURVIVED_restler.txt
+
+  LI_M08  [CDL]  [CDL] getBookById: always returns null
+    File    : controller/BookController.java
+    Result  : SURVIVED ✗
+    Reason  : getBookById returns null → HTTP 204 — postcondition check needed to detect wrong
+    Output  : library/mutants/_CDL__getBookById__always_returns_null/output/LI_M08_SURVIVED_restler.txt
+
+  LI_M09  [SDL]  [SDL] updateBook: skip bookService.updateBook
+    File    : controller/BookController.java
+    Result  : SURVIVED ✗
+    Reason  : updateBook skip — returns book as-is without persisting changes; no crash
+    Output  : library/mutants/_SDL__updateBook__skip_bookService_updat/output/LI_M09_SURVIVED_restler.txt
+
+  LI_M10  [CDL]  [CDL] registerStudentStub: status 501 → 200
+    File    : controller/AuthenticationController.java
+    Result  : SURVIVED ✗
+    Reason  : registerStudentStub 501→200 — same as LI_M05: removes a 501 bug-bucket entry
+    Output  : library/mutants/_CDL__registerStudentStub__status_501___/output/LI_M10_SURVIVED_restler.txt
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY: 1/10 mutants killed = 10% mutation score
+────────────────────────────────────────────────────────────────────────────────

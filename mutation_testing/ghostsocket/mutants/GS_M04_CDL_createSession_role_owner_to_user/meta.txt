@@ -1,0 +1,12 @@
+Mutation ID    : GS_M04
+Operator       : CDL
+File           : controllers/SessionController.js
+Description    : [CDL] createSession: role owner → user
+Result         : EXPECTED_KILLED
+Killing tests  : test06_createSession, test14_createSessionForbidden
+
+ORIGINAL:
+const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, deviceId, role: "owner" });
+
+MUTANT:
+const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, deviceId, role: "user" });

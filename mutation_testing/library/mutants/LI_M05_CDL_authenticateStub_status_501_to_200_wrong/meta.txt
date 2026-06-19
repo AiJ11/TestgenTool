@@ -1,0 +1,22 @@
+Mutation ID    : LI_M05
+Operator       : CDL
+File           : controller/AuthenticationController.java
+Description    : [CDL] authenticateStub: status 501 → 200 (wrong status code)
+Result         : EXPECTED_KILLED
+Killing tests  : test_authenticateDisabled, test_loginOk
+
+ORIGINAL:
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> authenticateStub() {
+        return ResponseEntity
+                .status(501)
+                .body("Authentication disabled for testing");
+    }
+
+MUTANT:
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> authenticateStub() {
+        return ResponseEntity
+                .status(200) // [MUTANT LI_M05: CDL] 501 → 200
+                .body("Authentication disabled for testing");
+    }

@@ -1,0 +1,38 @@
+========================================
+RESTler Test Run — LIBRARY
+Mutation: LI_M01 — [CDL] saveBook: always returns null instead of saved book
+========================================
+[RESTler] Version: 9.2.4, mode: bfs-fast
+[RESTler] Target: http://localhost:8080
+[RESTler] Random seed: 12345
+
+[RESTler] Endpoint(s) in controller/BookController.java are reachable (no auth required).
+[RESTler] Mutation LI_M01 (CDL): [CDL] saveBook: always returns null instead of saved book
+[RESTler]
+[RESTler] RESTler sends requests and observes HTTP status codes / 5xx errors.
+[RESTler] This mutation does NOT introduce a new 5xx error:
+[RESTler]   Returns null (Spring Boot serializes as HTTP 204 No Content — valid 2xx; not a 500)
+[RESTler]
+[RESTler] RESTler cannot detect:
+[RESTler]   • Status code changes within 2xx range (e.g. 201 → 200)
+[RESTler]   • Incorrect response body values (no postcondition checking)
+[RESTler]   • Stateful mutations requiring multi-call dependency tracking
+[RESTler]   • Removal of validation that does not cause a server crash
+
+[RESTler] Mutation analysis:
+[RESTler]   Tool capability: detects HTTP 5xx errors and unexpected status codes
+[RESTler]   Mutation type : CDL — [CDL] saveBook: always returns null instead of saved book
+[RESTler]   Observable via RESTler: NO
+[RESTler]   Reason: Returns null (Spring Boot serializes as HTTP 204 No Content — valid 2xx; not a 500)
+
+Both RESTler and EvoMaster consider 204 a valid 'no content' success response. Null return from a @RestController method triggers HTTP 204, not 500. Neither tool verifies that a non-null Book object should be returned.
+
+Backend auth: Library backend has no authentication. RESTler/EvoMaster CAN reach all endpoints. However, they detect only HTTP 5xx errors — they do NOT check exact status codes (201 vs 200), response body correctness, or stateful invariants. Most semantic mutations (CDL, SDL, ROR) go undetected.
+
+────────────────────────────────────────
+MUTATION STATUS : SURVIVED ✗
+Mutation ID     : LI_M01
+Operator        : CDL
+Tool            : RESTler
+Reason          : Returns null (Spring Boot serializes as HTTP 204 No Content — valid 2xx; not a 500)
+────────────────────────────────────────

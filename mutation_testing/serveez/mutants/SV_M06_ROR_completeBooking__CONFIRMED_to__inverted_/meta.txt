@@ -1,0 +1,12 @@
+Mutation ID    : SV_M06
+Operator       : ROR
+File           : service/BookingService.java
+Description    : [ROR] completeBooking: != CONFIRMED → == (inverted guard)
+Result         : EXPECTED_KILLED
+Killing tests  : test09_completeBooking
+
+ORIGINAL:
+        if (booking.getStatus() != Booking.BookingStatus.CONFIRMED) {
+
+MUTANT:
+        if (booking.getStatus() == Booking.BookingStatus.CONFIRMED) {

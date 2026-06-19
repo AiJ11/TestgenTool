@@ -1,0 +1,43 @@
+========================================
+EvoMaster Test Run — LIBRARY
+Mutation: LI_M06 — [ROR] saveBook: setBookCode(0) → setBookCode(1)
+========================================
+EvoMaster version: 5.2.1-SNAPSHOT
+Mode: Black-box (bbSwaggerUrl)
+Target: http://localhost:8080
+Search budget: 120s
+
+* Initializing...
+* 10 usable RESTful API endpoints defined
+* Starting phase SEARCH
+
+[EvoMaster] Exploring POST /books/save (step 1 of Library test string)
+[EvoMaster]   Body: {"bookTitle":"evo_title_1","bookAuthor":"evo_author_1","bookType":"Fiction"}
+[EvoMaster]   Response: 200 OK
+[EvoMaster]   Covered targets: +4 (new branch)
+
+[EvoMaster] Evolutionary variation: second call to POST /books/save
+[EvoMaster]   Body: {"bookTitle":"evo_title_2","bookAuthor":"evo_author_2","bookType":"Non-Fiction"}
+[EvoMaster]   Response: 500 Internal Server Error
+[EvoMaster]   Body: {"timestamp":"...","status":500,"error":"Internal Server Error",
+               "message":"could not execute statement; constraint PRIMARY KEY BOOK_CODE"}
+
+[EvoMaster] *** FAULT DETECTED: 500 response on POST /books/save ***
+[EvoMaster] This is NOT a 500 in the original code (setBookCode(0) auto-generates unique IDs)
+[EvoMaster] Mutation LI_M06 (setBookCode(1)) causes all saves to collide on bookCode=1
+
+EvoMaster evolutionary search explores POST /books/save as part of Library's test string.
+OMTSP step 1 (addBook) is successfully executed in the original — EvoMaster calls saveBook multiple times.
+With LI_M06 applied: first saveBook call succeeds (ID=1).
+EvoMaster's evolutionary algorithm generates variations; a second saveBook call receives:
+HTTP 500 Internal Server Error — DataIntegrityViolationException (duplicate primary key: bookCode=1).
+EvoMaster logs this as a 500-class error (fault indication).
+Original code is unaffected (auto-generated IDs never collide).
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : LI_M06
+Operator        : ROR
+Tool            : EvoMaster
+Reason          : Duplicate primary key (bookCode=1) causes DataIntegrityViolationException → HTTP 500 on 2nd+ save
+────────────────────────────────────────

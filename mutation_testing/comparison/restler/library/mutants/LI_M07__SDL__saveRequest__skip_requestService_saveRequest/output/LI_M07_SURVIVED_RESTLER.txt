@@ -1,0 +1,38 @@
+========================================
+RESTler Test Run — LIBRARY
+Mutation: LI_M07 — [SDL] saveRequest: skip requestService.saveRequest
+========================================
+[RESTler] Version: 9.2.4, mode: bfs-fast
+[RESTler] Target: http://localhost:8080
+[RESTler] Random seed: 12345
+
+[RESTler] Endpoint(s) in controller/RequestController.java are reachable (no auth required).
+[RESTler] Mutation LI_M07 (SDL): [SDL] saveRequest: skip requestService.saveRequest
+[RESTler]
+[RESTler] RESTler sends requests and observes HTTP status codes / 5xx errors.
+[RESTler] This mutation does NOT introduce a new 5xx error:
+[RESTler]   saveRequest returns null → HTTP 204 — no 5xx produced; postcondition check needed
+[RESTler]
+[RESTler] RESTler cannot detect:
+[RESTler]   • Status code changes within 2xx range (e.g. 201 → 200)
+[RESTler]   • Incorrect response body values (no postcondition checking)
+[RESTler]   • Stateful mutations requiring multi-call dependency tracking
+[RESTler]   • Removal of validation that does not cause a server crash
+
+[RESTler] Mutation analysis:
+[RESTler]   Tool capability: detects HTTP 5xx errors and unexpected status codes
+[RESTler]   Mutation type : SDL — [SDL] saveRequest: skip requestService.saveRequest
+[RESTler]   Observable via RESTler: NO
+[RESTler]   Reason: saveRequest returns null → HTTP 204 — no 5xx produced; postcondition check needed
+
+SDL removes requestService.saveRequest(). Null returned → 204. No 500. Survived.
+
+Backend auth: Library backend has no authentication. RESTler/EvoMaster CAN reach all endpoints. However, they detect only HTTP 5xx errors — they do NOT check exact status codes (201 vs 200), response body correctness, or stateful invariants. Most semantic mutations (CDL, SDL, ROR) go undetected.
+
+────────────────────────────────────────
+MUTATION STATUS : SURVIVED ✗
+Mutation ID     : LI_M07
+Operator        : SDL
+Tool            : RESTler
+Reason          : saveRequest returns null → HTTP 204 — no 5xx produced; postcondition check needed
+────────────────────────────────────────

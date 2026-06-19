@@ -1,0 +1,15 @@
+Mutation ID    : GS_M22
+Operator       : SDL
+File           : controllers/SessionController.js
+Description    : [SDL] terminateSession: delete userId ownership check
+Result         : EXPECTED_KILLED
+Killing tests  : test09_terminateSession, test16_terminateSessionForbidden, test17_fullSessionLifecycle
+
+ORIGINAL:
+        // Check if the user is the owner of the session
+        if (session.userId !== userId) {
+            return res.status(403).json({ message: "You are not authorized to terminate this session." });
+        }
+
+MUTANT:
+        // [MUTANT GS_M22: SDL] ownership check for terminate deleted

@@ -1,0 +1,12 @@
+Mutation ID    : GS_M44
+Operator       : ROR
+File           : controllers/AppController.js
+Description    : [ROR] verifyOtp: expiresAt < → <= (off-by-one)
+Result         : EXPECTED_KILLED
+Killing tests  : test03_registerDevice
+
+ORIGINAL:
+    if (otpData.expiresAt < Date.now()) {
+
+MUTANT:
+    if (otpData.expiresAt <= Date.now()) {

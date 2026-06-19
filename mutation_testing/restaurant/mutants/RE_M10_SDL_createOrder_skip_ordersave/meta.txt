@@ -1,0 +1,12 @@
+Mutation ID    : RE_M10
+Operator       : SDL
+File           : routes/orders.js
+Description    : [SDL] createOrder: skip order.save()
+Result         : EXPECTED_KILLED
+Killing tests  : test11_fullCustomerOrder, test17_ownerManageOrder
+
+ORIGINAL:
+    await order.save();
+
+MUTANT:
+    // [MUTANT RE_M10: SDL] order.save() deleted (order not persisted)

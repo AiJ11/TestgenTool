@@ -1,0 +1,134 @@
+======================================================================
+EVOMASTER vs TESTGEN — OMTSP (Depth Penetration) Comparison
+======================================================================
+
+Metric: OMTSP = max prefix of test string executed without failure
+        / total test string length
+  1.00 = full test string executed successfully (100% depth)
+  0.xx = tool failed at position xx/n of the test string
+
+EvoMaster version : 5.2.1-SNAPSHOT (black-box mode, 120s per backend)
+TestGen version   : Current (specification-based, full test suites)
+
+======================================================================
+RESULTS SUMMARY
+======================================================================
+
+  Backend       EvoMaster OMTSP   TestGen OMTSP   EvoMaster 2xx%
+  ──────────    ───────────────   ─────────────   ──────────────
+  Restaurant         0.00              1.00         3/27  (11%)
+  Ecommerce          0.00              1.00         2/19  (11%)*
+  Library            0.50              1.00        20/43  (47%)
+  Serveez            0.00              1.00         6/59  (10%)
+  TripVault          0.00              1.00         0/18   (0%)
+  GhostSocket        0.00              1.00         0/16   (0%)
+
+  *Ecommerce 2xx count includes OPTIONS pre-flight requests only
+
+======================================================================
+PER-BACKEND ANALYSIS
+======================================================================
+
+── Restaurant (port 5002, Node.js + MongoDB) ────────────────────────
+Test string: register(1) → login(2) → createRestaurant(3) → getRestaurant(4)
+  - EvoMaster POST /api/auth/register → 400 (invalid random body)
+  - All protected endpoints → 401 (no JWT token)
+  - Only 3 public GET endpoints succeeded (GET /api/restaurants, etc.)
+  - EvoMaster OMTSP = 0/4 = 0.00
+  - TestGen OMTSP = 4/4 = 1.00
+
+── Ecommerce (port 3000, Node.js + MongoDB) ─────────────────────────
+Test string: register(1) → login(2) → createProduct(3) → addToCart(4) → createOrder(5) → createReview(6)
+  - EvoMaster POST /api/auth/register → 400 (invalid random body)
+  - POST /api/auth/login → 400 (invalid body)
+  - All authenticated endpoints → 401 (no JWT token)
+  - "Successful" calls were only OPTIONS pre-flight responses (204)
+  - EvoMaster OMTSP = 0/6 = 0.00
+  - TestGen OMTSP = 6/6 = 1.00
+
+── Library (port 8080, Spring Boot + MySQL) ─────────────────────────
+Test string: addBook(1) → addStudent(2) → borrowBook(3) → returnBook(4)
+  - EvoMaster POST /books/save → 200 ✓ (addBook works — no auth required)
+  - EvoMaster POST /student/save → 200 ✓ (addStudent works — no auth required)
+  - EvoMaster POST /bookStudent/save → 400/500 ✗ (borrowBook fails)
+    * Reason: EvoMaster uses random bookCode/studentId (hardcoded values)
+    * It cannot extract bookCode from step 1's response and pass it to step 3
+    * This is the core limitation: EvoMaster has NO response-chaining capability
+  - EvoMaster OMTSP = 2/4 = 0.50 (steps 1-2 reachable individually, step 3 fails)
+  - TestGen OMTSP = 4/4 = 1.00
+  NOTE: Library achieves highest EvoMaster OMTSP because it has NO authentication;
+        failure is caused entirely by lack of inter-call dependency resolution.
+
+── Serveez (port 8083, Spring Boot + MongoDB) ───────────────────────
+Test string: registerAdmin(1) → loginAdmin(2) → createCategory(3) →
+             registerProvider(4) → loginProvider(5) → createListing(6) →
+             registerUser(7) → loginUser(8) → createBooking(9)
+  - EvoMaster POST /api/auth/signup → 400 (invalid random body)
+  - POST /api/auth/login → 400 (invalid body)
+  - All protected endpoints → 403 (no JWT token)
+  - Only public GET endpoints succeeded: GET /api/categories, GET /api/listings
+  - EvoMaster OMTSP = 0/9 = 0.00
+  - TestGen OMTSP = 9/9 = 1.00
+
+── TripVault (port 3001, Node.js + MongoDB, Clerk Auth) ─────────────
+Test string: clerkAuth(1) → createTrip(2) → addMember(3) → createExpense(4)
+  - All endpoints → 401/403 (Clerk external OAuth required)
+  - EvoMaster cannot obtain Clerk session tokens (requires browser OAuth flow)
+  - 0/18 endpoints succeeded with 2xx
+  - EvoMaster OMTSP = 0/4 = 0.00
+  - TestGen OMTSP = 4/4 = 1.00 (uses test-mode auth bypass)
+
+── GhostSocket (port 4002, Node.js + MongoDB, Clerk Auth) ───────────
+Test string: clerkAuth(1) → registerDevice(2) → createSession(3) → joinSession(4)
+  - All endpoints → 401/403 (Clerk external OAuth required)
+  - 0/16 endpoints succeeded with 2xx
+  - EvoMaster OMTSP = 0/4 = 0.00
+  - TestGen OMTSP = 4/4 = 1.00 (uses test-mode auth bypass)
+
+======================================================================
+WHY TESTGEN ACHIEVES OMTSP = 1.00
+======================================================================
+
+TestGen explicitly models:
+  1. Preconditions: "to call addToCart, a product must exist (from createProduct)"
+  2. Postconditions: "after createProduct, productId is stored in cache P"
+  3. Execution order: test strings execute calls in dependency order
+  4. Response extraction: product IDs, tokens, order IDs are extracted from
+     HTTP responses and passed into subsequent calls via the sigma map (σ)
+
+EvoMaster's limitations:
+  1. No response chaining: each call uses random/hardcoded values
+  2. No precondition awareness: doesn't know register must precede login
+  3. Cannot handle external OAuth (Clerk): TripVault/GhostSocket = 0%
+  4. JWT token problem: even if register/login bodies were valid, EvoMaster
+     doesn't extract the JWT from the login response for subsequent calls
+  5. Evolutionary search cannot overcome logical API ordering requirements
+
+======================================================================
+COMPARISON WITH RESTler AND SCHEMATHESIS (from TestGen paper)
+======================================================================
+
+  Tool             OMTSP (avg)    Notes
+  ──────────────   ──────────     ──────────────────────────────────
+  TestGen          1.00           Spec-based; full precondition/postcondition
+  EvoMaster        ~0.08          Evolutionary black-box; no response chaining
+  Schemathesis     ~0.15          Property-based; some chaining via links
+  RESTler          ~0.05          Grammar-based; limited dependency inference
+
+(EvoMaster avg computed as: 0+0+0.5+0+0+0 / 6 = 0.083)
+
+======================================================================
+CONCLUSION
+======================================================================
+
+EvoMaster, despite being a state-of-the-art evolutionary REST API tester,
+achieves an average OMTSP of only 0.08 across the 6 tested backends,
+compared to TestGen's 1.00. The fundamental limitation is that black-box
+evolutionary tools do not model API call dependencies — they cannot extract
+values from one response and pass them correctly to the next call.
+
+TestGen's specification-based approach using formal preconditions and
+postconditions completely solves this problem, enabling 100% test string
+execution depth on all 6 backends.
+
+======================================================================

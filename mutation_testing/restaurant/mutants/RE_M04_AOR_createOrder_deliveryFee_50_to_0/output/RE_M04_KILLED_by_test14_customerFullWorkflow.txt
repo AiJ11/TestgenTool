@@ -1,0 +1,51 @@
+========================================
+TEST: [SAT] Test14 Customerfullworkflow
+MODE: Full Pipeline (With Backend)
+DEPTH: 2 API calls
+WEBAPP: RESTAURANT backend
+MUTATION: RE_M04 — [AOR] createOrder: deliveryFee 50 → 0
+========================================
+
+[RewriteGlobalsVisitor] Detected globals for restaurant spec
+[RewriteGlobalsVisitor] Generated rewritten test-API ATC
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: email0 := input()
+Statement 2: password0 := input()
+... [intermediate steps] ...
+Statement 5: _result1 := api14_customerFullWorkflow(...)
+Statement 6:   assert(postcondition_1)
+=== End Program ===
+
+>>> generateCTC: Starting iteration
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+>>> generateCTC: STEP 2 - Running symbolic execution
+
+[SEE] Executing API call sequence (2 steps)
+
+[HTTP_CLIENT] Making HTTP call to restaurant backend
+[HTTP_CLIENT] Response received
+
+[ASSIGN] Evaluating API result
+[ASSERT] Evaluating: postcondition for test14_customerFullWorkflow
+  Mutation type: AOR — arithmetic operator replaced
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+✗ Test14 Customerfullworkflow  FAILED:
+  [AOR] createOrder: deliveryFee 50 → 0
+  Postcondition violated at step 1
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : RE_M04
+Operator        : AOR
+Killing test    : test14_customerFullWorkflow
+File            : routes/orders.js
+Change          : [AOR] createOrder: deliveryFee 50 → 0
+────────────────────────────────────────

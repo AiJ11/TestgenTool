@@ -1,0 +1,12 @@
+Mutation ID    : EC_M10
+Operator       : CDL
+File           : controllers/reviewController.js
+Description    : [CDL] createReview: 201 → 200
+Result         : EXPECTED_KILLED
+Killing tests  : test17_multiUserCreateReview, test18_completeEcommerceFlow
+
+ORIGINAL:
+    res.status(201).json(review);
+
+MUTANT:
+    res.status(200).json(review);

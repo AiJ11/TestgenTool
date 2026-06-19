@@ -1,0 +1,13 @@
+Mutation ID    : EC_M07
+Operator       : SDL
+File           : controllers/orderController.js
+Description    : [SDL] createOrder: skip Cart clear after order
+Result         : EXPECTED_KILLED
+Killing tests  : test14_multiUserCreateOrder, test29_createOrderEmptyCart
+
+ORIGINAL:
+    // Clear cart
+    await Cart.findOneAndDelete({ buyer: req.user._id });
+
+MUTANT:
+    // [MUTANT EC_M07: SDL] Cart.findOneAndDelete deleted (cart not cleared)

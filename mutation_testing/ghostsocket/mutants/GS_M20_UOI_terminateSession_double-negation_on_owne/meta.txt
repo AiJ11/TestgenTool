@@ -1,0 +1,12 @@
+Mutation ID    : GS_M20
+Operator       : UOI
+File           : controllers/SessionController.js
+Description    : [UOI] terminateSession: double-negation on owner check
+Result         : EXPECTED_KILLED
+Killing tests  : test09_terminateSession, test16_terminateSessionForbidden
+
+ORIGINAL:
+if (session.userId !== userId) {
+
+MUTANT:
+if (!(session.userId !== userId)) {

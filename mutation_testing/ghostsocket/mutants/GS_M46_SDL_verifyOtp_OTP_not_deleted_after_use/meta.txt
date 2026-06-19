@@ -1,0 +1,12 @@
+Mutation ID    : GS_M46
+Operator       : SDL
+File           : controllers/AppController.js
+Description    : [SDL] verifyOtp: OTP not deleted after use
+Result         : EXPECTED_KILLED
+Killing tests  : test03_registerDevice
+
+ORIGINAL:
+    await DBOTP.deleteOne({ email, otp });
+
+MUTANT:
+    // [MUTANT GS_M46: SDL] DBOTP.deleteOne deleted (OTP reusable)

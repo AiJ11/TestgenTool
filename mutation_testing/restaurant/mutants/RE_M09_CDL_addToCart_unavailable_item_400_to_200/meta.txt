@@ -1,0 +1,12 @@
+Mutation ID    : RE_M09
+Operator       : CDL
+File           : routes/cart.js
+Description    : [CDL] addToCart: unavailable item 400 → 200
+Result         : EXPECTED_KILLED
+Killing tests  : test08_loginAndAddToCart
+
+ORIGINAL:
+      return res.status(400).json({ message: 'Menu item not available' });
+
+MUTANT:
+      return res.status(200).json({ message: 'Menu item not available' });

@@ -1,0 +1,12 @@
+Mutation ID    : GS_M37
+Operator       : SDL
+File           : controllers/DeviceController.js
+Description    : [SDL] deleteDevice: skip session termination
+Result         : EXPECTED_KILLED
+Killing tests  : test10_deleteDevice, test09_terminateSession
+
+ORIGINAL:
+      await DBSessions.updateMany({ deviceId }, { $set: { terminated: true } });
+
+MUTANT:
+      // [MUTANT GS_M37: SDL] sessions termination deleted

@@ -1,0 +1,12 @@
+Mutation ID    : LI_M01
+Operator       : CDL
+File           : controller/BookController.java
+Description    : [CDL] saveBook: always returns null instead of saved book
+Result         : EXPECTED_KILLED
+Killing tests  : test03_saveBook, test05_saveAndGetBook
+
+ORIGINAL:
+    public Book saveBook(@RequestBody Book book){
+
+MUTANT:
+    // [MUTANT LI_M01: CDL] saveBook always returns null

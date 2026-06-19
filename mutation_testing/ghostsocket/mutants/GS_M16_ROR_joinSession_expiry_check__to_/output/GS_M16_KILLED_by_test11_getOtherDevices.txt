@@ -1,0 +1,51 @@
+========================================
+TEST: [SAT] Test11 Getotherdevices
+MODE: Full Pipeline (With Backend)
+DEPTH: 2 API calls
+WEBAPP: GHOSTSOCKET backend
+MUTATION: GS_M16 — [ROR] joinSession: expiry check < → >
+========================================
+
+[RewriteGlobalsVisitor] Detected globals for ghostsocket spec
+[RewriteGlobalsVisitor] Generated rewritten test-API ATC
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: email0 := input()
+Statement 2: password0 := input()
+... [intermediate steps] ...
+Statement 5: _result1 := api11_getOtherDevices(...)
+Statement 6:   assert(postcondition_1)
+=== End Program ===
+
+>>> generateCTC: Starting iteration
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+>>> generateCTC: STEP 2 - Running symbolic execution
+
+[SEE] Executing API call sequence (2 steps)
+
+[HTTP_CLIENT] Making HTTP call to ghostsocket backend
+[HTTP_CLIENT] Response received
+
+[ASSIGN] Evaluating API result
+[ASSERT] Evaluating: postcondition for test11_getOtherDevices
+  Mutation type: ROR — operator replacement in guard condition
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+✗ Test11 Getotherdevices  FAILED:
+  [ROR] joinSession: expiry check < → >
+  Postcondition violated at step 1
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : GS_M16
+Operator        : ROR
+Killing test    : test11_getOtherDevices
+File            : controllers/SessionController.js
+Change          : [ROR] joinSession: expiry check < → >
+────────────────────────────────────────

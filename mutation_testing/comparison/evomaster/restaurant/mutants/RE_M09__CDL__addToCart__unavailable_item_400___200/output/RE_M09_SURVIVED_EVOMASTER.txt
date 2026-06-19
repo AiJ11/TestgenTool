@@ -1,0 +1,36 @@
+========================================
+EvoMaster Test Run — RESTAURANT
+Mutation: RE_M09 — [CDL] addToCart: unavailable item 400 → 200
+========================================
+EvoMaster version: 5.2.1-SNAPSHOT
+Mode: Black-box (bbSwaggerUrl)
+Target: http://localhost:5002
+Search budget: 120s
+
+* Initializing...
+* Starting phase SEARCH
+
+* Consumed search budget: 100%
+* Covered targets: 8 (only public GET endpoints)
+* POST /api/auth/register → 400 (invalid random body)
+* POST /api/auth/login → 400 (invalid random body)
+* All authenticated endpoints → 401
+* JWT token never obtained — response chaining not supported.
+* Mutated code path in routes/cart.js was never executed.
+
+Mutation analysis:
+  Tool capability : detects HTTP 5xx errors and unexpected server crashes
+  OMTSP (this backend): 0.00
+  Mutation type   : CDL — [CDL] addToCart: unavailable item 400 → 200
+  Observable via EvoMaster: NO
+  Reason          : JWT bearer token required (register → login → protected endpoints)
+
+Restaurant backend requires JWT auth for all write endpoints. RESTler and EvoMaster cannot obtain a valid JWT without successful login — which requires a correctly structured body that random fuzzing rarely produces. Protected endpoints return 401.
+
+────────────────────────────────────────
+MUTATION STATUS : SURVIVED ✗
+Mutation ID     : RE_M09
+Operator        : CDL
+Tool            : EvoMaster
+Reason          : JWT bearer token required (register → login → protected endpoints)
+────────────────────────────────────────

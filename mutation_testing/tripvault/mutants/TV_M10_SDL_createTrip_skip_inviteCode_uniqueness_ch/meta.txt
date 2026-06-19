@@ -1,0 +1,12 @@
+Mutation ID    : TV_M10
+Operator       : SDL
+File           : controllers/TripController.js
+Description    : [SDL] createTrip: skip inviteCode uniqueness check
+Result         : EXPECTED_KILLED
+Killing tests  : test01_createTrip, test04_joinTripByCode
+
+ORIGINAL:
+        let codeExists = await Trip.findOne({ inviteCode });
+
+MUTANT:
+        let codeExists = null; // [MUTANT TV_M10: SDL] uniqueness check skipped

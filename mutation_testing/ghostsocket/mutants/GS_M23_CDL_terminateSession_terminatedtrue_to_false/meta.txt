@@ -1,0 +1,12 @@
+Mutation ID    : GS_M23
+Operator       : CDL
+File           : controllers/SessionController.js
+Description    : [CDL] terminateSession: terminated:true → false
+Result         : EXPECTED_KILLED
+Killing tests  : test09_terminateSession, test17_fullSessionLifecycle, test21_sessionListAndTerminate
+
+ORIGINAL:
+await DBSessions.updateOne({ _id: sessionKey }, { $set: { terminated: true } });
+
+MUTANT:
+await DBSessions.updateOne({ _id: sessionKey }, { $set: { terminated: false } });

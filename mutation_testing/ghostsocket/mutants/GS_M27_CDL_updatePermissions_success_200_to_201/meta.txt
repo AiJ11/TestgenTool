@@ -1,0 +1,12 @@
+Mutation ID    : GS_M27
+Operator       : CDL
+File           : controllers/SessionController.js
+Description    : [CDL] updatePermissions: success 200 → 201
+Result         : EXPECTED_KILLED
+Killing tests  : test12_updatePermissions, test20_joinAndUpdatePermissions
+
+ORIGINAL:
+        res.status(200).json({ message: "Permissions updated successfully." });
+
+MUTANT:
+        res.status(201).json({ message: "Permissions updated successfully." });

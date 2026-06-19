@@ -1,0 +1,14 @@
+Mutation ID    : SV_M09
+Operator       : SDL
+File           : service/AuthService.java
+Description    : [SDL] login: delete password verification
+Result         : EXPECTED_KILLED
+Killing tests  : test02_loginProvider, test05_invalidLogin
+
+ORIGINAL:
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new UnauthorizedException("Invalid email or password");
+        }
+
+MUTANT:
+        // [MUTANT SV_M09: SDL] password check deleted (any password accepted)

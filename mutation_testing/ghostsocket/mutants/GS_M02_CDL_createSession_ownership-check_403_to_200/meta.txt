@@ -1,0 +1,12 @@
+Mutation ID    : GS_M02
+Operator       : CDL
+File           : controllers/SessionController.js
+Description    : [CDL] createSession: ownership-check 403 → 200
+Result         : EXPECTED_KILLED
+Killing tests  : test14_createSessionForbidden
+
+ORIGINAL:
+return res.status(403).json({ error: "You do not have permission to create a session for this device." });
+
+MUTANT:
+return res.status(200).json({ error: "You do not have permission to create a session for this device." });

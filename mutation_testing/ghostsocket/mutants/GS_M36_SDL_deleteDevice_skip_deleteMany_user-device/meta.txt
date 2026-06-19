@@ -1,0 +1,12 @@
+Mutation ID    : GS_M36
+Operator       : SDL
+File           : controllers/DeviceController.js
+Description    : [SDL] deleteDevice: skip deleteMany user-device-links
+Result         : EXPECTED_KILLED
+Killing tests  : test10_deleteDevice, test04_getMyDevices
+
+ORIGINAL:
+      await DBUserDeviceLinks.deleteMany({ deviceId });
+
+MUTANT:
+      // [MUTANT GS_M36: SDL] deleteMany UserDeviceLinks deleted

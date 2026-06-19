@@ -1,0 +1,12 @@
+Mutation ID    : GS_M41
+Operator       : CDL
+File           : controllers/DeviceController.js
+Description    : [CDL] getMyDevices: owner → user role filter
+Result         : EXPECTED_KILLED
+Killing tests  : test04_getMyDevices, test18_devicesAndSession
+
+ORIGINAL:
+    const myDevices = await DBUserDeviceLinks.find({ userId, role: "owner" })
+
+MUTANT:
+    const myDevices = await DBUserDeviceLinks.find({ userId, role: "user" })

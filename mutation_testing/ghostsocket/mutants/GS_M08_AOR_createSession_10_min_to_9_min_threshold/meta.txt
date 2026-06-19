@@ -1,0 +1,12 @@
+Mutation ID    : GS_M08
+Operator       : AOR
+File           : controllers/SessionController.js
+Description    : [AOR] createSession: 10 min → 9 min threshold
+Result         : EXPECTED_KILLED
+Killing tests  : test06_createSession
+
+ORIGINAL:
+const tenMinutesFromNow = new Date(currentDate.getTime() + 10 * 60 * 1000);
+
+MUTANT:
+const tenMinutesFromNow = new Date(currentDate.getTime() + 9 * 60 * 1000);

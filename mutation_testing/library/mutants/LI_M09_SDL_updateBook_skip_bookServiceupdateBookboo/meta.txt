@@ -1,0 +1,13 @@
+Mutation ID    : LI_M09
+Operator       : SDL
+File           : controller/BookController.java
+Description    : [SDL] updateBook: skip bookService.updateBook(book)
+Result         : EXPECTED_KILLED
+Killing tests  : test09_bookCRUD
+
+ORIGINAL:
+        bookService.updateBook(book);
+        return book;
+
+MUTANT:
+        return book; // [MUTANT LI_M09: SDL] updateBook skipped

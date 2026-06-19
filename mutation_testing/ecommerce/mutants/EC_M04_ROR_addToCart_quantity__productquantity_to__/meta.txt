@@ -1,0 +1,12 @@
+Mutation ID    : EC_M04
+Operator       : ROR
+File           : controllers/cartController.js
+Description    : [ROR] addToCart: quantity > product.quantity → >= (off-by-one)
+Result         : EXPECTED_KILLED
+Killing tests  : test12_multiUserAddToCart
+
+ORIGINAL:
+    if (quantity > product.quantity) {
+
+MUTANT:
+    if (quantity >= product.quantity) {

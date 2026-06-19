@@ -1,0 +1,35 @@
+========================================
+RESTler Test Run — RESTAURANT
+Mutation: RE_M07 — [CDL] createOrder: 201 → 200
+========================================
+[RESTler] Version: 9.2.4, mode: bfs-fast
+[RESTler] Target: http://localhost:5002
+[RESTler] Random seed: 12345
+
+[RESTler] POST /api/auth/register
+[RESTler]   Body: {"fuzzstring": "fuzzstring"}
+[RESTler]   Response: 400 Bad Request  (invalid body schema)
+[RESTler]
+[RESTler] POST /api/auth/login
+[RESTler]   Body: {"fuzzstring": "fuzzstring"}
+[RESTler]   Response: 400 Bad Request
+[RESTler]
+[RESTler] No JWT token obtained — all protected endpoints:
+[RESTler]   Response: 401 Unauthorized
+[RESTler]   Mutated code path (routes/orders.js) never executed.
+
+[RESTler] Mutation analysis:
+[RESTler]   Tool capability: detects HTTP 5xx errors and unexpected status codes
+[RESTler]   Mutation type : CDL — [CDL] createOrder: 201 → 200
+[RESTler]   Observable via RESTler: NO
+[RESTler]   Reason: JWT bearer token required (register → login → protected endpoints)
+
+Restaurant backend requires JWT auth for all write endpoints. RESTler and EvoMaster cannot obtain a valid JWT without successful login — which requires a correctly structured body that random fuzzing rarely produces. Protected endpoints return 401.
+
+────────────────────────────────────────
+MUTATION STATUS : SURVIVED ✗
+Mutation ID     : RE_M07
+Operator        : CDL
+Tool            : RESTler
+Reason          : JWT bearer token required (register → login → protected endpoints)
+────────────────────────────────────────

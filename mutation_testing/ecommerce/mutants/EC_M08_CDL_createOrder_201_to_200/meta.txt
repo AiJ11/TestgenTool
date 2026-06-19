@@ -1,0 +1,12 @@
+Mutation ID    : EC_M08
+Operator       : CDL
+File           : controllers/orderController.js
+Description    : [CDL] createOrder: 201 → 200
+Result         : EXPECTED_KILLED
+Killing tests  : test14_multiUserCreateOrder, test15_multiUserViewOrders
+
+ORIGINAL:
+    res.status(201).json(order);
+
+MUTANT:
+    res.status(200).json(order);

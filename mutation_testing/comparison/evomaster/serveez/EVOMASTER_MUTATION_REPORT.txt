@@ -1,0 +1,93 @@
+================================================================================
+  EVOMASTER MUTATION TESTING REPORT — SERVEEZ
+================================================================================
+  Tool            : EVOMASTER (Evolutionary black-box REST tester)
+  Backend         : SERVEEZ
+  Total Mutants   : 10
+  Killed          : 0 (0%)
+  Survived        : 10
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  TOOL CAPABILITIES & LIMITATIONS ON THIS BACKEND
+────────────────────────────────────────────────────────────────────────────────
+
+  Authentication barrier : Spring Security JWT required
+
+  Serveez uses Spring Security with JWT. All API endpoints except public GETs
+  require a Bearer token. POST /api/auth/signup → 400 with random body.
+  Without a valid JWT, booking/confirmation endpoints return 403.
+
+  EvoMaster detection mechanism:
+    • HTTP 5xx = fault indication
+    • Does NOT check: exact 2xx codes, response body content, postconditions
+    • Black-box mode, 120s budget, no auth configured
+    • OMTSP: 0.00 (auth-protected)
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION RESULTS
+────────────────────────────────────────────────────────────────────────────────
+
+  SV_M01  [CDL]  [SDL] signup: delete duplicate-email check
+    File    : service/AuthService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_SDL__signup__delete_duplicate-email_che/output/SV_M01_SURVIVED_evomaster.txt
+
+  SV_M02  [CDL]  [SDL] signup: skip userRepository.save
+    File    : service/AuthService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_SDL__signup__skip_userRepository_save/output/SV_M02_SURVIVED_evomaster.txt
+
+  SV_M03  [ROR]  [ROR] confirmBooking: status != PENDING → == PENDING
+    File    : service/BookingService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_ROR__confirmBooking__status____PENDING_/output/SV_M03_SURVIVED_evomaster.txt
+
+  SV_M04  [CDL]  [CDL] confirmBooking: CONFIRMED → PENDING
+    File    : service/BookingService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_CDL__confirmBooking__CONFIRMED___PENDIN/output/SV_M04_SURVIVED_evomaster.txt
+
+  SV_M05  [SDL]  [SDL] confirmBooking: skip bookingRepository.save
+    File    : service/BookingService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_SDL__confirmBooking__skip_bookingReposi/output/SV_M05_SURVIVED_evomaster.txt
+
+  SV_M06  [ROR]  [ROR] completeBooking: != CONFIRMED → == (inverted)
+    File    : service/BookingService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_ROR__completeBooking_____CONFIRMED_____/output/SV_M06_SURVIVED_evomaster.txt
+
+  SV_M07  [CDL]  [CDL] cancelBooking: CANCELLED → PENDING
+    File    : service/BookingService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_CDL__cancelBooking__CANCELLED___PENDING/output/SV_M07_SURVIVED_evomaster.txt
+
+  SV_M08  [LCR]  [ROR] cancelBooking: CANCELLED == → != in double-check
+    File    : service/BookingService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_ROR__cancelBooking__CANCELLED_________i/output/SV_M08_SURVIVED_evomaster.txt
+
+  SV_M09  [SDL]  [SDL] login: delete password verification
+    File    : service/AuthService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_SDL__login__delete_password_verificatio/output/SV_M09_SURVIVED_evomaster.txt
+
+  SV_M10  [CDL]  [CDL] createBooking: initial status PENDING → CONFIRMED
+    File    : service/BookingService.java
+    Result  : SURVIVED ✗
+    Reason  : Spring Security JWT required
+    Output  : serveez/mutants/_CDL__createBooking__initial_status_PEND/output/SV_M10_SURVIVED_evomaster.txt
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY: 0/10 mutants killed = 0% mutation score
+────────────────────────────────────────────────────────────────────────────────

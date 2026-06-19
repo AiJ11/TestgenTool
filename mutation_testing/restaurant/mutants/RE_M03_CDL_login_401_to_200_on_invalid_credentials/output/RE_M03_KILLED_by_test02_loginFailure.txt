@@ -1,0 +1,50 @@
+========================================
+TEST: [SAT] Test02 Loginfailure
+MODE: Full Pipeline (With Backend)
+DEPTH: 2 API calls
+WEBAPP: RESTAURANT backend
+MUTATION: RE_M03 — [CDL] login: 401 → 200 on invalid credentials
+========================================
+
+[RewriteGlobalsVisitor] Detected globals for restaurant spec
+[RewriteGlobalsVisitor] Generated rewritten test-API ATC
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: email0 := input()
+Statement 2: password0 := input()
+... [intermediate steps] ...
+Statement 5: _result1 := api02_loginFailure(...)
+Statement 6:   assert(postcondition_1)
+=== End Program ===
+
+>>> generateCTC: Starting iteration
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+>>> generateCTC: STEP 2 - Running symbolic execution
+
+[SEE] Executing API call sequence (2 steps)
+
+[HTTP_CLIENT] Making HTTP call to restaurant backend
+[HTTP_CLIENT] Response received
+
+[ASSIGN] Evaluating API result
+[ASSERT] Evaluating: postcondition for test02_loginFailure
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+✗ Test02 Loginfailure  FAILED:
+  [CDL] login: 401 → 200 on invalid credentials
+  Postcondition violated at step 1
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : RE_M03
+Operator        : CDL
+Killing test    : test02_loginFailure
+File            : routes/auth.js
+Change          : [CDL] login: 401 → 200 on invalid credentials
+────────────────────────────────────────

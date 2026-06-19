@@ -1,0 +1,130 @@
+================================================================================
+  TESTGEN MUTATION TESTING REPORT — LIBRARY
+================================================================================
+  Tool          : TestGen (Specification-Based Test Generation)
+  Backend       : Library
+  Total Mutants : 10
+  Operators     : CDL, ROR, SDL
+  All Results   : KILLED (100%)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  WHY THESE OPERATORS WERE CHOSEN
+────────────────────────────────────────────────────────────────────────────────
+
+  CDL (5 mutants)
+    Constant/Literal Replacement — changes HTTP status codes, role strings, and boolean flags; directly tests postcondition assertions in TestGen.
+
+  ROR (1 mutants)
+    Relational Operator Replacement — models off-by-one and inverted guard defects, one of the most common real-world bug classes in API backends.
+
+  SDL (4 mutants)
+    Statement Deletion — removes DB writes, auth guards, and validation blocks; models 'forgotten line' defects caught by stateful multi-step tests.
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION CATALOGUE
+────────────────────────────────────────────────────────────────────────────────
+
+  LI_M01  [CDL]  [CDL] saveBook: always returns null instead of saved book
+    File         : controller/BookController.java
+    Original     : public Book saveBook(@RequestBody Book book){
+    Mutant       : // [MUTANT LI_M01: CDL] saveBook always returns null
+    Killed by    : test03_saveBook, test05_saveAndGetBook
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M01_CDL_saveBook_always_returns_null_instead_of_/output/
+
+  LI_M02  [SDL]  [SDL] deleteRequest: skip requestService.deleteRequestbyId()
+    File         : controller/RequestController.java
+    Original     : public Request deleteRequest(@PathVariable Integer id) {
+        r
+    Mutant       : public Request deleteRequest(@PathVariable Integer id) {
+        r
+    Killed by    : test_deleteRequestOk, test_acceptRequestOk
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M02_SDL_deleteRequest_skip_requestServicedeleteR/output/
+
+  LI_M03  [SDL]  [SDL] deleteBook: skip bookService.deleteBookByCode()
+    File         : controller/BookController.java
+    Original     : public Book deleteBook(@PathVariable Integer book_code){
+        r
+    Mutant       : public Book deleteBook(@PathVariable Integer book_code){
+        r
+    Killed by    : test_deleteBookOk, test_bookCRUD
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M03_SDL_deleteBook_skip_bookServicedeleteBookByC/output/
+
+  LI_M04  [CDL]  [CDL] getBooks: always returns empty list
+    File         : controller/BookController.java
+    Original     : return bookService.findAllBooks();
+    Mutant       : return new java.util.ArrayList<>(); // [MUTANT LI_M04: CDL] al
+    Killed by    : test_getAllBooksOk, test_saveAndGetBook
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M04_CDL_getBooks_always_returns_empty_list/output/
+
+  LI_M05  [CDL]  [CDL] authenticateStub: status 501 → 200 (wrong status code)
+    File         : controller/AuthenticationController.java
+    Original     : @PostMapping("/authenticate")
+    public ResponseEntity<?> authent
+    Mutant       : @PostMapping("/authenticate")
+    public ResponseEntity<?> authent
+    Killed by    : test_authenticateDisabled, test_loginOk
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M05_CDL_authenticateStub_status_501_to_200_wrong/output/
+
+  LI_M06  [ROR]  [ROR] saveBook: setBookCode(0) → setBookCode(1) (book code not reset)
+    File         : controller/BookController.java
+    Original     : book.setBookCode(0);
+    Mutant       : book.setBookCode(1); // [MUTANT LI_M06: ROR] 0 → 1
+    Killed by    : test03_saveBook, test07_saveBookTwice
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M06_ROR_saveBook_setBookCode0_to_setBookCode1_bo/output/
+
+  LI_M07  [SDL]  [SDL] saveRequest: skip requestService.saveRequest(request)
+    File         : controller/RequestController.java
+    Original     : return requestService.saveRequest(request);
+    Mutant       : return null; // [MUTANT LI_M07: SDL] saveRequest skipped
+    Killed by    : test_saveRequestOk, test_acceptRequestOk
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M07_SDL_saveRequest_skip_requestServicesaveReque/output/
+
+  LI_M08  [CDL]  [CDL] getBookById: always returns null
+    File         : controller/BookController.java
+    Original     : return bookService.findBookByCode(book_code);
+    Mutant       : return null; // [MUTANT LI_M08: CDL] getBookById always return
+    Killed by    : test05_saveAndGetBook, test09_bookCRUD
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M08_CDL_getBookById_always_returns_null/output/
+
+  LI_M09  [SDL]  [SDL] updateBook: skip bookService.updateBook(book)
+    File         : controller/BookController.java
+    Original     : bookService.updateBook(book);
+        return book;
+    Mutant       : return book; // [MUTANT LI_M09: SDL] updateBook skipped
+    Killed by    : test09_bookCRUD
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M09_SDL_updateBook_skip_bookServiceupdateBookboo/output/
+
+  LI_M10  [CDL]  [CDL] registerStudentStub: status 501 → 200 (wrong status code)
+    File         : controller/AuthenticationController.java
+    Original     : @PostMapping("/register_student")
+    public ResponseEntity<?> reg
+    Mutant       : @PostMapping("/register_student")
+    public ResponseEntity<?> reg
+    Killed by    : test_registerStudentDisabled, test_registerAdminOk
+    Result       : KILLED ✓
+    Output files : library/mutants/LI_M10_CDL_registerStudentStub_status_501_to_200_wr/output/
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY BY OPERATOR
+────────────────────────────────────────────────────────────────────────────────
+  Operator Count   Killed      Score
+  ----------------------------------------
+  CDL          5        5     100.0%
+  ROR          1        1     100.0%
+  SDL          4        4     100.0%
+  ----------------------------------------
+  TOTAL       10       10     100.0%
+
+================================================================================
+  FINAL MUTATION SCORE: 10/10 = 100.0%
+================================================================================

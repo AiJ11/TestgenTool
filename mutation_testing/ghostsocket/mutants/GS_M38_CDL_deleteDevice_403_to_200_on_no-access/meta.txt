@@ -1,0 +1,12 @@
+Mutation ID    : GS_M38
+Operator       : CDL
+File           : controllers/DeviceController.js
+Description    : [CDL] deleteDevice: 403 → 200 on no-access
+Result         : EXPECTED_KILLED
+Killing tests  : test10_deleteDevice
+
+ORIGINAL:
+      return res.status(403).json({ error: "You do not have access to this device" });
+
+MUTANT:
+      return res.status(200).json({ error: "You do not have access to this device" });

@@ -1,0 +1,128 @@
+================================================================================
+  TESTGEN MUTATION TESTING REPORT — TRIPVAULT
+================================================================================
+  Tool          : TestGen (Specification-Based Test Generation)
+  Backend       : Tripvault
+  Total Mutants : 10
+  Operators     : AOR, CDL, ROR, SDL
+  All Results   : KILLED (100%)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  WHY THESE OPERATORS WERE CHOSEN
+────────────────────────────────────────────────────────────────────────────────
+
+  AOR (1 mutants)
+    Arithmetic Operator Replacement — +/- swap and constant scaling; targets calculation errors in fees, totals, and time-window arithmetic.
+
+  CDL (3 mutants)
+    Constant/Literal Replacement — changes HTTP status codes, role strings, and boolean flags; directly tests postcondition assertions in TestGen.
+
+  ROR (3 mutants)
+    Relational Operator Replacement — models off-by-one and inverted guard defects, one of the most common real-world bug classes in API backends.
+
+  SDL (3 mutants)
+    Statement Deletion — removes DB writes, auth guards, and validation blocks; models 'forgotten line' defects caught by stateful multi-step tests.
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION CATALOGUE
+────────────────────────────────────────────────────────────────────────────────
+
+  TV_M01  [ROR]  [ROR] createTrip: end < start → end > start (inverted date guard)
+    File         : controllers/TripController.js
+    Original     : if (end < start) {
+    Mutant       : if (end > start) {
+    Killed by    : test01_createTrip, test03_createTripInvalidDates
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M01_ROR_createTrip_end__start_to_end__start_inve/output/
+
+  TV_M02  [CDL]  [CDL] createTrip: 201 → 200
+    File         : controllers/TripController.js
+    Original     : return res.status(201).json({
+    Mutant       : return res.status(200).json({
+    Killed by    : test01_createTrip, test02_getTripDetails
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M02_CDL_createTrip_201_to_200/output/
+
+  TV_M03  [SDL]  [SDL] createTrip: delete required fields validation
+    File         : controllers/TripController.js
+    Original     : if (!tripName || !destination || !startDate || !endDate) {
+    Mutant       : // [MUTANT TV_M03: SDL] required fields validation deleted
+    Killed by    : test03_createTripInvalidDates, test01_createTrip
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M03_SDL_createTrip_delete_required_fields_valida/output/
+
+  TV_M04  [ROR]  [ROR] createExpense: userId === member → !== (inverted membership check)
+    File         : controllers/ExpensesController.js
+    Original     : const isMember = trip.members.some(member => member.userId ===
+    Mutant       : const isMember = trip.members.some(member => member.userId !==
+    Killed by    : test05_createExpense, test08_unauthorizedExpense
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M04_ROR_createExpense_userId__member_to__inverte/output/
+
+  TV_M05  [CDL]  [CDL] createExpense: 403 → 200 on non-member
+    File         : controllers/ExpensesController.js
+    Original     : return res.status(403).json({ message: "You are not a memb
+    Mutant       : return res.status(200).json({ message: "You are not a memb
+    Killed by    : test08_unauthorizedExpense
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M05_CDL_createExpense_403_to_200_on_non-member/output/
+
+  TV_M06  [ROR]  [ROR] createExpense: totalPercentage > 0.01 → < 0.01 (accepts invalid splits)
+    File         : controllers/ExpensesController.js
+    Original     : if (Math.abs(totalPercentage - 100) > 0.01) {
+    Mutant       : if (Math.abs(totalPercentage - 100) < 0.01) {
+    Killed by    : test05_createExpense, test07_invalidSplits
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M06_ROR_createExpense_totalPercentage__001_to__0/output/
+
+  TV_M07  [AOR]  [AOR] createExpense: amount * percentage → + (wrong split calculation)
+    File         : controllers/ExpensesController.js
+    Original     : amount: (expenseAmount * split.percentage) / 100,
+    Mutant       : amount: (expenseAmount + split.percentage) / 100,
+    Killed by    : test05_createExpense, test06_viewExpenses
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M07_AOR_createExpense_amount__percentage_to__wro/output/
+
+  TV_M08  [SDL]  [SDL] createExpense: delete membership check
+    File         : controllers/ExpensesController.js
+    Original     : if (!isMember) {
+            if (req.file) await fs.unlink(req
+    Mutant       : // [MUTANT TV_M08: SDL] membership check deleted
+    Killed by    : test08_unauthorizedExpense
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M08_SDL_createExpense_delete_membership_check/output/
+
+  TV_M09  [CDL]  [CDL] searchUserByEmail: 404 → 200 on user-not-found
+    File         : controllers/TripController.js
+    Original     : return res.status(404).json({ 
+                success: fa
+    Mutant       : return res.status(200).json({ 
+                success: fa
+    Killed by    : test10_searchUserNotFound
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M09_CDL_searchUserByEmail_404_to_200_on_user-not/output/
+
+  TV_M10  [SDL]  [SDL] createTrip: skip inviteCode uniqueness check
+    File         : controllers/TripController.js
+    Original     : let codeExists = await Trip.findOne({ inviteCode });
+    Mutant       : let codeExists = null; // [MUTANT TV_M10: SDL] uniqueness chec
+    Killed by    : test01_createTrip, test04_joinTripByCode
+    Result       : KILLED ✓
+    Output files : tripvault/mutants/TV_M10_SDL_createTrip_skip_inviteCode_uniqueness_ch/output/
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY BY OPERATOR
+────────────────────────────────────────────────────────────────────────────────
+  Operator Count   Killed      Score
+  ----------------------------------------
+  AOR          1        1     100.0%
+  CDL          3        3     100.0%
+  ROR          3        3     100.0%
+  SDL          3        3     100.0%
+  ----------------------------------------
+  TOTAL       10       10     100.0%
+
+================================================================================
+  FINAL MUTATION SCORE: 10/10 = 100.0%
+================================================================================

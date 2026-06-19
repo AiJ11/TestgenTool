@@ -1,0 +1,12 @@
+Mutation ID    : GS_M10
+Operator       : LCR
+File           : controllers/SessionController.js
+Description    : [LCR] createSession: || → && in permissions guard
+Result         : EXPECTED_KILLED
+Killing tests  : test06_createSession
+
+ORIGINAL:
+if (!permissions || !Array.isArray(permissions) || permissions.length === 0) {
+
+MUTANT:
+if (!permissions && !Array.isArray(permissions) && permissions.length === 0) {

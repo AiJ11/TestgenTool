@@ -1,0 +1,12 @@
+Mutation ID    : GS_M49
+Operator       : CDL
+File           : controllers/AppController.js
+Description    : [CDL] verifyOtp: owner → user in link check
+Result         : EXPECTED_KILLED
+Killing tests  : test03_registerDevice
+
+ORIGINAL:
+      const userDeviceLink = await DBUserDeviceLinks.findOne({ deviceId , role: "owner"});
+
+MUTANT:
+      const userDeviceLink = await DBUserDeviceLinks.findOne({ deviceId , role: "user"});

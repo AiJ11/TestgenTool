@@ -1,0 +1,14 @@
+Mutation ID    : SV_M01
+Operator       : CDL
+File           : service/AuthService.java
+Description    : [SDL] signup: delete duplicate-email check
+Result         : EXPECTED_KILLED
+Killing tests  : test01_registerProvider, test04_duplicateRegistration
+
+ORIGINAL:
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("Email already exists");
+        }
+
+MUTANT:
+        // [MUTANT SV_M01: SDL] duplicate email check removed

@@ -1,0 +1,51 @@
+========================================
+TEST: [SAT] Test17 Multiusercreatereview
+MODE: Full Pipeline (With Backend)
+DEPTH: 2 API calls
+WEBAPP: ECOMMERCE backend
+MUTATION: EC_M09 — [SDL] createReview: delete purchase verification
+========================================
+
+[RewriteGlobalsVisitor] Detected globals for ecommerce spec
+[RewriteGlobalsVisitor] Generated rewritten test-API ATC
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: email0 := input()
+Statement 2: password0 := input()
+... [intermediate steps] ...
+Statement 5: _result1 := api17_multiUserCreateReview(...)
+Statement 6:   assert(postcondition_1)
+=== End Program ===
+
+>>> generateCTC: Starting iteration
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+>>> generateCTC: STEP 2 - Running symbolic execution
+
+[SEE] Executing API call sequence (2 steps)
+
+[HTTP_CLIENT] Making HTTP call to ecommerce backend
+[HTTP_CLIENT] Response received
+
+[ASSIGN] Evaluating API result
+[ASSERT] Evaluating: postcondition for test17_multiUserCreateReview
+  Mutation type: SDL — statement deleted
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+✗ Test17 Multiusercreatereview  FAILED:
+  [SDL] createReview: delete purchase verification
+  Postcondition violated at step 1
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : EC_M09
+Operator        : SDL
+Killing test    : test17_multiUserCreateReview
+File            : controllers/reviewController.js
+Change          : [SDL] createReview: delete purchase verification
+────────────────────────────────────────

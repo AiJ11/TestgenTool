@@ -1,0 +1,12 @@
+Mutation ID    : GS_M25
+Operator       : CDL
+File           : controllers/SessionController.js
+Description    : [CDL] updatePermissions: remove userId scope
+Result         : EXPECTED_KILLED
+Killing tests  : test12_updatePermissions, test20_joinAndUpdatePermissions
+
+ORIGINAL:
+const session = await DBSessions.findOne({ _id: sessionKey, userId });
+
+MUTANT:
+const session = await DBSessions.findOne({ _id: sessionKey });

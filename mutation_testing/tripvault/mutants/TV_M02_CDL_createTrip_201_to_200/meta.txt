@@ -1,0 +1,12 @@
+Mutation ID    : TV_M02
+Operator       : CDL
+File           : controllers/TripController.js
+Description    : [CDL] createTrip: 201 → 200
+Result         : EXPECTED_KILLED
+Killing tests  : test01_createTrip, test02_getTripDetails
+
+ORIGINAL:
+        return res.status(201).json({
+
+MUTANT:
+        return res.status(200).json({

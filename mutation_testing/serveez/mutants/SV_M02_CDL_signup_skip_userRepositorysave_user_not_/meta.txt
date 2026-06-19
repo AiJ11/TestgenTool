@@ -1,0 +1,12 @@
+Mutation ID    : SV_M02
+Operator       : CDL
+File           : service/AuthService.java
+Description    : [SDL] signup: skip userRepository.save (user not persisted)
+Result         : EXPECTED_KILLED
+Killing tests  : test01_registerProvider, test02_loginProvider
+
+ORIGINAL:
+        user = userRepository.save(user);
+
+MUTANT:
+        // [MUTANT SV_M02: SDL] userRepository.save() deleted

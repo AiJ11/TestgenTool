@@ -1,0 +1,50 @@
+========================================
+TEST: [SAT] Test06 Createbooking
+MODE: Full Pipeline (With Backend)
+DEPTH: 2 API calls
+WEBAPP: SERVEEZ backend
+MUTATION: SV_M10 — [CDL] createBooking: initial status PENDING → CONFIRMED
+========================================
+
+[RewriteGlobalsVisitor] Detected globals for serveez spec
+[RewriteGlobalsVisitor] Generated rewritten test-API ATC
+
+=== TEST-API ATC (After Rewrite) ===
+=== Program ===
+Statement 0: _ := reset()
+Statement 1: email0 := input()
+Statement 2: password0 := input()
+... [intermediate steps] ...
+Statement 5: _result1 := api06_createBooking(...)
+Statement 6:   assert(postcondition_1)
+=== End Program ===
+
+>>> generateCTC: Starting iteration
+>>> generateCTC: Program needs processing
+>>> generateCTC: Concrete values provided: 0
+
+>>> generateCTC: STEP 1 - Rewriting ATC with concrete values
+>>> generateCTC: STEP 2 - Running symbolic execution
+
+[SEE] Executing API call sequence (2 steps)
+
+[HTTP_CLIENT] Making HTTP call to serveez backend
+[HTTP_CLIENT] Response received
+
+[ASSIGN] Evaluating API result
+[ASSERT] Evaluating: postcondition for test06_createBooking
+[ASSERT] Result: false
+[ASSERT] ✗ Assertion FAILED
+
+✗ Test06 Createbooking  FAILED:
+  [CDL] createBooking: initial status PENDING → CONFIRMED
+  Postcondition violated at step 1
+
+────────────────────────────────────────
+MUTATION STATUS : KILLED ✓
+Mutation ID     : SV_M10
+Operator        : CDL
+Killing test    : test06_createBooking
+File            : service/BookingService.java
+Change          : [CDL] createBooking: initial status PENDING → CONFIRMED
+────────────────────────────────────────

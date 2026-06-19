@@ -1,0 +1,12 @@
+Mutation ID    : LI_M06
+Operator       : ROR
+File           : controller/BookController.java
+Description    : [ROR] saveBook: setBookCode(0) → setBookCode(1) (book code not reset)
+Result         : EXPECTED_KILLED
+Killing tests  : test03_saveBook, test07_saveBookTwice
+
+ORIGINAL:
+        book.setBookCode(0);
+
+MUTANT:
+        book.setBookCode(1); // [MUTANT LI_M06: ROR] 0 → 1

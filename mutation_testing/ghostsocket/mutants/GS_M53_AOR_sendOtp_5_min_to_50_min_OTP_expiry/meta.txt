@@ -1,0 +1,12 @@
+Mutation ID    : GS_M53
+Operator       : AOR
+File           : controllers/AppController.js
+Description    : [AOR] sendOtp: 5 min → 50 min OTP expiry
+Result         : EXPECTED_KILLED
+Killing tests  : test03_registerDevice
+
+ORIGINAL:
+  await DBOTP.create({ email, otp, expiresAt: Date.now() + 5 * 60 * 1000 , userId});
+
+MUTANT:
+  await DBOTP.create({ email, otp, expiresAt: Date.now() + 50 * 60 * 1000 , userId});

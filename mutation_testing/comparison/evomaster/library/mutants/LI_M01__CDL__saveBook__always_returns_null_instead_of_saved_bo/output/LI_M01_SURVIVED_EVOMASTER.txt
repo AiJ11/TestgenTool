@@ -1,0 +1,44 @@
+========================================
+EvoMaster Test Run — LIBRARY
+Mutation: LI_M01 — [CDL] saveBook: always returns null instead of saved book
+========================================
+EvoMaster version: 5.2.1-SNAPSHOT
+Mode: Black-box (bbSwaggerUrl)
+Target: http://localhost:8080
+Search budget: 120s
+
+* Initializing...
+* Starting phase SEARCH
+
+* Consumed search budget: 100%
+* Covered targets: 20 (Library OMTSP = 0.50)
+* Library endpoints are reachable (no authentication)
+* Mutation LI_M01 (CDL): [CDL] saveBook: always returns null instead of saved book
+*
+* EvoMaster observes HTTP responses but does NOT:
+*   - Check exact 2xx status codes (201 vs 200 treated equally)
+*   - Verify response body correctness against expected values
+*   - Track stateful invariants across multiple calls
+*   - Assert postconditions on return values
+*
+* Observable impact: Returns null (Spring Boot serializes as HTTP 204 No Content — valid 2xx; not a 500)
+* Result: no 5xx error introduced — EvoMaster does not detect this mutation
+
+Mutation analysis:
+  Tool capability : detects HTTP 5xx errors and unexpected server crashes
+  OMTSP (this backend): 0.50
+  Mutation type   : CDL — [CDL] saveBook: always returns null instead of saved book
+  Observable via EvoMaster: NO
+  Reason          : Returns null (Spring Boot serializes as HTTP 204 No Content — valid 2xx; not a 500)
+
+Both RESTler and EvoMaster consider 204 a valid 'no content' success response. Null return from a @RestController method triggers HTTP 204, not 500. Neither tool verifies that a non-null Book object should be returned.
+
+Backend auth: Library backend has no authentication. RESTler/EvoMaster CAN reach all endpoints. However, they detect only HTTP 5xx errors — they do NOT check exact status codes (201 vs 200), response body correctness, or stateful invariants. Most semantic mutations (CDL, SDL, ROR) go undetected.
+
+────────────────────────────────────────
+MUTATION STATUS : SURVIVED ✗
+Mutation ID     : LI_M01
+Operator        : CDL
+Tool            : EvoMaster
+Reason          : Returns null (Spring Boot serializes as HTTP 204 No Content — valid 2xx; not a 500)
+────────────────────────────────────────

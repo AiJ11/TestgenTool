@@ -1,0 +1,13 @@
+Mutation ID    : GS_M50
+Operator       : SDL
+File           : controllers/AppController.js
+Description    : [SDL] verifyOtp: skip DBDevice.create
+Result         : EXPECTED_KILLED
+Killing tests  : test04_getMyDevices, test05_getDeviceInfo, test06_createSession
+
+ORIGINAL:
+    // Create a new device in the database and a new link for the user
+    await DBDevice.create({_id: deviceId, status: "online"});
+
+MUTANT:
+    // [MUTANT GS_M50: SDL] DBDevice.create deleted

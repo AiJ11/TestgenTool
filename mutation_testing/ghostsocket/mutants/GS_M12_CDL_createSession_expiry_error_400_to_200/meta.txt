@@ -1,0 +1,12 @@
+Mutation ID    : GS_M12
+Operator       : CDL
+File           : controllers/SessionController.js
+Description    : [CDL] createSession: expiry error 400 → 200
+Result         : EXPECTED_KILLED
+Killing tests  : test06_createSession
+
+ORIGINAL:
+return res.status(400).json({ error: "Expiry must be at least 10 minutes from now." });
+
+MUTANT:
+return res.status(200).json({ error: "Expiry must be at least 10 minutes from now." });

@@ -1,0 +1,13 @@
+Mutation ID    : RE_M06
+Operator       : SDL
+File           : routes/orders.js
+Description    : [SDL] createOrder: skip cart clear
+Result         : EXPECTED_KILLED
+Killing tests  : test11_fullCustomerOrder, test13_cartWithoutItems
+
+ORIGINAL:
+    // Clear cart
+    await Cart.findOneAndDelete({ user: req.user._id });
+
+MUTANT:
+    // [MUTANT RE_M06: SDL] Cart.findOneAndDelete deleted (cart not cleared)

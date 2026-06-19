@@ -1,0 +1,20 @@
+Mutation ID    : EC_M09
+Operator       : SDL
+File           : controllers/reviewController.js
+Description    : [SDL] createReview: delete purchase verification
+Result         : EXPECTED_KILLED
+Killing tests  : test30_reviewWithoutOrder, test17_multiUserCreateReview
+
+ORIGINAL:
+    const order = await Order.findOne({
+      _id: orderId,
+      buyer: req.user._id,
+      'items.product': productId,
+    });
+
+    if (!order) {
+      return res.status(400).json({ error: 'You can only review products you have purchased' });
+    }
+
+MUTANT:
+    // [MUTANT EC_M09: SDL] purchase check deleted (anyone can review)

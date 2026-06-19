@@ -1,0 +1,14 @@
+Mutation ID    : GS_M28
+Operator       : UOI
+File           : controllers/DeviceController.js
+Description    : [UOI] getDeviceInfo: negate access guard
+Result         : EXPECTED_KILLED
+Killing tests  : test05_getDeviceInfo, test13_deviceInfoForbidden
+
+ORIGINAL:
+    if (!userDeviceLink) {
+      return res.status(403).json({ error: "You do not have access to this device" });
+
+MUTANT:
+    if (userDeviceLink) {
+      return res.status(403).json({ error: "You do not have access to this device" });

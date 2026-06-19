@@ -1,0 +1,132 @@
+================================================================================
+  TESTGEN MUTATION TESTING REPORT — ECOMMERCE
+================================================================================
+  Tool          : TestGen (Specification-Based Test Generation)
+  Backend       : Ecommerce
+  Total Mutants : 10
+  Operators     : AOR, CDL, ROR, SDL
+  All Results   : KILLED (100%)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  WHY THESE OPERATORS WERE CHOSEN
+────────────────────────────────────────────────────────────────────────────────
+
+  AOR (1 mutants)
+    Arithmetic Operator Replacement — +/- swap and constant scaling; targets calculation errors in fees, totals, and time-window arithmetic.
+
+  CDL (4 mutants)
+    Constant/Literal Replacement — changes HTTP status codes, role strings, and boolean flags; directly tests postcondition assertions in TestGen.
+
+  ROR (1 mutants)
+    Relational Operator Replacement — models off-by-one and inverted guard defects, one of the most common real-world bug classes in API backends.
+
+  SDL (4 mutants)
+    Statement Deletion — removes DB writes, auth guards, and validation blocks; models 'forgotten line' defects caught by stateful multi-step tests.
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION CATALOGUE
+────────────────────────────────────────────────────────────────────────────────
+
+  EC_M01  [CDL]  [CDL] register: 201 → 200 (wrong success code)
+    File         : controllers/authController.js
+    Original     : res.status(201).json({ message: 'User registered successfully', userId
+    Mutant       : res.status(200).json({ message: 'User registered successfully', userId
+    Killed by    : test01_registerBuyer, test02_registerSeller
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M01_CDL_register_201_to_200_wrong_success_code/output/
+
+  EC_M02  [SDL]  [SDL] register: delete duplicate-user check
+    File         : controllers/authController.js
+    Original     : const existingUser = await User.findOne({ email });
+    if (existi
+    Mutant       : // [MUTANT EC_M02: SDL] duplicate-user check deleted
+    Killed by    : test22_loginWithoutRegister, test24_duplicateRegistration
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M02_SDL_register_delete_duplicate-user_check/output/
+
+  EC_M03  [CDL]  [CDL] login: user-not-found 401 → 200
+    File         : controllers/authController.js
+    Original     : if (!user) {
+      return res.status(401).json({ error: 'Invalid c
+    Mutant       : if (!user) {
+      return res.status(200).json({ error: 'Invalid c
+    Killed by    : test22_loginWithoutRegister, test23_sellerLoginWithoutRegister
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M03_CDL_login_user-not-found_401_to_200/output/
+
+  EC_M04  [ROR]  [ROR] addToCart: quantity > product.quantity → >= (off-by-one)
+    File         : controllers/cartController.js
+    Original     : if (quantity > product.quantity) {
+    Mutant       : if (quantity >= product.quantity) {
+    Killed by    : test12_multiUserAddToCart
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M04_ROR_addToCart_quantity__productquantity_to__/output/
+
+  EC_M05  [SDL]  [SDL] addToCart: delete stock check
+    File         : controllers/cartController.js
+    Original     : if (quantity > product.quantity) {
+      return res.status(400).js
+    Mutant       : // [MUTANT EC_M05: SDL] stock check deleted
+    Killed by    : test12_multiUserAddToCart
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M05_SDL_addToCart_delete_stock_check/output/
+
+  EC_M06  [AOR]  [AOR] createOrder: price * qty → price + qty (wrong total)
+    File         : controllers/orderController.js
+    Original     : const itemTotal = item.product.price * item.quantity;
+    Mutant       : const itemTotal = item.product.price + item.quantity;
+    Killed by    : test14_multiUserCreateOrder, test19_multipleOrders
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M06_AOR_createOrder_price__qty_to_price__qty_wro/output/
+
+  EC_M07  [SDL]  [SDL] createOrder: skip Cart clear after order
+    File         : controllers/orderController.js
+    Original     : // Clear cart
+    await Cart.findOneAndDelete({ buyer: req.user._i
+    Mutant       : // [MUTANT EC_M07: SDL] Cart.findOneAndDelete deleted (cart not cl
+    Killed by    : test14_multiUserCreateOrder, test29_createOrderEmptyCart
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M07_SDL_createOrder_skip_Cart_clear_after_order/output/
+
+  EC_M08  [CDL]  [CDL] createOrder: 201 → 200
+    File         : controllers/orderController.js
+    Original     : res.status(201).json(order);
+    Mutant       : res.status(200).json(order);
+    Killed by    : test14_multiUserCreateOrder, test15_multiUserViewOrders
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M08_CDL_createOrder_201_to_200/output/
+
+  EC_M09  [SDL]  [SDL] createReview: delete purchase verification
+    File         : controllers/reviewController.js
+    Original     : const order = await Order.findOne({
+      _id: orderId,
+      buye
+    Mutant       : // [MUTANT EC_M09: SDL] purchase check deleted (anyone can review)
+    Killed by    : test30_reviewWithoutOrder, test17_multiUserCreateReview
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M09_SDL_createReview_delete_purchase_verificatio/output/
+
+  EC_M10  [CDL]  [CDL] createReview: 201 → 200
+    File         : controllers/reviewController.js
+    Original     : res.status(201).json(review);
+    Mutant       : res.status(200).json(review);
+    Killed by    : test17_multiUserCreateReview, test18_completeEcommerceFlow
+    Result       : KILLED ✓
+    Output files : ecommerce/mutants/EC_M10_CDL_createReview_201_to_200/output/
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY BY OPERATOR
+────────────────────────────────────────────────────────────────────────────────
+  Operator Count   Killed      Score
+  ----------------------------------------
+  AOR          1        1     100.0%
+  CDL          4        4     100.0%
+  ROR          1        1     100.0%
+  SDL          4        4     100.0%
+  ----------------------------------------
+  TOTAL       10       10     100.0%
+
+================================================================================
+  FINAL MUTATION SCORE: 10/10 = 100.0%
+================================================================================

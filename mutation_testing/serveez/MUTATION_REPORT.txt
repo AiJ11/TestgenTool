@@ -1,0 +1,125 @@
+================================================================================
+  TESTGEN MUTATION TESTING REPORT — SERVEEZ
+================================================================================
+  Tool          : TestGen (Specification-Based Test Generation)
+  Backend       : Serveez
+  Total Mutants : 10
+  Operators     : CDL, LCR, ROR, SDL
+  All Results   : KILLED (100%)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  WHY THESE OPERATORS WERE CHOSEN
+────────────────────────────────────────────────────────────────────────────────
+
+  CDL (5 mutants)
+    Constant/Literal Replacement — changes HTTP status codes, role strings, and boolean flags; directly tests postcondition assertions in TestGen.
+
+  LCR (1 mutants)
+    Logical Connector Replacement — && ↔ || swap; weakens composite guards, a subtle but critical source of auth-bypass vulnerabilities.
+
+  ROR (2 mutants)
+    Relational Operator Replacement — models off-by-one and inverted guard defects, one of the most common real-world bug classes in API backends.
+
+  SDL (2 mutants)
+    Statement Deletion — removes DB writes, auth guards, and validation blocks; models 'forgotten line' defects caught by stateful multi-step tests.
+
+────────────────────────────────────────────────────────────────────────────────
+  MUTATION CATALOGUE
+────────────────────────────────────────────────────────────────────────────────
+
+  SV_M01  [CDL]  [SDL] signup: delete duplicate-email check
+    File         : service/AuthService.java
+    Original     : if (userRepository.existsByEmail(request.getEmail())) {
+    Mutant       : // [MUTANT SV_M01: SDL] duplicate email check removed
+    Killed by    : test01_registerProvider, test04_duplicateRegistration
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M01_CDL_signup_delete_duplicate-email_check/output/
+
+  SV_M02  [CDL]  [SDL] signup: skip userRepository.save (user not persisted)
+    File         : service/AuthService.java
+    Original     : user = userRepository.save(user);
+    Mutant       : // [MUTANT SV_M02: SDL] userRepository.save() deleted
+    Killed by    : test01_registerProvider, test02_loginProvider
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M02_CDL_signup_skip_userRepositorysave_user_not_/output/
+
+  SV_M03  [ROR]  [ROR] confirmBooking: status != PENDING → == PENDING (inverted guard)
+    File         : service/BookingService.java
+    Original     : if (booking.getStatus() != Booking.BookingStatus.PENDING) {
+    Mutant       : if (booking.getStatus() == Booking.BookingStatus.PENDING) {
+    Killed by    : test07_confirmBooking, test09_completeBooking
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M03_ROR_confirmBooking_status__PENDING_to__PENDI/output/
+
+  SV_M04  [CDL]  [CDL] confirmBooking: CONFIRMED → PENDING (wrong status set)
+    File         : service/BookingService.java
+    Original     : booking.setStatus(Booking.BookingStatus.CONFIRMED);
+    Mutant       : booking.setStatus(Booking.BookingStatus.PENDING);
+    Killed by    : test07_confirmBooking, test09_completeBooking
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M04_CDL_confirmBooking_CONFIRMED_to_PENDING_wron/output/
+
+  SV_M05  [SDL]  [SDL] confirmBooking: skip bookingRepository.save()
+    File         : service/BookingService.java
+    Original     : booking = bookingRepository.save(booking);
+    Mutant       : // [MUTANT SV_M05: SDL] bookingRepository.save() deleted (no p
+    Killed by    : test07_confirmBooking, test08_getBookings
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M05_SDL_confirmBooking_skip_bookingRepositorysav/output/
+
+  SV_M06  [ROR]  [ROR] completeBooking: != CONFIRMED → == (inverted guard)
+    File         : service/BookingService.java
+    Original     : if (booking.getStatus() != Booking.BookingStatus.CONFIRMED) {
+    Mutant       : if (booking.getStatus() == Booking.BookingStatus.CONFIRMED) {
+    Killed by    : test09_completeBooking
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M06_ROR_completeBooking__CONFIRMED_to__inverted_/output/
+
+  SV_M07  [CDL]  [CDL] cancelBooking: CANCELLED → PENDING
+    File         : service/BookingService.java
+    Original     : booking.setStatus(Booking.BookingStatus.CANCELLED);
+    Mutant       : booking.setStatus(Booking.BookingStatus.PENDING);
+    Killed by    : test10_cancelBooking
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M07_CDL_cancelBooking_CANCELLED_to_PENDING/output/
+
+  SV_M08  [LCR]  [ROR] cancelBooking: CANCELLED == → != in double-cancel guard
+    File         : service/BookingService.java
+    Original     : booking.getStatus() == Booking.BookingStatus.CANCELLED
+    Mutant       : booking.getStatus() != Booking.BookingStatus.CANCELLED
+    Killed by    : test10_cancelBooking
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M08_LCR_cancelBooking_CANCELLED__to__in_double-c/output/
+
+  SV_M09  [SDL]  [SDL] login: delete password verification
+    File         : service/AuthService.java
+    Original     : if (!passwordEncoder.matches(request.getPassword(), user.getPa
+    Mutant       : // [MUTANT SV_M09: SDL] password check deleted (any password a
+    Killed by    : test02_loginProvider, test05_invalidLogin
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M09_SDL_login_delete_password_verification/output/
+
+  SV_M10  [CDL]  [CDL] createBooking: initial status PENDING → CONFIRMED
+    File         : service/BookingService.java
+    Original     : booking.setStatus(Booking.BookingStatus.PENDING);
+    Mutant       : booking.setStatus(Booking.BookingStatus.CONFIRMED);
+    Killed by    : test06_createBooking, test07_confirmBooking
+    Result       : KILLED ✓
+    Output files : serveez/mutants/SV_M10_CDL_createBooking_initial_status_PENDING_to_/output/
+
+────────────────────────────────────────────────────────────────────────────────
+  SUMMARY BY OPERATOR
+────────────────────────────────────────────────────────────────────────────────
+  Operator Count   Killed      Score
+  ----------------------------------------
+  CDL          5        5     100.0%
+  LCR          1        1     100.0%
+  ROR          2        2     100.0%
+  SDL          2        2     100.0%
+  ----------------------------------------
+  TOTAL       10       10     100.0%
+
+================================================================================
+  FINAL MUTATION SCORE: 10/10 = 100.0%
+================================================================================
