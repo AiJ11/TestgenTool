@@ -274,34 +274,6 @@ TestGen has been evaluated on six real-world web applications:
 | Serveez (Service Booking) | Java (Spring Boot) | Provider, Customer | 25 |
 | TripVault (Trip & Expense) | Node.js | User (multi-member trips) | 25 |
 
-## Mutation Testing
-
-TestGen was evaluated against **104 mutants** injected across all six backends (10 per app for the first five, 54 for GhostSocket). All 104 mutants were detected (100% mutation score).
-
-| Application | Mutants | Detected | Score |
-|-------------|---------|----------|-------|
-| Restaurant | 10 | 10 | 100% |
-| Ecommerce | 10 | 10 | 100% |
-| Library | 10 | 10 | 100% |
-| Serveez | 10 | 10 | 100% |
-| TripVault | 10 | 10 | 100% |
-| GhostSocket | 54 | 54 | 100% |
-
-See `mutation_testing/mutationOperator_report.txt` for the full catalogue of every injected mutant including the fault type, source location, and basis for site selection.
-
-## Comparison with Other Tools
-
-| Feature | TestGen | RESTler | Schemathesis |
-|---------|---------|---------|--------------|
-| Multi-step workflows | Yes | No | No |
-| Authentication management | Yes | No | No |
-| Role-based testing | Yes | No | No |
-| Entity dependency resolution | Yes | Partial | No |
-| Symbolic execution | Yes | No | No |
-| Constraint solving | Yes | No | No |
-| Infeasibility detection | Yes | No | No |
-| Schema-based fuzzing | No | Yes | Yes |
-
 ## Troubleshooting
 
 **Z3 not found:**
