@@ -1,0 +1,1247 @@
+================================================================================
+  MUTATION OPERATOR INJECTION CATALOGUE
+  TestGen Artifact — Mutation Testing Study
+================================================================================
+
+  Total Mutants   : 104
+  Applications    : Restaurant, Ecommerce, Library, Serveez, TripVault,
+                    GhostSocket
+  Operator Types  : Literal Replacement, Removal / Bypass of a Conditional
+                    Check, Statement Deletion, Relational Operator Replacement,
+                    Arithmetic Operator Replacement, Unary Operator Insertion,
+                    Logical Connector Replacement
+
+  Note on site selection: Every mutation site was chosen on the basis of the
+  natural presence of the target code construct at that location. Specifically,
+  each site contains the exact syntactic or semantic pattern that the chosen
+  operator is defined to transform (e.g., an arithmetic expression for AOR, a
+  boolean guard for UOI). No consideration of how the site aligns with the
+  TestGen test suite was made during selection.
+
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+  APPLICATION 1 — RESTAURANT BACKEND (Node.js / Express)
+  Language: JavaScript   Mutants: 10
+────────────────────────────────────────────────────────────────────────────────
+
+  RE_M01
+  Operator Type : Literal Replacement
+  File          : routes/auth.js
+  Original      : res.status(201).json({ ... })
+  Mutant        : res.status(200).json({ ... })
+  Basis         : The registration endpoint uses the HTTP 201 (Created) status
+                  code, a numeric literal embedded directly in the response
+                  call. Numeric literals that encode protocol-level semantics
+                  are natural sites for literal replacement because the
+                  application logic does not validate its own outgoing status
+                  code — a wrong value silently produces an incorrect response.
+
+  RE_M02
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : routes/auth.js
+  Original      : if (existingUser) { return res.status(400).json({ ... }); }
+  Mutant        : // duplicate-user check deleted
+  Basis         : The duplicate-email guard is a self-contained conditional
+                  block that gates uniqueness enforcement. Conditional blocks
+                  that protect an invariant (here: one account per email) are
+                  natural sites for removal: deleting the entire block is a
+                  minimal, realistic change that models the common "forgotten
+                  validation" class of fault without altering any other logic.
+
+  RE_M03
+  Operator Type : Literal Replacement
+  File          : routes/auth.js
+  Original      : return res.status(401).json({ ... })
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The credential-failure branch returns HTTP 401
+                  (Unauthorized), a constant that communicates authentication
+                  outcome. Error-branch status code literals are natural
+                  replacement sites because changing them to 200 collapses the
+                  distinction between success and failure at the HTTP level
+                  while leaving all surrounding logic intact.
+
+  RE_M04
+  Operator Type : Arithmetic Operator Replacement
+  File          : routes/orders.js
+  Original      : const deliveryFee = 50;
+  Mutant        : const deliveryFee = 0;
+  Basis         : The delivery fee is a numeric constant participating in a
+                  financial total calculation. Constant operands in arithmetic
+                  expressions are natural sites for arithmetic operator
+                  replacement because zeroing or scaling them produces a
+                  plausible mis-implementation (a developer forgetting to
+                  include the fee) that leaves the program structurally intact.
+
+  RE_M05
+  Operator Type : Arithmetic Operator Replacement
+  File          : routes/orders.js
+  Original      : const tax = Math.round(cart.totalAmount * 0.05);
+  Mutant        : const tax = Math.round(cart.totalAmount * 0.0);
+  Basis         : The tax rate 0.05 is a numeric literal multiplier in an
+                  arithmetic expression computing a financial component. The
+                  multiplication operator and its operand together form a
+                  standard arithmetic site; replacing the coefficient with 0.0
+                  models zeroing out a tax calculation, a realistic omission
+                  error in financial logic.
+
+  RE_M06
+  Operator Type : Statement Deletion
+  File          : routes/orders.js
+  Original      : await Cart.findOneAndDelete({ user: req.user._id });
+  Mutant        : // Cart.findOneAndDelete deleted (cart not cleared)
+  Basis         : The cart-deletion call is an asynchronous side-effect
+                  statement that modifies a separate collection after an order
+                  is created. Side-effect statements that perform cleanup are
+                  natural deletion targets because their omission is invisible
+                  at the API boundary (the order creation response is
+                  unchanged) yet leaves the system in an inconsistent state.
+
+  RE_M07
+  Operator Type : Literal Replacement
+  File          : routes/orders.js
+  Original      : res.status(201).json({ ... })
+  Mutant        : res.status(200).json({ ... })
+  Basis         : Same construct as RE_M01 applied to the order creation
+                  endpoint. The 201 status literal in the success response is
+                  a direct replacement site, and order creation is
+                  functionally independent from registration, making it a
+                  distinct injection point.
+
+  RE_M08
+  Operator Type : Arithmetic Operator Replacement
+  File          : routes/orders.js
+  Original      : const finalAmount = cart.totalAmount + deliveryFee + tax;
+  Mutant        : const finalAmount = cart.totalAmount - deliveryFee - tax;
+  Basis         : The finalAmount formula uses addition to aggregate three
+                  numeric components. The + operator between them is a natural
+                  arithmetic replacement site: swapping + with - produces a
+                  numerically different result (a plausibly wrong total) while
+                  keeping the expression syntactically valid, modelling the
+                  common sign-error fault class in financial calculations.
+
+  RE_M09
+  Operator Type : Literal Replacement
+  File          : routes/cart.js
+  Original      : return res.status(400).json({ message: 'Menu item not available' })
+  Mutant        : return res.status(200).json({ message: 'Menu item not available' })
+  Basis         : The unavailable-item guard returns HTTP 400 to signal a
+                  client error. The status code is a numeric literal in the
+                  error branch's response call, a natural replacement site for
+                  the same reason as RE_M03: the constant encodes the outcome
+                  semantics and changing it collapses the error signal while
+                  preserving all conditional logic.
+
+  RE_M10
+  Operator Type : Statement Deletion
+  File          : routes/orders.js
+  Original      : await order.save();
+  Mutant        : // order.save() deleted (order not persisted)
+  Basis         : The order.save() call is the persistence statement that
+                  commits the order object to the database. Persistence calls
+                  at the end of a creation flow are high-value statement
+                  deletion sites because their removal is completely silent
+                  (the response is still sent successfully) while the primary
+                  intended side effect — storing the order — never occurs.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  APPLICATION 2 — ECOMMERCE BACKEND (Node.js / Express)
+  Language: JavaScript   Mutants: 10
+────────────────────────────────────────────────────────────────────────────────
+
+  EC_M01
+  Operator Type : Literal Replacement
+  File          : controllers/authController.js
+  Original      : res.status(201).json({ message: 'User registered successfully', ... })
+  Mutant        : res.status(200).json({ message: 'User registered successfully', ... })
+  Basis         : The registration success response contains an HTTP 201
+                  literal. Same construct and rationale as RE_M01: a numeric
+                  literal that carries protocol-level meaning is a natural
+                  literal replacement site.
+
+  EC_M02
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/authController.js
+  Original      : const existingUser = await User.findOne({ email });
+                  if (existingUser) { return res.status(409).json({ ... }); }
+  Mutant        : // duplicate-user check deleted
+  Basis         : Same construct as RE_M02: a guard conditional that enforces
+                  a uniqueness invariant (one account per email). The block is
+                  a self-contained conditional whose sole purpose is the check;
+                  removing it is the minimal change that models a forgotten
+                  validation fault.
+
+  EC_M03
+  Operator Type : Literal Replacement
+  File          : controllers/authController.js
+  Original      : if (!user) { return res.status(401).json({ error: 'Invalid credentials' }) }
+  Mutant        : if (!user) { return res.status(200).json({ error: 'Invalid credentials' }) }
+  Basis         : Same construct as RE_M03: the user-not-found error branch
+                  returns a numeric HTTP status literal (401). Replacing it
+                  with 200 makes an authentication failure externally
+                  indistinguishable from a success.
+
+  EC_M04
+  Operator Type : Relational Operator Replacement
+  File          : controllers/cartController.js
+  Original      : if (quantity > product.quantity) { return res.status(400)... }
+  Mutant        : if (quantity >= product.quantity) { return res.status(400)... }
+  Basis         : The stock-availability guard uses a strict greater-than
+                  comparison to check whether the requested quantity exceeds
+                  available stock. A relational operator in an inequality guard
+                  is a natural replacement site: > and >= differ by exactly one
+                  boundary value, modelling the common off-by-one fault where
+                  a developer uses the wrong side of a boundary condition.
+
+  EC_M05
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/cartController.js
+  Original      : if (quantity > product.quantity) { return res.status(400)... }
+  Mutant        : // stock check deleted
+  Basis         : The stock-check conditional is a guard that prevents
+                  over-ordering. The entire conditional block is a natural
+                  removal site because the check is the sole entry point for
+                  stock enforcement; deleting it models a forgotten inventory
+                  validation, a distinct fault from the operator-level change
+                  in EC_M04.
+
+  EC_M06
+  Operator Type : Arithmetic Operator Replacement
+  File          : controllers/orderController.js
+  Original      : const itemTotal = item.product.price * item.quantity;
+  Mutant        : const itemTotal = item.product.price + item.quantity;
+  Basis         : The order total computation multiplies unit price by
+                  quantity. The * operator between two numeric expressions is
+                  a natural arithmetic replacement site: replacing
+                  multiplication with addition produces a wrong total that is
+                  dimensionally plausible but numerically incorrect, modelling
+                  operator confusion in financial formula implementations.
+
+  EC_M07
+  Operator Type : Statement Deletion
+  File          : controllers/orderController.js
+  Original      : await Cart.findOneAndDelete({ buyer: req.user._id });
+  Mutant        : // Cart.findOneAndDelete deleted (cart not cleared)
+  Basis         : Same construct as RE_M06: a post-order side-effect statement
+                  that clears the user's cart. The statement is a standalone
+                  cleanup call with no return value used by subsequent logic,
+                  making it a natural deletion target.
+
+  EC_M08
+  Operator Type : Literal Replacement
+  File          : controllers/orderController.js
+  Original      : res.status(201).json(order);
+  Mutant        : res.status(200).json(order);
+  Basis         : The order creation success response contains an HTTP 201
+                  literal. Same construct and rationale as RE_M01 / EC_M01.
+
+  EC_M09
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/reviewController.js
+  Original      : const order = await Order.findOne({ _id: orderId, buyer: req.user._id });
+                  if (!order) { return res.status(403).json({ ... }); }
+  Mutant        : // purchase check deleted (anyone can review)
+  Basis         : The purchase-verification block is a conditional guard that
+                  restricts review creation to verified buyers. The guard is a
+                  self-contained conditional with a clear access-control
+                  purpose; removing it models an authorization bypass, a
+                  realistic class of fault where a developer omits a
+                  prerequisite check.
+
+  EC_M10
+  Operator Type : Literal Replacement
+  File          : controllers/reviewController.js
+  Original      : res.status(201).json(review);
+  Mutant        : res.status(200).json(review);
+  Basis         : The review creation success response contains an HTTP 201
+                  literal. Same construct and rationale as previous 201→200
+                  replacements.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  APPLICATION 3 — LIBRARY BACKEND (Java / Spring Boot)
+  Language: Java   Mutants: 10
+────────────────────────────────────────────────────────────────────────────────
+
+  LI_M01
+  Operator Type : Literal Replacement
+  File          : controller/BookController.java
+  Original      : return bookService.saveBook(book);
+  Mutant        : return null;
+  Basis         : The saveBook handler returns the result of the service call.
+                  Replacing the return expression with the null literal is a
+                  natural literal replacement: null is a valid Java expression
+                  of the same type, and substituting a meaningful return value
+                  with null models an incorrect return literal — a realistic
+                  fault where a developer accidentally returns a stub value or
+                  forgets to propagate the service result.
+
+  LI_M02
+  Operator Type : Statement Deletion
+  File          : controller/RequestController.java
+  Original      : requestService.deleteRequestbyId(id);
+  Mutant        : // requestService.deleteRequestbyId deleted
+  Basis         : The deleteRequestbyId call is the sole persistence statement
+                  that executes the deletion. It has no return value used
+                  downstream, making it a natural statement deletion site:
+                  its removal leaves the controller's response unchanged while
+                  silently preventing the intended state transition.
+
+  LI_M03
+  Operator Type : Statement Deletion
+  File          : controller/BookController.java
+  Original      : bookService.deleteBookByCode(book_code);
+  Mutant        : // bookService.deleteBookByCode deleted
+  Basis         : Same construct as LI_M02: a void persistence call that is
+                  the sole statement performing the deletion. Its removal
+                  models a forgotten delete operation.
+
+  LI_M04
+  Operator Type : Literal Replacement
+  File          : controller/BookController.java
+  Original      : return bookService.findAllBooks();
+  Mutant        : return new java.util.ArrayList<>();
+  Basis         : The getBooks handler returns the list from the service.
+                  Replacing the service call with an empty-list literal is a
+                  natural literal replacement: it substitutes a computed return
+                  value with a constant literal of the same type, modelling a
+                  stub-return fault where the service call is bypassed and a
+                  hardcoded empty result is returned.
+
+  LI_M05
+  Operator Type : Literal Replacement
+  File          : controller/AuthenticationController.java
+  Original      : return ResponseEntity.status(501).body(...)
+  Mutant        : return ResponseEntity.status(200).body(...)
+  Basis         : The authentication stub endpoint intentionally returns 501
+                  (Not Implemented) to signal that direct authentication is
+                  disabled. The HTTP status constant 501 is a numeric literal
+                  in the response construction; replacing it with 200 changes
+                  the protocol-level signal while leaving all surrounding code
+                  intact — the same natural replacement pattern as other
+                  status-code literal sites.
+
+  LI_M06
+  Operator Type : Relational Operator Replacement
+  File          : controller/BookController.java
+  Original      : book.setBookCode(0);
+  Mutant        : book.setBookCode(1);
+  Basis         : The value 0 passed to setBookCode is used as a boundary
+                  sentinel (indicating no code assigned). Replacing it with 1
+                  shifts the boundary value by one unit, which is the defining
+                  characteristic of a relational off-by-one fault. The numeric
+                  boundary literal at an initialisation site is a natural
+                  relational replacement target because the downstream logic
+                  that checks for code == 0 will behave differently when the
+                  sentinel shifts.
+
+  LI_M07
+  Operator Type : Statement Deletion
+  File          : controller/RequestController.java
+  Original      : return requestService.saveRequest(request);
+  Mutant        : return null;
+  Basis         : The saveRequest call both persists the request and provides
+                  the return value. Replacing it with a null return is a
+                  statement deletion that skips the persistence: the service
+                  call is removed and a null literal is returned, modelling
+                  a forgotten save operation.
+
+  LI_M08
+  Operator Type : Literal Replacement
+  File          : controller/BookController.java
+  Original      : return bookService.findBookByCode(book_code);
+  Mutant        : return null;
+  Basis         : Same construct as LI_M01: the computed return value from the
+                  service call is replaced with the null literal, modelling an
+                  incorrect or stub return in a retrieval endpoint.
+
+  LI_M09
+  Operator Type : Statement Deletion
+  File          : controller/BookController.java
+  Original      : bookService.updateBook(book);
+                  return book;
+  Mutant        : return book;   // updateBook skipped
+  Basis         : The updateBook call is a void persistence statement before
+                  the return. Removing it deletes the mutation-state side
+                  effect while the return statement remains, so the response
+                  is structurally unchanged — a natural statement deletion that
+                  models a forgotten update commit.
+
+  LI_M10
+  Operator Type : Literal Replacement
+  File          : controller/AuthenticationController.java
+  Original      : return ResponseEntity.status(501).body(...)
+  Mutant        : return ResponseEntity.status(200).body(...)
+  Basis         : Same construct as LI_M05, applied to the register-student
+                  stub endpoint. The 501 literal in a second stub endpoint
+                  constitutes a distinct injection point with the same natural
+                  applicability rationale.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  APPLICATION 4 — SERVEEZ BACKEND (Java / Spring Boot)
+  Language: Java   Mutants: 10
+────────────────────────────────────────────────────────────────────────────────
+
+  SV_M01
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : service/AuthService.java
+  Original      : if (userRepository.existsByEmail(request.getEmail())) {
+                      throw new RuntimeException("Email already registered");
+                  }
+  Mutant        : // duplicate email check removed
+  Basis         : The duplicate-email guard is a conditional block whose sole
+                  purpose is enforcing email uniqueness. It is a natural
+                  removal site for the same reason as RE_M02 and EC_M02:
+                  the block is self-contained, its removal is a minimal change,
+                  and it models the "forgotten validation" fault class.
+
+  SV_M02
+  Operator Type : Statement Deletion
+  File          : service/AuthService.java
+  Original      : user = userRepository.save(user);
+  Mutant        : // userRepository.save() deleted
+  Basis         : The userRepository.save() call persists the newly created
+                  user. It is a standalone persistence statement whose return
+                  value (the saved entity) is used downstream. Removing it
+                  models a forgotten save, leaving the user object
+                  unpersisted while the method continues without error.
+
+  SV_M03
+  Operator Type : Relational Operator Replacement
+  File          : service/BookingService.java
+  Original      : if (booking.getStatus() != Booking.BookingStatus.PENDING) {
+  Mutant        : if (booking.getStatus() == Booking.BookingStatus.PENDING) {
+  Basis         : The state-transition guard uses != to check that the booking
+                  is in PENDING status before allowing confirmation. The
+                  relational operator != in a status comparison is a natural
+                  replacement site: swapping it for == inverts the guard,
+                  allowing confirmation of non-pending bookings and rejecting
+                  pending ones — a classic guard-inversion fault.
+
+  SV_M04
+  Operator Type : Literal Replacement
+  File          : service/BookingService.java
+  Original      : booking.setStatus(Booking.BookingStatus.CONFIRMED);
+  Mutant        : booking.setStatus(Booking.BookingStatus.PENDING);
+  Basis         : The CONFIRMED enum literal is the value assigned to the
+                  booking's status field upon successful confirmation. Enum
+                  literals that represent state transitions are natural
+                  replacement sites: replacing CONFIRMED with PENDING models
+                  a fault where the state is not actually advanced, despite
+                  the confirmation flow completing normally.
+
+  SV_M05
+  Operator Type : Statement Deletion
+  File          : service/BookingService.java
+  Original      : booking = bookingRepository.save(booking);
+  Mutant        : // bookingRepository.save() deleted (not persisted)
+  Basis         : The bookingRepository.save() call commits the status update
+                  to the database. It is a persistence statement whose removal
+                  leaves the in-memory object changed but the database record
+                  unchanged — a natural deletion site modelling a forgotten
+                  commit of a state change.
+
+  SV_M06
+  Operator Type : Relational Operator Replacement
+  File          : service/BookingService.java
+  Original      : if (booking.getStatus() != Booking.BookingStatus.CONFIRMED) {
+  Mutant        : if (booking.getStatus() == Booking.BookingStatus.CONFIRMED) {
+  Basis         : Same construct and rationale as SV_M03: a status-comparison
+                  guard uses != to enforce a required precondition. Replacing
+                  != with == inverts the guard and models the same class of
+                  inversion fault at a different state-machine transition
+                  (CONFIRMED → COMPLETED).
+
+  SV_M07
+  Operator Type : Literal Replacement
+  File          : service/BookingService.java
+  Original      : booking.setStatus(Booking.BookingStatus.CANCELLED);
+  Mutant        : booking.setStatus(Booking.BookingStatus.PENDING);
+  Basis         : Same construct as SV_M04: the CANCELLED enum literal
+                  assigned on cancellation is replaced with PENDING. The enum
+                  literal in a state-assignment statement is a natural literal
+                  replacement site; the mutant models a fault where
+                  cancellation does not actually advance the status.
+
+  SV_M08
+  Operator Type : Relational Operator Replacement
+  File          : service/BookingService.java
+  Original      : booking.getStatus() == Booking.BookingStatus.CANCELLED
+  Mutant        : booking.getStatus() != Booking.BookingStatus.CANCELLED
+  Basis         : The double-cancel guard uses == to check whether a booking
+                  is already cancelled. The equality operator in this
+                  comparison is a natural relational replacement site:
+                  swapping == for != inverts the guard's truth value and
+                  models an operator confusion fault that allows double
+                  cancellation while blocking the first cancellation.
+
+  SV_M09
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : service/AuthService.java
+  Original      : if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                      throw new BadCredentialsException("Invalid password");
+                  }
+  Mutant        : // password check deleted (any password accepted)
+  Basis         : The password-verification conditional is a guard that
+                  enforces credential correctness before allowing login. It is
+                  a natural removal site: the entire block is the sole
+                  enforcement point for password checking, and removing it
+                  models an authentication bypass — one of the most impactful
+                  "forgotten check" faults in access-control logic.
+
+  SV_M10
+  Operator Type : Literal Replacement
+  File          : service/BookingService.java
+  Original      : booking.setStatus(Booking.BookingStatus.PENDING);   // on createBooking
+  Mutant        : booking.setStatus(Booking.BookingStatus.CONFIRMED);
+  Basis         : On booking creation the initial status is set to PENDING
+                  via an enum literal. Replacing PENDING with CONFIRMED is a
+                  natural literal replacement that models a fault where a new
+                  booking is created in a pre-confirmed state, bypassing the
+                  intended workflow gate.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  APPLICATION 5 — TRIPVAULT BACKEND (Node.js / Express)
+  Language: JavaScript   Mutants: 10
+────────────────────────────────────────────────────────────────────────────────
+
+  TV_M01
+  Operator Type : Relational Operator Replacement
+  File          : controllers/TripController.js
+  Original      : if (end < start) {
+  Mutant        : if (end > start) {
+  Basis         : The date-range validation uses < to check that the end date
+                  does not precede the start date. A relational operator
+                  applied to a temporal comparison is a natural replacement
+                  site: reversing < to > inverts the direction of the
+                  inequality, modelling a directional error in date-order
+                  validation — a common off-by-direction fault in date-range
+                  logic.
+
+  TV_M02
+  Operator Type : Literal Replacement
+  File          : controllers/TripController.js
+  Original      : return res.status(201).json({ ... })
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The trip creation success response contains an HTTP 201
+                  literal. Same construct and rationale as RE_M01 and related
+                  sites.
+
+  TV_M03
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/TripController.js
+  Original      : if (!tripName || !destination || !startDate || !endDate) {
+                      return res.status(400).json({ ... });
+                  }
+  Mutant        : // required fields validation deleted
+  Basis         : The input-validation guard checks that all required fields
+                  are present before processing the request. Removing this
+                  conditional block is a natural application of the bypass
+                  operator: the block is a self-contained pre-condition check,
+                  and its removal models the common "forgotten validation"
+                  fault that allows malformed input to propagate into the
+                  creation logic.
+
+  TV_M04
+  Operator Type : Relational Operator Replacement
+  File          : controllers/ExpensesController.js
+  Original      : const isMember = trip.members.some(member => member.userId === userId);
+  Mutant        : const isMember = trip.members.some(member => member.userId !== userId);
+  Basis         : The membership check uses the strict equality operator ===
+                  to compare user identifiers. Replacing === with !== inverts
+                  the predicate, making isMember true for non-members and
+                  false for members. This is a natural relational replacement:
+                  an identity comparison in a membership predicate is a direct
+                  target for operator inversion, modelling an access-control
+                  inversion fault.
+
+  TV_M05
+  Operator Type : Literal Replacement
+  File          : controllers/ExpensesController.js
+  Original      : return res.status(403).json({ message: "You are not a member..." })
+  Mutant        : return res.status(200).json({ message: "You are not a member..." })
+  Basis         : The non-member rejection response uses HTTP 403
+                  (Forbidden), a numeric literal encoding an access-control
+                  decision. Same rationale as other error-branch status
+                  literal replacements: changing 403 to 200 collapses the
+                  access-denial signal while leaving the message body intact.
+
+  TV_M06
+  Operator Type : Relational Operator Replacement
+  File          : controllers/ExpensesController.js
+  Original      : if (Math.abs(totalPercentage - 100) > 0.01) {
+  Mutant        : if (Math.abs(totalPercentage - 100) < 0.01) {
+  Basis         : The split-percentage validation uses > to check whether the
+                  deviation from 100% exceeds a tolerance threshold. The
+                  directional relational operator in a tolerance check is a
+                  natural replacement site: reversing > to < inverts which
+                  side of the threshold triggers the error, so valid splits
+                  are rejected and invalid ones are accepted — a directional
+                  error in a numerical tolerance guard.
+
+  TV_M07
+  Operator Type : Arithmetic Operator Replacement
+  File          : controllers/ExpensesController.js
+  Original      : amount: (expenseAmount * split.percentage) / 100,
+  Mutant        : amount: (expenseAmount + split.percentage) / 100,
+  Basis         : The per-member amount formula multiplies the expense amount
+                  by the member's percentage share. The * operator between two
+                  numeric expressions in a financial formula is a natural
+                  arithmetic replacement site: replacing * with + produces a
+                  dimensionally wrong but syntactically valid result, modelling
+                  operator confusion in a percentage calculation.
+
+  TV_M08
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/ExpensesController.js
+  Original      : if (!isMember) { ... return res.status(403)... }
+  Mutant        : // membership check deleted
+  Basis         : The membership-enforcement block is a conditional guard that
+                  translates the isMember boolean into an access decision.
+                  Deleting the entire block is a natural conditional removal:
+                  the check is the sole enforcement point for trip-membership
+                  access control, and its removal models a forgotten
+                  authorization check — distinct from TV_M04, which inverts
+                  the comparison that computes isMember.
+
+  TV_M09
+  Operator Type : Literal Replacement
+  File          : controllers/TripController.js
+  Original      : return res.status(404).json({ success: false, ... })
+  Mutant        : return res.status(200).json({ success: false, ... })
+  Basis         : The user-not-found error branch returns HTTP 404, a numeric
+                  literal. Same rationale as other error-status literal
+                  replacements: the constant encodes the outcome semantics and
+                  replacing it with 200 makes a not-found condition externally
+                  indistinguishable from a successful lookup.
+
+  TV_M10
+  Operator Type : Statement Deletion
+  File          : controllers/TripController.js
+  Original      : let codeExists = await Trip.findOne({ inviteCode });
+                  while (codeExists) { ... regenerate ... }
+  Mutant        : let codeExists = null;   // uniqueness check bypassed
+  Basis         : The uniqueness check performs a database lookup to determine
+                  whether a generated invite code already exists. Replacing
+                  the lookup with a null assignment deletes the check: the
+                  variable is always null (code always accepted as unique),
+                  modelling a fault where the developer uses a stub or forgets
+                  to wire in the uniqueness verification.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  APPLICATION 6 — GHOSTSOCKET BACKEND (Node.js / Express + WebSocket)
+  Language: JavaScript   Mutants: 54
+────────────────────────────────────────────────────────────────────────────────
+
+  -- SessionController.js --
+
+  GS_M01
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : res.status(201).json({ sessionKey: session._id });
+  Mutant        : res.status(200).json({ sessionKey: session._id });
+  Basis         : Session creation is a resource-creation endpoint; it returns
+                  HTTP 201. The numeric literal in the response call is a
+                  natural replacement site for the same reason as all other
+                  201→200 mutations: it is a protocol-level constant embedded
+                  directly in the call.
+
+  GS_M02
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : return res.status(403).json({ error: "You do not have permission to create..." })
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The ownership-failure error branch returns HTTP 403
+                  (Forbidden). The numeric literal 403 in the error response
+                  is a natural replacement site: changing it to 200 collapses
+                  the access-denial signal while preserving the surrounding
+                  conditional logic.
+
+  GS_M03
+  Operator Type : Unary Operator Insertion
+  File          : controllers/SessionController.js
+  Original      : if (!userDeviceLink) { return res.status(403)... }
+  Mutant        : if (userDeviceLink) { return res.status(403)... }
+  Basis         : The ownership guard evaluates a boolean variable
+                  (!userDeviceLink) that represents whether the device link
+                  was not found. The negation operator ! on a boolean
+                  expression in a conditional is a natural unary insertion
+                  site: removing ! inverts the access decision with a single
+                  character change, modelling a sign-flip fault in an
+                  access-control predicate.
+
+  GS_M04
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : DBUserDeviceLinks.findOne({ userId, deviceId, role: "owner" })
+  Mutant        : DBUserDeviceLinks.findOne({ userId, deviceId, role: "user" })
+  Basis         : The role filter "owner" is a string literal embedded in a
+                  database query predicate that enforces that only the device
+                  owner can create a session. String literals that encode
+                  role-based access-control decisions are natural replacement
+                  sites: replacing "owner" with "user" changes which records
+                  the query returns without altering any surrounding logic.
+
+  GS_M05
+  Operator Type : Relational Operator Replacement
+  File          : controllers/SessionController.js
+  Original      : if (selectedDate < tenMinutesFromNow) {
+  Mutant        : if (selectedDate > tenMinutesFromNow) {
+  Basis         : The session-expiry validation uses < to check that the
+                  chosen expiry is at least 10 minutes in the future.
+                  Reversing the relational operator to > inverts the temporal
+                  guard direction, accepting past expiry values and rejecting
+                  valid future ones — a natural directional replacement in a
+                  temporal inequality.
+
+  GS_M06
+  Operator Type : Relational Operator Replacement
+  File          : controllers/SessionController.js
+  Original      : if (selectedDate < tenMinutesFromNow) {
+  Mutant        : if (selectedDate <= tenMinutesFromNow) {
+  Basis         : Same temporal guard as GS_M05. Replacing < with <= shifts
+                  the boundary by one instant, modelling an off-by-one
+                  boundary fault — a distinct and complementary replacement
+                  from the direction-inversion in GS_M05.
+
+  GS_M07
+  Operator Type : Arithmetic Operator Replacement
+  File          : controllers/SessionController.js
+  Original      : const tenMinutesFromNow = new Date(currentDate.getTime() + 10 * 60 * 1000);
+  Mutant        : new Date(currentDate.getTime() - 10 * 60 * 1000)
+  Basis         : The threshold computation adds a positive offset to the
+                  current time to produce a future reference point. The +
+                  operator on a timestamp arithmetic expression is a natural
+                  arithmetic replacement site: swapping it for - places the
+                  reference point 10 minutes in the past, inverting the
+                  meaning of the threshold.
+
+  GS_M08
+  Operator Type : Arithmetic Operator Replacement
+  File          : controllers/SessionController.js
+  Original      : new Date(currentDate.getTime() + 10 * 60 * 1000)
+  Mutant        : new Date(currentDate.getTime() + 9 * 60 * 1000)
+  Basis         : The constant 10 in the time-window calculation is a numeric
+                  operand that defines the minimum session duration. Replacing
+                  it with 9 reduces the threshold by one minute, modelling a
+                  constant-off-by-one fault in a time-window constraint.
+
+  GS_M09
+  Operator Type : Relational Operator Replacement
+  File          : controllers/SessionController.js
+  Original      : permissions.length === 0
+  Mutant        : permissions.length !== 0
+  Basis         : The permissions length comparison uses === 0 to detect an
+                  empty permissions array. The relational equality operator in
+                  this boundary check is a natural replacement site: swapping
+                  === for !== inverts the guard, so empty arrays pass and
+                  non-empty arrays are rejected.
+
+  GS_M10
+  Operator Type : Logical Connector Replacement
+  File          : controllers/SessionController.js
+  Original      : if (!permissions || !Array.isArray(permissions) || permissions.length === 0)
+  Mutant        : if (!permissions && !Array.isArray(permissions) && permissions.length === 0)
+  Basis         : The composite permissions guard uses || (OR) to reject
+                  input that fails any one of three conditions. The || between
+                  conditions in a composite input-validation guard is a
+                  natural connector replacement site: replacing || with &&
+                  requires all three conditions to be simultaneously true
+                  before rejecting, which dramatically weakens the guard and
+                  models a common logical connector confusion fault.
+
+  GS_M11
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/SessionController.js
+  Original      : if (!permissions || ...) { return res.status(400)... }
+  Mutant        : // permissions check deleted
+  Basis         : The permissions validation block is a self-contained guard
+                  that enforces input correctness before proceeding. Removing
+                  the entire block models a forgotten input-validation fault
+                  — a distinct injection from GS_M09 (operator replacement)
+                  and GS_M10 (connector replacement) on the same guard.
+
+  GS_M12
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : return res.status(400).json({ error: "Expiry must be at least 10 minutes..." })
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The expiry-validation error branch returns HTTP 400 (Bad
+                  Request). Same rationale as other error-status literal
+                  replacements.
+
+  GS_M13
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : DBSessions.findOne({ _id: sessionKey, joinedUserId: null, terminated: false })
+  Mutant        : DBSessions.findOne({ _id: sessionKey, joinedUserId: null, terminated: true })
+  Basis         : The boolean literal false in the query filter restricts
+                  joinable sessions to non-terminated ones. Boolean literals
+                  in database query filters are natural replacement sites:
+                  replacing false with true inverts the filter, searching for
+                  terminated sessions instead of active ones.
+
+  GS_M14
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/SessionController.js
+  Original      : DBSessions.findOne({ _id: sessionKey, joinedUserId: null, terminated: false })
+  Mutant        : DBSessions.findOne({ _id: sessionKey })
+  Basis         : The joinedUserId: null and terminated: false predicates in
+                  the query act as filters that enforce session-availability
+                  conditions. Removing these conditions bypasses the check
+                  that a session is available and non-terminated, modelling a
+                  fault where the developer omits access-state conditions from
+                  the lookup.
+
+  GS_M15
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : return res.status(404).json({ message: "Session not found or used." })
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : Same rationale as other not-found error status literal
+                  replacements: the 404 literal in the error branch encodes
+                  the resource-not-found outcome.
+
+  GS_M16
+  Operator Type : Relational Operator Replacement
+  File          : controllers/SessionController.js
+  Original      : if (session.expiry && new Date(session.expiry) < new Date()) {
+  Mutant        : if (session.expiry && new Date(session.expiry) > new Date()) {
+  Basis         : The expiry guard uses < to check whether the session's
+                  expiry date is in the past. Reversing < to > inverts the
+                  temporal direction, treating future expiry as expired and
+                  past expiry as valid — a natural directional replacement on
+                  a temporal comparison.
+
+  GS_M17
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/SessionController.js
+  Original      : if (session.expiry && new Date(session.expiry) < new Date()) {
+                      return res.status(403).json({ message: "Session expired." })
+                  }
+  Mutant        : // expiry check deleted
+  Basis         : The expiry-check block is the sole guard preventing expired
+                  sessions from being joined. Removing it models a forgotten
+                  temporal validation fault — distinct from GS_M16 (operator
+                  replacement within the same guard).
+
+  GS_M18
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/SessionController.js
+  Original      : const existingLink = await DBUserDeviceLinks.findOne({ userId, sessionId });
+                  if (existingLink) { return res.status(400)... }
+  Mutant        : // duplicate-link check deleted
+  Basis         : The duplicate-link guard is a conditional block that prevents
+                  a user from joining the same session twice. Removing it
+                  models a forgotten idempotency check — same pattern as
+                  duplicate-email and duplicate-user checks in other apps.
+
+  GS_M19
+  Operator Type : Relational Operator Replacement
+  File          : controllers/SessionController.js
+  Original      : if (session.userId !== userId) {
+  Mutant        : if (session.userId === userId) {
+  Basis         : The terminate-ownership guard uses !== to check that the
+                  requester is NOT the session owner (to block non-owners).
+                  Replacing !== with === inverts the check, allowing only
+                  the owner to be blocked and letting everyone else terminate
+                  — a guard-inversion fault on an identity comparison.
+
+  GS_M20
+  Operator Type : Unary Operator Insertion
+  File          : controllers/SessionController.js
+  Original      : if (session.userId !== userId) {
+  Mutant        : if (!(session.userId !== userId)) {
+  Basis         : Wrapping the existing condition in a double negation with !
+                  logically inverts it (since !(a !== b) is equivalent to
+                  (a === b)). The boolean expression in the conditional is a
+                  natural unary insertion site: inserting ! at the outermost
+                  level inverts the access decision — a minimal, one-operator
+                  change that models a sign-flip fault.
+
+  GS_M21
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : return res.status(403).json({ message: "You are not authorized to terminate..." })
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The terminate-authorization error branch returns HTTP 403.
+                  Same literal replacement rationale as other 403→200 sites.
+
+  GS_M22
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/SessionController.js
+  Original      : if (session.userId !== userId) { return res.status(403)... }
+  Mutant        : // ownership check for terminate deleted
+  Basis         : The ownership-check block is the sole conditional enforcing
+                  that only the session owner can terminate it. Removing the
+                  block models a forgotten authorization check — distinct from
+                  GS_M19 (operator swap within the check) and GS_M21 (status
+                  code literal within the error branch).
+
+  GS_M23
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : $set: { terminated: true }
+  Mutant        : $set: { terminated: false }
+  Basis         : The boolean literal true is the value written to the
+                  terminated field during session termination. Boolean literals
+                  in database update operations that represent state flags are
+                  natural replacement sites: replacing true with false models
+                  a fault where the state transition does not actually commit.
+
+  GS_M24
+  Operator Type : Logical Connector Replacement
+  File          : controllers/SessionController.js
+  Original      : if (!session || session.terminated) {
+  Mutant        : if (!session && session.terminated) {
+  Basis         : The not-found guard uses || (OR) to detect either a missing
+                  session or an already-terminated one. The || between these
+                  two conditions is a natural connector replacement site:
+                  replacing it with && requires both conditions simultaneously,
+                  modelling logical connector confusion in a compound guard.
+
+  GS_M25
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/SessionController.js
+  Original      : DBSessions.findOne({ _id: sessionKey, userId })
+  Mutant        : DBSessions.findOne({ _id: sessionKey })
+  Basis         : The userId field in the query predicate restricts results to
+                  sessions owned by the authenticated user. Removing this
+                  field from the filter bypasses the ownership scope of the
+                  lookup, allowing any session to be retrieved regardless of
+                  owner — a natural bypass of the access-control condition
+                  embedded in the query.
+
+  GS_M26
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/SessionController.js
+  Original      : if (!Array.isArray(permissions)) { return res.status(400)... }
+  Mutant        : // permissions format validation deleted
+  Basis         : The format-validation guard checks the type of the
+                  permissions input before using it. Removing the block models
+                  a forgotten type-check fault, allowing malformed input to
+                  propagate into the update logic.
+
+  GS_M27
+  Operator Type : Literal Replacement
+  File          : controllers/SessionController.js
+  Original      : res.status(200).json({ message: "Permissions updated successfully" })
+  Mutant        : res.status(201).json({ ... })
+  Basis         : The update-success response uses HTTP 200. Replacing it with
+                  201 changes the protocol-level signal for an update
+                  operation (conventionally not a creation). This is a natural
+                  literal replacement at a response status literal, here
+                  swapped in the upward direction (200→201).
+
+  -- DeviceController.js --
+
+  GS_M28
+  Operator Type : Unary Operator Insertion
+  File          : controllers/DeviceController.js
+  Original      : if (!userDeviceLink) { return res.status(403)... }
+  Mutant        : if (userDeviceLink) { return res.status(403)... }
+  Basis         : Same construct as GS_M03: the negation ! on a boolean
+                  variable in an access guard is a natural unary insertion
+                  site, applied here to the device-info access check.
+
+  GS_M29
+  Operator Type : Literal Replacement
+  File          : controllers/DeviceController.js
+  Original      : return res.status(403).json({ error: "You do not have access to this device." })
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The device-access denial error branch returns HTTP 403.
+                  Same rationale as other 403→200 literal replacements.
+
+  GS_M30
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/DeviceController.js
+  Original      : const userDeviceLink = await DBUserDeviceLinks.findOne({ userId, deviceId });
+                  if (!userDeviceLink) { return res.status(403)... }
+  Mutant        : // access check deleted
+  Basis         : The device-access check block is the sole guard verifying
+                  that the requesting user has a device link. Removing the
+                  entire block models a forgotten access-control check —
+                  distinct from GS_M28 (unary insertion) and GS_M29 (status
+                  literal) at the same location.
+
+  GS_M31
+  Operator Type : Literal Replacement
+  File          : controllers/DeviceController.js
+  Original      : res.status(200).json({ deviceInfo: { ... } })
+  Mutant        : res.status(201).json({ ... })
+  Basis         : The device-info success response uses HTTP 200. Replacing it
+                  with 201 changes the status code literal at a retrieval
+                  endpoint (where 201 is semantically incorrect). Same
+                  literal replacement pattern, applied in the 200→201
+                  direction for a non-creation endpoint.
+
+  GS_M32
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/DeviceController.js
+  Original      : DBUserDeviceLinks.findOne({ userId, deviceId })
+  Mutant        : DBUserDeviceLinks.findOne({ deviceId })
+  Basis         : Removing the userId field from the query predicate bypasses
+                  the user-scoping of the device lookup, allowing any user to
+                  access any device's link record. This models a forgotten
+                  user-scope condition in an access-control query — same
+                  pattern as GS_M25.
+
+  GS_M33
+  Operator Type : Relational Operator Replacement
+  File          : controllers/DeviceController.js
+  Original      : if (userDeviceLink.role === "owner") {
+  Mutant        : if (userDeviceLink.role !== "owner") {
+  Basis         : The role check uses === to identify the device owner.
+                  Replacing === with !== inverts the condition, so the
+                  owner-specific delete path is taken for non-owners and
+                  vice versa — a relational inversion on an identity
+                  comparison in a role-branching guard.
+
+  GS_M34
+  Operator Type : Literal Replacement
+  File          : controllers/DeviceController.js
+  Original      : if (userDeviceLink.role === "owner") {
+  Mutant        : if (userDeviceLink.role === "user") {
+  Basis         : The role string literal "owner" determines which branch of
+                  the role-conditional executes. Replacing the string literal
+                  "owner" with "user" is a natural literal replacement: it
+                  changes which role value triggers the owner-level delete
+                  path, modelling a role-string mis-assignment fault.
+
+  GS_M35
+  Operator Type : Statement Deletion
+  File          : controllers/DeviceController.js
+  Original      : await DBDevice.deleteOne({ _id: deviceId });
+  Mutant        : // DBDevice.deleteOne deleted
+  Basis         : The DBDevice.deleteOne call removes the device record.
+                  It is a standalone persistence statement with no return
+                  value used by subsequent logic — a natural deletion target
+                  modelling a forgotten device-deletion step.
+
+  GS_M36
+  Operator Type : Statement Deletion
+  File          : controllers/DeviceController.js
+  Original      : await DBUserDeviceLinks.deleteMany({ deviceId });
+  Mutant        : // deleteMany UserDeviceLinks deleted
+  Basis         : The deleteMany call removes all user-device link records
+                  associated with the deleted device. It is a cascade-cleanup
+                  statement with no return value used downstream — a natural
+                  statement deletion site modelling a forgotten cascade delete.
+
+  GS_M37
+  Operator Type : Statement Deletion
+  File          : controllers/DeviceController.js
+  Original      : await DBSessions.updateMany({ deviceId }, { $set: { terminated: true } });
+  Mutant        : // sessions termination deleted
+  Basis         : The updateMany call terminates all sessions associated with
+                  the deleted device. It is a side-effect statement whose
+                  removal leaves the response unchanged but orphans active
+                  sessions — a natural deletion site modelling a forgotten
+                  cascaded state update.
+
+  GS_M38
+  Operator Type : Literal Replacement
+  File          : controllers/DeviceController.js
+  Original      : return res.status(403).json({ error: "You do not have access to this device." })
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The delete-access denial error branch returns HTTP 403.
+                  Same rationale as other 403→200 literal replacements.
+
+  GS_M39
+  Operator Type : Literal Replacement
+  File          : controllers/DeviceController.js
+  Original      : res.status(200).json({ message: "Device deleted successfully" })
+  Mutant        : res.status(201).json({ ... })
+  Basis         : The owner-branch delete success response uses HTTP 200.
+                  Replacing 200 with 201 changes the status literal for a
+                  deletion endpoint (where 201 is semantically incorrect) —
+                  a natural literal replacement in the 200→201 direction.
+
+  GS_M40
+  Operator Type : Literal Replacement
+  File          : controllers/DeviceController.js
+  Original      : res.status(200).json({ message: "Device link deleted successfully" })
+  Mutant        : res.status(201).json({ ... })
+  Basis         : Same construct as GS_M39 applied to the user-branch of the
+                  delete handler. Both branches use HTTP 200 independently;
+                  each is a distinct injection site.
+
+  GS_M41
+  Operator Type : Literal Replacement
+  File          : controllers/DeviceController.js
+  Original      : DBUserDeviceLinks.find({ userId, role: "owner" })
+  Mutant        : DBUserDeviceLinks.find({ userId, role: "user" })
+  Basis         : The role filter "owner" in the getMyDevices query restricts
+                  results to devices the user owns. Replacing "owner" with
+                  "user" is a natural role-literal replacement: it changes the
+                  filter to return devices where the user has a user role
+                  instead of an owner role, modelling a role-string confusion
+                  fault in a query filter.
+
+  GS_M42
+  Operator Type : Literal Replacement
+  File          : controllers/DeviceController.js
+  Original      : DBUserDeviceLinks.find({ userId, role: "user" })
+  Mutant        : DBUserDeviceLinks.find({ userId, role: "owner" })
+  Basis         : The role filter "user" in the getOtherDevices query
+                  restricts results to devices where the user has a user
+                  (non-owner) role. Replacing "user" with "owner" inverts the
+                  role filter. Complementary to GS_M41 at a distinct query
+                  site.
+
+  -- AppController.js --
+
+  GS_M43
+  Operator Type : Relational Operator Replacement
+  File          : controllers/AppController.js
+  Original      : if (otpData.expiresAt < Date.now()) {
+  Mutant        : if (otpData.expiresAt > Date.now()) {
+  Basis         : The OTP expiry guard uses < to check whether the stored
+                  expiry timestamp is in the past. Reversing < to > inverts
+                  the temporal direction, treating valid OTPs as expired and
+                  expired OTPs as valid — a natural directional replacement
+                  on a temporal inequality.
+
+  GS_M44
+  Operator Type : Relational Operator Replacement
+  File          : controllers/AppController.js
+  Original      : if (otpData.expiresAt < Date.now()) {
+  Mutant        : if (otpData.expiresAt <= Date.now()) {
+  Basis         : Same temporal guard as GS_M43. Replacing < with <= shifts
+                  the boundary by one unit of time, modelling an off-by-one
+                  boundary fault — complementary to the directional inversion
+                  in GS_M43.
+
+  GS_M45
+  Operator Type : Removal / Bypass of a Conditional Check
+  File          : controllers/AppController.js
+  Original      : if (otpData.expiresAt < Date.now()) { return res.status(400)... }
+  Mutant        : // OTP expiry check deleted
+  Basis         : The OTP-expiry guard is a self-contained conditional that
+                  enforces time-bound validity of one-time passwords. Removing
+                  it models a forgotten temporal validation fault — expired
+                  OTPs are accepted indefinitely. Distinct from GS_M43 and
+                  GS_M44 which change the operator within the check.
+
+  GS_M46
+  Operator Type : Statement Deletion
+  File          : controllers/AppController.js
+  Original      : await DBOTP.deleteOne({ email, otp });
+  Mutant        : // DBOTP.deleteOne deleted (OTP reusable)
+  Basis         : The DBOTP.deleteOne call invalidates the OTP after first
+                  use, enforcing single-use semantics. It is a standalone
+                  persistence statement with no return value used downstream —
+                  a natural deletion site modelling a forgotten OTP
+                  invalidation step that allows replay attacks.
+
+  GS_M47
+  Operator Type : Literal Replacement
+  File          : controllers/AppController.js
+  Original      : return res.status(400).json({ message: "Invalid OTP" });
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The invalid-OTP error branch returns HTTP 400. Same
+                  rationale as other error-status literal replacements:
+                  replacing 400 with 200 collapses the error signal.
+
+  GS_M48
+  Operator Type : Literal Replacement
+  File          : controllers/AppController.js
+  Original      : return res.status(400).json({ message: "OTP expired" });
+  Mutant        : return res.status(200).json({ ... })
+  Basis         : The expired-OTP error branch returns HTTP 400. Same
+                  rationale as GS_M47, at a distinct error branch for a
+                  different OTP failure mode.
+
+  GS_M49
+  Operator Type : Literal Replacement
+  File          : controllers/AppController.js
+  Original      : DBUserDeviceLinks.findOne({ deviceId, userId, role: "owner" })
+  Mutant        : DBUserDeviceLinks.findOne({ deviceId, userId, role: "user" })
+  Basis         : The role filter "owner" ensures the OTP verification only
+                  succeeds if the user has an owner link for the device.
+                  Replacing "owner" with "user" is a natural role-literal
+                  replacement — same pattern as GS_M04, GS_M41, GS_M42.
+
+  GS_M50
+  Operator Type : Statement Deletion
+  File          : controllers/AppController.js
+  Original      : const device = await DBDevice.create({ ... });
+  Mutant        : // DBDevice.create deleted
+  Basis         : The DBDevice.create call is the persistence statement that
+                  creates the device record after OTP verification. Removing
+                  it models a forgotten device-creation step — a silent
+                  failure where the OTP flow completes but the device is never
+                  stored.
+
+  GS_M51
+  Operator Type : Statement Deletion
+  File          : controllers/AppController.js
+  Original      : await DBUserDeviceLinks.create({ deviceId, userId, role: "owner" });
+  Mutant        : // UserDeviceLinks.create deleted (existing-device path)
+  Basis         : The DBUserDeviceLinks.create call links the user to an
+                  existing device after OTP verification. Removing it models
+                  a forgotten link-creation step on the existing-device branch
+                  — distinct from GS_M50 which targets the new-device branch.
+
+  GS_M52
+  Operator Type : Arithmetic Operator Replacement
+  File          : controllers/AppController.js
+  Original      : expiresAt: Date.now() + 5 * 60 * 1000
+  Mutant        : expiresAt: Date.now() - 5 * 60 * 1000
+  Basis         : The OTP expiry timestamp adds a positive offset (5 minutes)
+                  to the current time to set a future expiry. The + operator
+                  in a timestamp arithmetic expression is a natural arithmetic
+                  replacement site: replacing it with - places the expiry 5
+                  minutes in the past, making every OTP immediately expired
+                  upon creation.
+
+  GS_M53
+  Operator Type : Arithmetic Operator Replacement
+  File          : controllers/AppController.js
+  Original      : Date.now() + 5 * 60 * 1000
+  Mutant        : Date.now() + 50 * 60 * 1000
+  Basis         : The constant 5 in the OTP validity window is a numeric
+                  operand in a time-window expression. Replacing 5 with 50
+                  extends the OTP lifetime from 5 minutes to 50 minutes,
+                  modelling a constant-magnitude fault — a plausible typo
+                  that leaves OTPs valid far longer than intended.
+
+  GS_M54
+  Operator Type : Statement Deletion
+  File          : controllers/AppController.js
+  Original      : await DBUserDeviceLinks.deleteMany({ deviceId });
+  Mutant        : // deleteMany deleted in logoutApp
+  Basis         : The deleteMany call in the logout handler removes all user-
+                  device links for the logging-out device. It is a standalone
+                  side-effect statement with no return value used downstream —
+                  a natural statement deletion site modelling a forgotten
+                  link-cleanup step on logout.
+
+
+================================================================================
+  SUMMARY TABLE
+================================================================================
+
+  Application   Mutants  Literal   Cond.     Statement  Relational  Arithmetic  Unary   Logical
+                         Replace   Bypass/   Deletion   Operator    Operator    Op.     Connector
+                                   Removal              Replace.    Replace.    Insert  Replace.
+  ─────────────────────────────────────────────────────────────────────────────────────────────
+  Restaurant        10       4         1          3          0           3         0        0
+  Ecommerce         10       4         3          3          1           1         0        0
+  Library           10       5         0          4          1           0         0        0
+  Serveez           10       3         2          2          3           0         0        1  (*)
+  TripVault         10       3         3          1          3           1         0        0
+  GhostSocket       54      22         9          8          7           4         3        2  (*)
+  ─────────────────────────────────────────────────────────────────────────────────────────────
+  TOTAL            104      41        18         21         15           9         3        3  (*)
+
+  (*) SV_M08 is classified here as Relational Operator Replacement (== → !=).
+
+================================================================================
+  END OF CATALOGUE
+================================================================================
