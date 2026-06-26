@@ -54,25 +54,19 @@ TestGen takes a formal API specification written in a custom DSL and produces ex
 - **C++17** compatible compiler (g++ 9+ or clang++ 10+)
 - **Z3 SMT Solver** (v4.8+)
 - **libcurl** for HTTP requests
-- **nlohmann/json** for JSON parsing
-- **CMake** 3.16+ (optional, for build)
+- **nlohmann/json** for JSON parsing (bundled in `includes/json.hpp`)
 
 ### Installing Dependencies
 
 **Ubuntu/Debian:**
 ```bash
 sudo apt-get update
-sudo apt-get install -y build-essential libz3-dev libcurl4-openssl-dev nlohmann-json3-dev cmake
+sudo apt-get install -y build-essential libz3-dev libcurl4-openssl-dev cmake
 ```
 
 **macOS (Homebrew):**
 ```bash
-brew install z3 curl nlohmann-json cmake
-```
-
-**Windows (vcpkg):**
-```bash
-vcpkg install z3:x64-windows curl:x64-windows nlohmann-json:x64-windows
+brew install z3 curl
 ```
 
 ## Installation
@@ -101,7 +95,7 @@ make run
 
 ### Platform Configuration
 
-The Makefile is configured for **macOS (Homebrew)** by default. For Linux, edit the `Makefile` and uncomment the Linux paths:
+The Makefile is configured for **macOS (Homebrew)** by default. For Linux, edit the `makefile` and uncomment the Linux paths:
 
 ```makefile
 # Linux (uncomment if using Linux)
@@ -109,240 +103,191 @@ INCLUDES = -I/usr/include
 LDFLAGS = -L/usr/lib
 ```
 
-### Manual Build (Alternative)
-
-```bash
-g++ -std=c++17 -Wall -I. -Isee -Itester -Ispecs \
-    -I/opt/homebrew/include \
-    test_libapplication.cpp \
-    algo.cpp ast.cc astvisitor.cc printvisitor.cc \
-    clonevisitor.cc rewrite_globals_visitor.cc \
-    symvar.cc env.cc typemap.cc \
-    specs/RestaurantSpec.cpp \
-    specs/EcommerceSpec.cpp \
-    specs/LibrarySpec.cpp \
-    see/see.cc see/solver.cc see/z3solver.cc \
-    see/functionfactory.cc see/httpclient.cc \
-    see/restaurantfunctionfactory.cc \
-    see/ecommercefunctionfactory.cc \
-    see/libraryfunctionfactory.cc \
-    tester/tester.cc \
-    -L/opt/homebrew/lib \
-    -lz3 -lcurl \
-    -o test_libapplication
-
-./test_libapplication
-```
-
-**Note:** For Linux, change `/opt/homebrew` to `/usr` in the include and library paths.
-
 ## Usage
 
-### Running Test Cases
+### Test Execution Modes
 
-1. **Start the target web application backend** (the API you want to test must be running)
+TestGen supports three execution modes, selectable via `TestMode` in `test_libapplication.cpp`:
 
-2. **Select the test string** to run by editing `test_libapplication.cpp`:
-   - Open `test_libapplication.cpp`
-   - In the `main()` function, uncomment the desired test string
-   - Comment out other test strings
+| Mode | Description |
+|------|-------------|
+| `ORIGINAL` | Runs genATC only — generates the Abstract Test Case without rewriting |
+| `REWRITE_ONLY` | Runs genATC + RewriteGlobalsVisitor — no backend connection required |
+| `FULL_PIPELINE` | Complete pipeline: genATC + Rewrite + Symbolic Execution + live backend HTTP calls |
 
+### Running Tests
+
+1. **Start the target backend** (required for `FULL_PIPELINE` mode only)
+2. **Select the application** in `test_libapplication.cpp` by uncommenting the relevant block in `main()`
 3. **Build and run:**
    ```bash
    make run
    ```
 
-### Test Strings by Application
+Alternatively, use the provided shell script:
+```bash
+./run.sh
+```
 
-| Application | Test Strings Location |
-|-------------|----------------------|
-| Restaurant (Food Ordering) | Uncomment in `main()` |
-| E-commerce | Uncomment in `main()` |
-| Library Management | Uncomment in `main()` |
+### Backend URLs
 
-### Test Output Files
-
-Test outputs are stored in the `all_tests_files/` folder:
-
-| Application | File Prefix |
-|-------------|-------------|
-| Restaurant (Food Ordering) | `test*.txt` |
-| E-commerce | `test*ecom.txt` |
-| Library Management | `lib*.txt` |
-
-### Backend Requirements
-
-Before running tests, ensure the corresponding backend is running:
+Each application runs on a fixed default port. Start the corresponding backend before running tests in `FULL_PIPELINE` mode.
 
 | Application | Default URL |
 |-------------|-------------|
-| Restaurant (Food Ordering) | `http://localhost:9000` |
-| E-commerce | `http://localhost:3000` |
-| Library Management | `http://localhost:8080` |
+| Restaurant | `http://localhost:5002` |
+| Ecommerce | `http://localhost:3000` |
+| Library | `http://localhost:8080` |
+| GhostSocket | `http://localhost:4002` |
+| Serveez | `http://localhost:8083` |
+| TripVault | `http://localhost:4001` |
 
-## Writing Specifications
+### Test Output Files
 
-TestGen uses a formal specification language to define API endpoints, their preconditions, postconditions, and state effects.
+All test outputs are stored in the `all_test_files/` directory.
 
-### Specification Structure
+| Application | Output Files |
+|-------------|-------------|
+| Restaurant | `test1.txt` – `test25.txt` (25 tests) |
+| Ecommerce | `test1ecom.txt` – `test30ecom.txt` (30 tests) |
+| Library | `lib1.txt` – `lib25.txt` (25 tests) |
+| GhostSocket | `ghostsocket_ALL25_tests.txt` |
+| Serveez | `serveez_all25_tests.txt` |
+| TripVault | `tripvault_ALL25_tests.txt` |
 
-```cpp
-// EcommerceSpec.cpp
-
-// Define symbolic variables
-SymbolicVar sellerEmail("sellerEmail", Type::String);
-SymbolicVar sellerPassword("sellerPassword", Type::String);
-SymbolicVar sellerToken("sellerToken", Type::String);
-SymbolicVar productId("productId", Type::String);
-
-// Define API blocks
-Block registerSeller {
-    .name = "registerSeller",
-    .method = "POST",
-    .endpoint = "/api/auth/register",
-    .body = {
-        {"email", sellerEmail},
-        {"password", sellerPassword},
-        {"userType", "Seller"}
-    },
-    .precondition = Not(Exists("users", sellerEmail)),
-    .postcondition = And(
-        Exists("users", sellerEmail),
-        HasRole(sellerEmail, "Seller")
-    )
-};
-
-Block loginSeller {
-    .name = "loginSeller",
-    .method = "POST",
-    .endpoint = "/api/auth/login",
-    .body = {
-        {"email", sellerEmail},
-        {"password", sellerPassword}
-    },
-    .precondition = Exists("users", sellerEmail),
-    .postcondition = ValidToken(sellerToken),
-    .extracts = {{"token", sellerToken}}
-};
-
-Block createProduct {
-    .name = "createProduct",
-    .method = "POST",
-    .endpoint = "/api/products",
-    .headers = {{"Authorization", Concat("Bearer ", sellerToken)}},
-    .body = {
-        {"name", SymbolicVar("productName", Type::String)},
-        {"price", SymbolicVar("productPrice", Type::Int)}
-    },
-    .precondition = And(ValidToken(sellerToken), HasRole(sellerEmail, "Seller")),
-    .postcondition = Exists("products", productId),
-    .extracts = {{"_id", productId}}
-};
-```
-
-### Supported Constraint Types
-
-| Constraint | Description |
-|------------|-------------|
-| `Exists(collection, id)` | Entity exists in collection |
-| `Not(constraint)` | Logical negation |
-| `And(c1, c2, ...)` | Logical conjunction |
-| `Or(c1, c2, ...)` | Logical disjunction |
-| `HasRole(user, role)` | User has specified role |
-| `ValidToken(token)` | Token is valid and not expired |
-| `Equals(var, value)` | Variable equals value |
-| `GreaterThan(var, value)` | Numeric comparison |
-| `InState(entity, state)` | Entity is in specified state |
+Bug detection test outputs (8 injected bugs per application) are stored as `bugtest_*.txt` files in the same directory.
 
 ## Project Structure
 
 ```
 TestgenTool/
 │
-├── Makefile                    # Build configuration
-├── test_libapplication.cpp     # Main entry point (comprises all tests)
-├── algo.cpp                    # genATC algorithm implementation
-├── algo.hpp                    
-├── ast.cc                      # Abstract Syntax Tree implementation
-├── ast.hh                      
-├── astvisitor.cc               # AST visitor pattern implementation
-├── astvisitor.hh               
-├── printvisitor.cc             # Print visitor for AST
-├── printvisitor.hh             
-├── clonevisitor.cc             # Clone visitor for AST
-├── clonevisitor.hh             
-├── rewrite_globals_visitor.cc  # Rewrite globals visitor (test API layer)
-├── rewrite_globals_visitor.hh  
-├── env.cc                      # Environment/state management
-├── env.hh                      
-├── typemap.cc                  # Type mapping utilities
-├── typemap.hh                  
-├── symvar.cc                   # Symbolic variable implementation
-├── symvar.hh                   
+├── makefile                        # Build configuration
+├── run.sh                          # Convenience run script
+├── test_libapplication.cpp         # Main entry point — all test runners
+├── algo.cpp / algo.hpp             # genATC algorithm implementation
+├── ast.cc / ast.hh                 # Abstract Syntax Tree
+├── ast_tests.cpp                   # AST unit tests
+├── ast_workarounds.hpp             # AST compatibility helpers
+├── atc_ast.hpp                     # ATC-specific AST extensions
+├── astvisitor.cc / astvisitor.hh   # AST visitor base
+├── printvisitor.cc / printvisitor.hh   # AST pretty-printer
+├── clonevisitor.cc / clonevisitor.hh   # AST deep-clone visitor
+├── CloneVisitor.hpp                # Clone visitor header (alternate)
+├── cloneHelper.hpp                 # Clone utility helpers
+├── rewrite_globals_visitor.cc / .hh    # Globals rewrite pass (test API layer)
+├── env.cc / env.hh                 # Environment / symbolic state management
+├── typemap.cc / typemap.hh         # Type mapping utilities
+├── symvar.cc / symvar.hh           # Symbolic variable definitions
+├── location.hh                     # Source location tracking
 │
-├── specs/                      # API Specification files
-│   ├── RestaurantSpec.cpp      # Food Ordering API specification
-│   ├── RestaurantSpec.hpp
-│   ├── EcommerceSpec.cpp       # E-commerce API specification
-│   ├── EcommerceSpec.hpp
-│   ├── LibrarySpec.cpp         # Library Management API specification
-│   └── LibrarySpec.hpp
+├── includes/
+│   └── json.hpp                    # Bundled nlohmann/json
 │
-├── tester/                     # Test generation module
-│   ├── tester.cc               # Test case generator (genCTC, etc.)
-│   └── tester.hh
+├── specs/                          # Formal API specifications
+│   ├── RestaurantSpec.cpp / .hpp   # Restaurant (Food Ordering) spec
+│   ├── EcommerceSpec.cpp / .hpp    # E-commerce spec
+│   ├── LibrarySpec.cpp / .hpp      # Library Management spec
+│   ├── GhostSocketSpec.cpp / .hpp  # GhostSocket (WebSocket/IoT) spec
+│   ├── ServeezSpec.cpp / .hpp      # Serveez (Service Booking) spec
+│   └── TripVaultSpec.cpp / .hpp    # TripVault (Trip & Expense) spec
 │
-└── see/                        # Symbolic Execution Engine
-    ├── see.cc                  # Symbolic execution engine core
-    ├── see.hh
-    ├── solver.cc               # Abstract solver interface
-    ├── solver.hh
-    ├── z3solver.cc             # Z3 SMT solver integration
-    ├── z3solver.hh
-    ├── functionfactory.cc      # Base function factory
-    ├── functionfactory.hh
-    ├── restaurantfunctionfactory.cc   # Restaurant app functions
-    ├── restaurantfunctionfactory.hh
-    ├── ecommercefunctionfactory.cc    # E-commerce app functions
-    ├── ecommercefunctionfactory.hh
-    ├── libraryfunctionfactory.cc      # Library app functions
-    ├── libraryfunctionfactory.hh
-    ├── httpclient.cc           # HTTP client for live execution
-    └── httpclient.hh
-
-├── all_tests_files/            # Test output files
-│   ├── test*.txt              # Restaurant (Food Ordering) test outputs
-│   ├── test*ecom.txt          # E-commerce test outputs
-│   └── lib*.txt               # Library Management test outputs
+├── see/                            # Symbolic Execution Engine
+│   ├── see.cc / see.hh             # SEE core
+│   ├── solver.cc / solver.hh       # Abstract solver interface
+│   ├── z3solver.cc / z3solver.hh   # Z3 SMT solver integration
+│   ├── functionfactory.cc / .hh    # Base function factory
+│   ├── httpclient.cc / httpclient.hh   # HTTP client for live execution
+│   ├── restaurantfunctionfactory.cc / .hh
+│   ├── ecommercefunctionfactory.cc / .hh
+│   ├── libraryfunctionfactory.cc / .hh
+│   ├── ghostsocketfunctionfactory.cc / .hh
+│   ├── serveezfunctionfactory.cc / .hh
+│   └── tripvaultfunctionfactory.cc / .hh
+│
+├── tester/
+│   ├── tester.cc / tester.hh       # Concrete Test Case (CTC) generator
+│
+├── unit_tests/                     # Unit tests for core components
+│   ├── test.cpp
+│   ├── test_decl_clone.cpp
+│   └── test_program.cpp
+│
+├── all_test_files/                 # Generated test output files
+│   ├── test1.txt – test25.txt      # Restaurant tests
+│   ├── test1ecom.txt – test30ecom.txt  # Ecommerce tests
+│   ├── lib1.txt – lib25.txt        # Library tests
+│   ├── ghostsocket_ALL25_tests.txt # GhostSocket tests
+│   ├── serveez_all25_tests.txt     # Serveez tests
+│   ├── tripvault_ALL25_tests.txt   # TripVault tests
+│   └── bugtest_*.txt               # Bug detection test outputs (all apps)
+│
+└── mutation_testing/               # Mutation testing study artifact
+    ├── mutationOperator_report.txt # Full catalogue of all 104 mutants
+    ├── restaurant/
+    │   ├── MUTATION_REPORT.txt
+    │   └── mutants/
+    ├── ecommerce/
+    │   ├── MUTATION_REPORT.txt
+    │   └── mutants/
+    ├── library/
+    │   ├── MUTATION_REPORT.txt
+    │   └── mutants/
+    ├── ghostsocket/
+    │   ├── MUTATION_REPORT.txt
+    │   └── mutants/
+    ├── serveez/
+    │   ├── MUTATION_REPORT.txt
+    │   └── mutants/
+    └── tripvault/
+        ├── MUTATION_REPORT.txt
+        └── mutants/
 ```
 
 ### Module Descriptions
 
 | Module | Description |
 |--------|-------------|
-| **Makefile** | Build configuration for the project |
-| **test_libapplication.cpp** | Main entry point that runs all test cases |
-| **algo** | genATC algorithm - generates Abstract Test Cases from test strings |
-| **ast** | Abstract Syntax Tree for specification parsing |
-| **printvisitor** | Print visitor for AST visualization |
-| **clonevisitor** | Clone visitor for AST duplication |
-| **rewrite_globals_visitor** | Rewrite globals visitor for test API layer |
-| **env** | Environment and state management across API calls |
-| **symvar** | Symbolic variable definitions and operations |
+| **test_libapplication.cpp** | Main entry point; contains all six application test runners |
+| **algo** | genATC — generates Abstract Test Cases (ATCs) from test strings |
+| **ast** | Abstract Syntax Tree used to represent specifications and programs |
+| **rewrite_globals_visitor** | Rewrites global state references for the symbolic execution layer |
+| **env** | Symbolic environment: tracks variable bindings and state maps |
+| **symvar** | Symbolic variable representation and operations |
 | **specs/** | Formal API specifications for each subject application |
-| **tester/** | Concrete Test Case (CTC) generation from symbolic results (genCTC) |
-| **see/** | Symbolic Execution Engine with Z3 solver and HTTP client |
-| **all_tests_files/** | Test output files for all three applications |
+| **see/** | Symbolic Execution Engine with Z3 SMT solver and HTTP client |
+| **tester/** | genCTC — generates Concrete Test Cases from symbolic execution results |
+| **unit_tests/** | Unit tests for AST and core components |
+| **all_test_files/** | Saved test execution outputs for all six applications |
+| **mutation_testing/** | Mutation testing reports and mutant output for all six applications |
 
 ## Supported Applications
 
-TestGen has been evaluated on three real-world web applications:
+TestGen has been evaluated on six real-world web applications:
 
-| Application | Endpoints | Roles | Test String Length |
-|-------------|-----------|-------|-------------------|
-| E-commerce | 15 | Seller, Buyer | 15 |
-| Food Ordering | 19 | Owner, Customer, Agent | 19 |
-| Library Management | 10 | Admin, Student | 10 |
+| Application | Language | Roles | Tests Generated |
+|-------------|----------|-------|-----------------|
+| Restaurant (Food Ordering) | Node.js | Owner, Customer, Agent | 25 |
+| Ecommerce | Node.js | Seller, Buyer | 30 |
+| Library Management | Java (Spring Boot) | Admin, Student | 25 |
+| GhostSocket (WebSocket/IoT) | Node.js | Owner, User | 25 |
+| Serveez (Service Booking) | Java (Spring Boot) | Provider, Customer | 25 |
+| TripVault (Trip & Expense) | Node.js | User (multi-member trips) | 25 |
+
+## Mutation Testing
+
+TestGen was evaluated against **104 mutants** injected across all six backends (10 per app for the first five, 54 for GhostSocket). All 104 mutants were detected (100% mutation score).
+
+| Application | Mutants | Detected | Score |
+|-------------|---------|----------|-------|
+| Restaurant | 10 | 10 | 100% |
+| Ecommerce | 10 | 10 | 100% |
+| Library | 10 | 10 | 100% |
+| Serveez | 10 | 10 | 100% |
+| TripVault | 10 | 10 | 100% |
+| GhostSocket | 54 | 54 | 100% |
+
+See `mutation_testing/mutationOperator_report.txt` for the full catalogue of every injected mutant including the fault type, source location, and basis for site selection.
 
 ## Comparison with Other Tools
 
@@ -357,57 +302,7 @@ TestGen has been evaluated on three real-world web applications:
 | Infeasibility detection | Yes | No | No |
 | Schema-based fuzzing | No | Yes | Yes |
 
-### OMTSP (Observed Maximum Test String Penetration)
-
-| Application | TestGen | RESTler | Schemathesis |
-|-------------|---------|---------|--------------|
-| E-commerce | 1.00 | 0.07 | 0.13 |
-| Food Ordering | 1.00 | 0.05 | 0.05 |
-| Library | 1.00 | 0.30 | 0.30 |
-
-## Example Output
-
-```
-$ make run
-
-[TestGen] Loading E-commerce Specification...
-[TestGen] Test string: registerSeller -> loginSeller -> createProduct -> registerBuyer -> loginBuyer -> addToCart -> placeOrder
-[TestGen] Starting symbolic execution...
-
-[Step 1/7] registerSeller
-  Generating constraints...
-  Solving with Z3... SAT
-  Generated values: email = "seller_test@example.com", password = "Pass123!"
-
-[Step 2/7] loginSeller  
-  Precondition: User exists
-  Solving with Z3... SAT
-  Extracted: token = "eyJhbGciOiJIUzI1NiIs..."
-
-[Step 3/7] createProduct
-  Precondition: Valid seller token
-  Solving with Z3... SAT
-  Generated: productName = "TestProduct", price = 99
-  Extracted: productId = "507f1f77bcf86cd799439011"
-
-...
-
-[TestGen] Executing HTTP requests against http://localhost:3000...
-
-POST /api/auth/register -> 201 Created
-POST /api/auth/login -> 200 OK
-POST /api/products -> 201 Created
-POST /api/auth/register -> 201 Created
-POST /api/auth/login -> 200 OK
-POST /api/cart -> 200 OK
-POST /api/orders -> 201 Created
-
-[TestGen] Test execution complete. All 7 steps passed.
-```
-
 ## Troubleshooting
-
-### Common Issues
 
 **Z3 not found:**
 ```bash
@@ -415,18 +310,10 @@ export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 ```
 
 **Connection refused:**
-Ensure the target application is running on the specified base URL.
+Ensure the target backend is running on the correct port before using `FULL_PIPELINE` mode.
 
 **UNSAT result:**
-The test string represents an infeasible scenario. Check preconditions.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+The test sequence is infeasible given the current specification preconditions. This is expected behaviour — TestGen reports it and moves on.
 
 ## Acknowledgments
 
